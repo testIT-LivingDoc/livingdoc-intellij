@@ -8,6 +8,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.ui.listener.TestConnectionActionListener;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
 import info.novatec.testit.livingdoc.intellij.util.UIUtils;
 import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
 import org.apache.commons.lang3.StringUtils;
@@ -17,11 +18,14 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * Created by mruiz on 18/06/2016.
+ * User Interface for LivingDoc server configuration.
+ * The dialog's layout is a {@link GridBagLayout}.
+ * The default fields values are configured in {@link PluginProperties}
+ * @see DialogWrapper
  */
 public class ServerConfigurationUI extends DialogWrapper {
 
-    private final JPanel jPanel;
+    private JPanel jPanel;
     private String url;
     private String handler;
     private JBTextField urlTextField;
@@ -29,21 +33,23 @@ public class ServerConfigurationUI extends DialogWrapper {
     private JButton testButton;
 
     public ServerConfigurationUI(Project project) {
+
         super(project);
 
         this.preferenceInitializer();
 
-        setTitle(I18nSupport.i18n_str("server.configuration.header"));
-
-        jPanel = new JPanel(new GridBagLayout());
-        addComponents();
-        addListeners();
+        this.addComponents();
+        this.addListeners();
 
         init();
     }
 
-    private void addListeners() {
-        testButton.addActionListener(new TestConnectionActionListener(urlTextField.getText(), handlerTextField.getText()));
+    public JBTextField getUrlTextField() {
+        return this.urlTextField;
+    }
+
+    public JBTextField getHandlerTextField() {
+        return this.handlerTextField;
     }
 
     @Nullable
@@ -53,113 +59,89 @@ public class ServerConfigurationUI extends DialogWrapper {
         return jPanel;
     }
 
+    private void preferenceInitializer() {
+
+        setTitle(I18nSupport.getValue("server.configuration.header"));
+
+        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+        this.url = propertiesComponent.getValue(ServerPropertiesManager.URL);
+        this.handler = propertiesComponent.getValue(ServerPropertiesManager.HANDLER);
+
+        if(StringUtils.isBlank(this.url)) {
+            this.url = PluginProperties.getValue("livingdoc.url.default");
+        }
+        if(StringUtils.isBlank(this.handler)) {
+            this.handler = PluginProperties.getValue("livingdoc.handler.default");
+        }
+    }
+
+    private void addListeners() {
+        this.testButton.addActionListener(new TestConnectionActionListener(urlTextField, handlerTextField));
+    }
+
     private void addComponents() {
+
+        jPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
 
-        // Tittle section
-        JBLabel titleLabel = new JBLabel(I18nSupport.i18n_str("server.configuration.title"));
-        // Green for regular theme and white for dark theme
+        JBLabel titleLabel = new JBLabel(I18nSupport.getValue("server.configuration.title"));
         titleLabel.setForeground(new JBColor(JBColor.BLACK, JBColor.ORANGE));
         titleLabel.setFont(new Font(null, Font.BOLD, 20));
-        constraints.gridx = 0; // column
-        constraints.gridy = 0; // file
-        constraints.gridwidth = 1; // columns
-        constraints.gridheight = 1; // rows
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
         constraints.anchor = GridBagConstraints.WEST;
         jPanel.add(titleLabel, constraints);
         UIUtils.insertSpace(jPanel, 1, 2);
 
-        // Info header section
-        constraints.gridx = 0; // column
-        constraints.gridy = 2; // file
-        constraints.gridwidth = 1; // columns
-        constraints.gridheight = 1; // rows
-        constraints.anchor = GridBagConstraints.WEST;
-        jPanel.add(new JBLabel(I18nSupport.i18n_str("server.configuration.info")), constraints);
+        JBLabel infoLabel = new JBLabel(I18nSupport.getValue("server.configuration.info"));
+        constraints.gridy = 2;
+        jPanel.add(infoLabel, constraints);
 
-        constraints.gridx = 0; // column
-        constraints.gridy = 3; // file
-        constraints.gridwidth = 2; // columns
-        constraints.gridheight = 1; // rows
-        constraints.anchor = GridBagConstraints.WEST;
-        jPanel.add(new JBLabel(I18nSupport.i18n_str("server.configuration.info.1")), constraints);
+        infoLabel = new JBLabel(I18nSupport.getValue("server.configuration.info.1"));
+        constraints.gridy = 3;
+        constraints.gridwidth = 2;
+        jPanel.add(infoLabel, constraints);
 
-        constraints.gridx = 0; // column
-        constraints.gridy = 4; // file
-        constraints.gridwidth = 2; // columns
-        constraints.gridheight = 1; // rows
-        constraints.anchor = GridBagConstraints.WEST;
-        jPanel.add(new JBLabel(I18nSupport.i18n_str("server.configuration.info.2")), constraints);
+        infoLabel = new JBLabel(I18nSupport.getValue("server.configuration.info.2"));
+        constraints.gridy = 4;
+        jPanel.add(infoLabel, constraints);
         UIUtils.insertSpace(jPanel, 5, 2);
 
-        // Context Path
-        constraints.gridx = 0; // column
-        constraints.gridy = 6; // file
-        constraints.gridwidth = 1; // columns
-        constraints.gridheight = 1; // rows
-        constraints.anchor = GridBagConstraints.WEST;
-        jPanel.add(new JBLabel(I18nSupport.i18n_str("server.configuration.field.url.label")), constraints);
+        JBLabel urlLabel = new JBLabel(I18nSupport.getValue("server.configuration.field.url.label"));
+        constraints.gridy = 6;
+        constraints.gridwidth = 1;
+        jPanel.add(urlLabel, constraints);
 
         urlTextField = new JBTextField();
         urlTextField.setName(ServerPropertiesManager.URL);
         urlTextField.setText(this.url);
         urlTextField.setColumns(20);
-        constraints.gridx = 1; // column
-        constraints.gridy = 6; // file
-        constraints.gridwidth = 1; // columns
-        constraints.gridheight = 1; // rows
-        constraints.anchor = GridBagConstraints.WEST;
+        constraints.gridx = 1;
+        constraints.gridy = 6;
         jPanel.add(urlTextField, constraints);
 
-        // Xml RPC Handler
-        constraints.gridx = 0; // column
-        constraints.gridy = 7; // file
-        constraints.gridwidth = 1; // columns
-        constraints.gridheight = 1; // rows
-        constraints.anchor = GridBagConstraints.WEST;
-        jPanel.add(new JBLabel(I18nSupport.i18n_str("server.configuration.field.handler.label")), constraints);
+        JBLabel handlerLabel = new JBLabel(I18nSupport.getValue("server.configuration.field.handler.label"));
+        constraints.gridx = 0;
+        constraints.gridy = 7;
+        jPanel.add(handlerLabel, constraints);
 
         handlerTextField = new JBTextField();
         handlerTextField.setName(ServerPropertiesManager.HANDLER);
         handlerTextField.setText(this.handler);
         handlerTextField.setColumns(20);
-        constraints.gridx = 1; // column
-        constraints.gridy = 7; // file
-        constraints.gridwidth = 1; // columns
-        constraints.gridheight = 1; // rows
-        constraints.anchor = GridBagConstraints.WEST;
+        constraints.gridx = 1;
+        constraints.gridy = 7;
         jPanel.add(handlerTextField, constraints);
         UIUtils.insertSpace(jPanel, 8, 2);
 
-        // Test Connection
         testButton = new JButton();
-        testButton.setText(I18nSupport.i18n_str("server.configuration.button.test.label"));
-        constraints.gridx = 1; // column
-        constraints.gridy = 9; // file
-        constraints.gridwidth = 1; // columns
-        constraints.gridheight = 1; // rows
+        testButton.setText(I18nSupport.getValue("server.configuration.button.test.label"));
+        constraints.gridy = 9;
         constraints.anchor = GridBagConstraints.EAST;
         jPanel.add(testButton, constraints);
         UIUtils.insertSpace(jPanel, 10, 2);
-    }
-
-    private void preferenceInitializer() {
-        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
-        this.url = propertiesComponent.getValue(ServerPropertiesManager.URL);
-        this.handler = propertiesComponent.getValue(ServerPropertiesManager.HANDLER);
-        if(!StringUtils.isNoneBlank(this.url, this.handler)){
-            // TODO properties file for default url and handl
-            this.url = "http://localhost:1990/confluence";
-            this.handler = "livingdoc1";
-        }
-    }
-
-    public JBTextField getUrlTextField() {
-        return this.urlTextField;
-    }
-
-    public JBTextField getHandlerTextField() {
-        return this.handlerTextField;
     }
 }

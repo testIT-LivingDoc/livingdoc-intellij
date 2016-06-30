@@ -1,0 +1,30 @@
+plugins {
+    id "org.jetbrains.intellij" version "0.1.9"
+}
+
+apply plugin: 'idea'
+apply plugin: 'java'
+
+intellij {
+    pluginName 'livingdoc-intellij-plugin'
+}
+
+group 'info.novatec.testit'
+version '1.0.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile('info.novatec.testit:livingdoc-client:1.1.2') {
+        // Exclude to solver conflict with slf4j lib of IntelliJ classpath.
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+
+    // It's necessary to solve a conflict with javax.transaction:jta:1.0.1B
+    compile('org.hibernate:hibernate-core:3.5.6-Final') {
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+}

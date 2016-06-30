@@ -7,15 +7,17 @@ import java.text.MessageFormat;
 import java.util.ResourceBundle;
 
 /**
- * Created by mruiz on 19/06/2016.
+ * Use {@link #getValue(String, Object...)} to get a property defined in {@link #BUNDLE_PATH}
  */
 public class I18nSupport {
 
-    @NonNls
-    private static final ResourceBundle bundle = ResourceBundle.getBundle("resources.locale");
+    private static final String BUNDLE_PATH = "properties.locale";
 
-    public static String i18n_str
-            (@PropertyKey(resourceBundle = "resources.locale") String key, Object... params) {
+    @NonNls
+    private static final ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_PATH);
+
+    public static String getValue
+            (@PropertyKey(resourceBundle = BUNDLE_PATH) String key, Object... params) {
 
         String value = bundle.getString(key);
         if (params.length > 0) {

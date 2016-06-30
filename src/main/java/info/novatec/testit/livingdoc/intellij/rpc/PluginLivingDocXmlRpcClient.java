@@ -1,18 +1,13 @@
 package info.novatec.testit.livingdoc.intellij.rpc;
 
-import info.novatec.testit.livingdoc.server.LivingDocServerException;
-import info.novatec.testit.livingdoc.server.domain.Project;
-import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import info.novatec.testit.livingdoc.server.rpc.xmlrpc.LivingDocXmlRpcClient;
 
-import java.util.Set;
-
 /**
- * Created by mruiz on 18/06/2016.
+ * Extends to use a {@link info.novatec.testit.livingdoc.server.ServerPropertiesManager} implementation
+ * @see LivingDocXmlRpcClient
+ * @see ServerPropertiesManagerImpl
  */
 public class PluginLivingDocXmlRpcClient extends LivingDocXmlRpcClient {
-
-    public static String IDENTIFIER = "WORKSPACE";
 
     public PluginLivingDocXmlRpcClient() {
 

@@ -4,12 +4,12 @@ import com.intellij.ide.util.PropertiesComponent;
 import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
 
 /**
- * Created by mruiz on 18/06/2016.
+ * {@link PropertiesComponent} is used for plugin properties persistence.
+ * @see ServerPropertiesManager
  */
 public class ServerPropertiesManagerImpl implements ServerPropertiesManager {
 
-    final private PropertiesComponent properties;
-
+    private final PropertiesComponent properties;
 
     public ServerPropertiesManagerImpl() {
         properties = PropertiesComponent.getInstance();

@@ -1,58 +1,47 @@
 package info.novatec.testit.livingdoc.intellij.ui.listener;
 
-import com.intellij.ide.util.PropertiesComponent;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.Messages;
+import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
-import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
 import info.novatec.testit.livingdoc.server.rpc.RpcClientService;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 /**
- * Created by mruiz on 19/06/2016.
+ * Tests the server connection with the fields url and handler.
+ * @see ActionListener
+ *
+ * TODO Add loading popup
  */
 public class TestConnectionActionListener implements ActionListener {
 
-    private String url;
-    private String handler;
+    private static final Logger LOG = Logger.getInstance(TestConnectionActionListener.class);
 
-    /**
-     * Constructor
-     *
-     * @param sUrl
-     * @param sHandler
-     */
-    public TestConnectionActionListener(final String sUrl, final String sHandler) {
-        this.url = sUrl;
-        this.handler = sHandler;
+    private JBTextField urlTextField;
+    private JBTextField handlerTextField;
+
+    public TestConnectionActionListener(final JBTextField urlField, final JBTextField handlerField) {
+        this.urlTextField = urlField;
+        this.handlerTextField = handlerField;
     }
 
-    /**
-     * Invoked when an action occurs.
-     *
-     * @param e
-     */
     @Override
     public void actionPerformed(ActionEvent e) {
         RpcClientService service = new PluginLivingDocXmlRpcClient();
         try {
-            boolean testOk = service.testConnection(url, handler);
+            boolean testOk = service.testConnection(urlTextField.getText(), handlerTextField.getText());
             if (testOk) {
-
-                PropertiesComponent properties = PropertiesComponent.getInstance();
-                properties.setValue(ServerPropertiesManager.URL, url);
-                properties.setValue(ServerPropertiesManager.HANDLER, handler);
-
-                Messages.showMessageDialog(I18nSupport.i18n_str("server.configuration.button.test.ok"), I18nSupport.i18n_str("server.configuration.button.test.title"), Messages.getInformationIcon());
+                Messages.showInfoMessage(I18nSupport.getValue("server.configuration.button.test.ok"), I18nSupport.getValue("server.configuration.button.test.title"));
             } else {
-                // TODO Extract string to locale file
-                Messages.showMessageDialog("Failed Connection", I18nSupport.i18n_str("server.configuration.button.test.error"), Messages.getErrorIcon());
+                Messages.showErrorDialog(I18nSupport.getValue("server.configuration.button.test.ko"), I18nSupport.getValue("server.configuration.button.test.error"));
             }
         } catch (LivingDocServerException ldse) {
-            Messages.showMessageDialog(ldse.getMessage(), I18nSupport.i18n_str("server.configuration.button.test.error"), Messages.getErrorIcon());
+            Messages.showErrorDialog(ldse.getMessage(), I18nSupport.getValue("server.configuration.button.test.error"));
+            LOG.error(ldse);
         }
     }
 }
