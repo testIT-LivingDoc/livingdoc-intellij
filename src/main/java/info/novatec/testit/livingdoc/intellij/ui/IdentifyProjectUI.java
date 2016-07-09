@@ -5,6 +5,7 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.ui.listener.IdentifyProjectWindowListener;
 import info.novatec.testit.livingdoc.intellij.ui.listener.ProjectNameActionListener;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
@@ -18,14 +19,14 @@ import java.awt.*;
  * User Interface for LivingDoc project configuration.
  * The dialog's layout is a {@link GridBagLayout}.
  * @see DialogWrapper
- *
- * TODO News fields: User and password for repository.
  */
 public class IdentifyProjectUI extends DialogWrapper {
 
     private JPanel jPanel;
     private ComboBox<String> projectCombo;
     private ComboBox<String> systemCombo;
+    private JBTextField userTextField;
+    private JPasswordField passTextField;
     private Project project;
 
     public IdentifyProjectUI(Project p) {
@@ -106,5 +107,26 @@ public class IdentifyProjectUI extends DialogWrapper {
         constraints.gridx = 1;
         jPanel.add(systemCombo, constraints);
         UIUtils.insertSpace(jPanel, 7, 2);
+
+        JBLabel userLabel = new JBLabel(I18nSupport.getValue("identify.project.field.user.label") + " ");
+        constraints.gridx=0;
+        constraints.gridy=8;
+        jPanel.add(userLabel, constraints);
+
+        userTextField = new JBTextField();
+        userTextField.setColumns(14);
+        constraints.gridx=1;
+        jPanel.add(userTextField, constraints);
+
+        JBLabel passLabel = new JBLabel(I18nSupport.getValue("identify.project.field.pass.label") + " ");
+        constraints.gridx=0;
+        constraints.gridy=9;
+        jPanel.add(passLabel, constraints);
+
+        passTextField = new JPasswordField();
+        passTextField.setColumns(20);
+        constraints.gridx=1;
+        jPanel.add(passTextField, constraints);
+        UIUtils.insertSpace(jPanel, 10, 2);
     }
 }

@@ -1,13 +1,12 @@
 package info.novatec.testit.livingdoc.intellij.action;
 
-import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.DialogWrapper;
+import info.novatec.testit.livingdoc.intellij.model.LDProject;
 import info.novatec.testit.livingdoc.intellij.ui.IdentifyProjectUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
-import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
 
 /**
  * Action to open the project configuration for LivingDoc.
@@ -26,9 +25,8 @@ public class IdentifyProjectAction extends AnAction {
         dialog.show();
 
         if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
-            PropertiesComponent properties = PropertiesComponent.getInstance(anActionEvent.getProject());
-            properties.setValue(PluginProperties.getValue("livingdoc.project.key"), (String) dialog.getProjectCombo().getSelectedItem());
-            properties.setValue(PluginProperties.getValue("livingdoc.system.key"), (String) dialog.getSystemtField().getSelectedItem());
+            LDProject project = new LDProject(anActionEvent.getProject());
+            project.saveProperties((String) dialog.getProjectCombo().getSelectedItem(), (String) dialog.getSystemtField().getSelectedItem());
         }
     }
 }
