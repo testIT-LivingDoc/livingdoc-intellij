@@ -7,7 +7,7 @@ import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
  * {@link PropertiesComponent} is used for plugin properties persistence.
  * @see ServerPropertiesManager
  */
-public class ServerPropertiesManagerImpl implements ServerPropertiesManager {
+class ServerPropertiesManagerImpl implements ServerPropertiesManager {
 
     private final PropertiesComponent properties;
 

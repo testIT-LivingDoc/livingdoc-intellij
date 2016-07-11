@@ -16,7 +16,7 @@ import javax.swing.*;
 import java.awt.*;
 
 /**
- * User Interface for LivingDoc project configuration.
+ * User Interface for IntelliJ IDEA project configuration.
  * The dialog's layout is a {@link GridBagLayout}.
  * @see DialogWrapper
  */
@@ -27,11 +27,11 @@ public class IdentifyProjectUI extends DialogWrapper {
     private ComboBox<String> systemCombo;
     private JBTextField userTextField;
     private JPasswordField passTextField;
-    private Project project;
+    private final Project ideaProject;
 
     public IdentifyProjectUI(Project p) {
         super(p);
-        project = p;
+        ideaProject = p;
 
         setTitle(I18nSupport.getValue("identify.project.header"));
 
@@ -41,12 +41,24 @@ public class IdentifyProjectUI extends DialogWrapper {
         init();
     }
 
-    public ComboBox getProjectCombo() {
-        return this.projectCombo;
+    public Project getIdeaProject() {
+        return ideaProject;
     }
 
-    public ComboBox getSystemtField() {
-        return this.systemCombo;
+    public JBTextField getUserTextField() {
+        return userTextField;
+    }
+
+    public JPasswordField getPassTextField() {
+        return passTextField;
+    }
+
+    public ComboBox<String> getProjectCombo() {
+        return projectCombo;
+    }
+
+    public ComboBox getSystemField() {
+        return systemCombo;
     }
 
     @Nullable
@@ -57,8 +69,8 @@ public class IdentifyProjectUI extends DialogWrapper {
     }
 
     private void addListeners() {
-        this.getWindow().addWindowListener(new IdentifyProjectWindowListener(this.projectCombo, this.project));
-        projectCombo.addActionListener(new ProjectNameActionListener(this.systemCombo, this.project));
+        getWindow().addWindowListener(new IdentifyProjectWindowListener(this));
+        projectCombo.addActionListener(new ProjectNameActionListener(this.systemCombo, this.ideaProject));
     }
 
     private void addComponents() {
@@ -88,6 +100,7 @@ public class IdentifyProjectUI extends DialogWrapper {
         UIUtils.insertSpace(jPanel, 4, 2);
 
         JBLabel projectLabel = new JBLabel(I18nSupport.getValue("identify.project.field.project.label"));
+        projectLabel.setLabelFor(this.projectCombo);
         constraints.gridy = 5;
         constraints.gridwidth = 1;
         jPanel.add(projectLabel, constraints);
@@ -98,6 +111,7 @@ public class IdentifyProjectUI extends DialogWrapper {
         jPanel.add(projectCombo, constraints);
 
         JBLabel systemLabel = new JBLabel(I18nSupport.getValue("identify.project.field.system.label") + " ");
+        systemLabel.setLabelFor(this.systemCombo);
         constraints.gridx = 0;
         constraints.gridy = 6;
         jPanel.add(systemLabel, constraints);
@@ -109,6 +123,7 @@ public class IdentifyProjectUI extends DialogWrapper {
         UIUtils.insertSpace(jPanel, 7, 2);
 
         JBLabel userLabel = new JBLabel(I18nSupport.getValue("identify.project.field.user.label") + " ");
+        userLabel.setLabelFor(userTextField);
         constraints.gridx=0;
         constraints.gridy=8;
         jPanel.add(userLabel, constraints);
@@ -119,12 +134,13 @@ public class IdentifyProjectUI extends DialogWrapper {
         jPanel.add(userTextField, constraints);
 
         JBLabel passLabel = new JBLabel(I18nSupport.getValue("identify.project.field.pass.label") + " ");
+        passLabel.setLabelFor(passTextField);
         constraints.gridx=0;
         constraints.gridy=9;
         jPanel.add(passLabel, constraints);
 
         passTextField = new JPasswordField();
-        passTextField.setColumns(20);
+        passTextField.setColumns(21);
         constraints.gridx=1;
         jPanel.add(passTextField, constraints);
         UIUtils.insertSpace(jPanel, 10, 2);

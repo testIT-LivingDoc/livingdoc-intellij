@@ -21,8 +21,8 @@ public class TestConnectionActionListener implements ActionListener {
 
     private static final Logger LOG = Logger.getInstance(TestConnectionActionListener.class);
 
-    private JBTextField urlTextField;
-    private JBTextField handlerTextField;
+    private final JBTextField urlTextField;
+    private final JBTextField handlerTextField;
 
     public TestConnectionActionListener(final JBTextField urlField, final JBTextField handlerField) {
         this.urlTextField = urlField;

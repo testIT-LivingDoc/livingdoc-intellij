@@ -25,9 +25,8 @@ public class PluginProperties {
 
     private static void loadProperties() {
         properties = new Properties();
-        InputStream inStream = null;
         try {
-            inStream = PluginProperties.class.getClassLoader().getResourceAsStream(PROPERTIES_PATH);
+            InputStream inStream = PluginProperties.class.getClassLoader().getResourceAsStream(PROPERTIES_PATH);
             properties.load(inStream);
 
         } catch (IOException ioe) {

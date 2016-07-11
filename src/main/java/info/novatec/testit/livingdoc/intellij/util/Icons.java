@@ -13,4 +13,5 @@ public interface Icons {
     Icon EXE_DIFF= IconLoader.getIcon("/icons/executable_diff.png");
     Icon EXE_WORKING = IconLoader.getIcon("/icons/executable_working.png");
     Icon NOT_EXECUTABLE = IconLoader.getIcon("/icons/notexecutable.png");
+    Icon ERROR = IconLoader.getIcon("/icons/error.png");
 }

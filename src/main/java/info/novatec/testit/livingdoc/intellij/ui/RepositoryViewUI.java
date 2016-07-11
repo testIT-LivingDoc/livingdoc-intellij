@@ -16,6 +16,7 @@ import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.ui.renderer.LDTreeCellRenderer;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
+import info.novatec.testit.livingdoc.intellij.util.UIUtils;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import info.novatec.testit.livingdoc.server.domain.Repository;
@@ -30,26 +31,45 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Factory class for tool window configured in plugin.xml
+ * Factory class for tool window configured in plugin.xml with id="Repository View"
+ * The LivingDoc project configuration must be correct. (See {@link LDProject})
  * @see ToolWindowFactory
  */
 public class RepositoryViewUI implements ToolWindowFactory {
 
     private static final Logger LOG = Logger.getInstance(RepositoryViewUI.class);
 
-    private SimpleTree tree;
+    private DefaultMutableTreeNode rootNode;
     private LDProject ldProject;
     private ToolWindow toolWindow;
 
     @Override
     public void createToolWindowContent(@NotNull Project IDEAProject, @NotNull ToolWindow tw) {
 
-        ldProject = new LDProject(IDEAProject);
         toolWindow = tw;
 
-        addComponents();
+        ldProject = new LDProject(IDEAProject);
 
-        loadRepositories();
+        initializeRootNode(!ldProject.isConfiguredProject(),
+                I18nSupport.getValue("repository.view.error.project.not.configured"));
+
+        if(ldProject.isConfiguredProject()) {
+            loadRepositories();
+        }
+
+        addComponents();
+    }
+
+    private void initializeRootNode(final boolean isError, final String descError) {
+
+        if(!isError) {
+            LDNode ideaProjectNode = new LDNode(ldProject.getIdeaProject().getName(), Icons.PROJECT);
+            rootNode = new DefaultMutableTreeNode(ideaProjectNode);
+
+        } else {
+            LDNode errorNode = new LDNode(descError, Icons.ERROR);
+            rootNode = new DefaultMutableTreeNode(errorNode);
+        }
     }
 
     private void addComponents() {
@@ -58,72 +78,83 @@ public class RepositoryViewUI implements ToolWindowFactory {
 
         JPanel fieldsPanel = new JPanel(new FlowLayout());
 
-        fieldsPanel.add(new JBLabel(I18nSupport.getValue("repository.view.field.rights.label")));
-
         JBTextField rightsField = new JBTextField("0");
         rightsField.setEditable(false);
         rightsField.setHorizontalAlignment(SwingConstants.LEFT);
         rightsField.setColumns(10);
+        JBLabel rightsLabel = new JBLabel(I18nSupport.getValue("repository.view.field.rights.label"));
+        rightsLabel.setLabelFor(rightsField);
+        fieldsPanel.add(rightsLabel);
         fieldsPanel.add(rightsField);
-
-        fieldsPanel.add(new JBLabel(I18nSupport.getValue("repository.view.field.wrongs.label")));
 
         JBTextField wrongsField = new JBTextField("0");
         wrongsField.setEditable(false);
         wrongsField.setHorizontalAlignment(SwingConstants.LEFT);
         wrongsField.setColumns(10);
+        JBLabel wrongsLabel = new JBLabel(I18nSupport.getValue("repository.view.field.wrongs.label"));
+        wrongsLabel.setLabelFor(wrongsField);
+        fieldsPanel.add(wrongsLabel);
         fieldsPanel.add(wrongsField);
-
-        fieldsPanel.add(new JBLabel(I18nSupport.getValue("repository.view.field.errors.label")));
 
         JBTextField errorsField = new JBTextField("0");
         errorsField.setEditable(false);
         errorsField.setHorizontalAlignment(SwingConstants.LEFT);
         errorsField.setColumns(10);
+        JBLabel errorsLabel = new JBLabel(I18nSupport.getValue("repository.view.field.errors.label"));
+        errorsLabel.setLabelFor(errorsField);
+        fieldsPanel.add(errorsLabel);
         fieldsPanel.add(errorsField);
 
         mainPanel.add(fieldsPanel, BorderLayout.NORTH);
 
-        tree = new SimpleTree();
+        SimpleTree tree = new SimpleTree();
         tree.setCellRenderer(new LDTreeCellRenderer());
         tree.setRootVisible(true);
-
+        DefaultTreeModel treeModel = new DefaultTreeModel(rootNode, true);
+        tree.setModel(treeModel);
         mainPanel.add(tree, BorderLayout.CENTER);
-
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(mainPanel,
                 ldProject.getIdeaProject().getName() + " [" + ldProject.getSystemUnderTest().getName() + "]", false);
         content.setIcon(Icons.LIVINGDOC);
         content.putUserData(ToolWindow.SHOW_CONTENT_ICON, Boolean.TRUE);
+        content.setCloseable(true);
 
         toolWindow.getContentManager().addContent(content);
     }
 
     private void loadRepositories() {
 
-        LDNode ideaProjectNode = new LDNode(ldProject.getIdeaProject().getName(), Icons.PROJECT);
-        DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode(ideaProjectNode);
-
         RpcClientService service = new PluginLivingDocXmlRpcClient();
         try {
-            Set<Repository> repositories = service.getAllRepositoriesForSystemUnderTest(ldProject.getSystemUnderTest(), ldProject.getIdentifier());
+            Set<Repository> repositories = service.getAllRepositoriesForSystemUnderTest(ldProject.getSystemUnderTest(),
+                    ldProject.getIdentifier());
+
             for (Repository repository : repositories) {
 
-                LDNode repositoryNode = new LDNode(repository.getProject().getName(), Icons.REPOSITORY);
-                DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
-                rootNode.add(childNode);
+                if(UIUtils.validateCredentials(ldProject,repository)) {
+                    LDNode repositoryNode = new LDNode(repository.getProject().getName(), Icons.REPOSITORY);
+                    DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
+                    rootNode.add(childNode);
 
-                DocumentNode documentNode = service.getSpecificationHierarchy(repository, ldProject.getSystemUnderTest(), ldProject.getIdentifier());
-                paintDocumentNode(documentNode.getChildren(), childNode);
+                    DocumentNode documentNode = service.getSpecificationHierarchy(repository,
+                            ldProject.getSystemUnderTest(), ldProject.getIdentifier());
+
+                    paintDocumentNode(documentNode.getChildren(), childNode);
+
+                } else {
+                    Messages.showErrorDialog(ldProject.getIdeaProject(),
+                            I18nSupport.getValue("repository.view.error.credentials"),
+                            I18nSupport.getValue("repository.view.error.loading.repositories"));
+                }
             }
         } catch (LivingDocServerException ldse) {
-            Messages.showErrorDialog(ldse.getMessage(), I18nSupport.getValue("repository.view.error.loading.repositories"));
+            Messages.showErrorDialog(ldProject.getIdeaProject(), ldse.getMessage(), I18nSupport.getValue("repository.view.error.loading.repositories"));
             LOG.error(ldse);
-        }
 
-        DefaultTreeModel treeModel = new DefaultTreeModel(rootNode, true);
-        tree.setModel(treeModel);
+            initializeRootNode(true, ldse.getMessage());
+        }
     }
 
     private void paintDocumentNode(List<DocumentNode> children, DefaultMutableTreeNode parentNode) {

@@ -26,7 +26,11 @@ public class IdentifyProjectAction extends AnAction {
 
         if (dialog.getExitCode() == DialogWrapper.OK_EXIT_CODE) {
             LDProject project = new LDProject(anActionEvent.getProject());
-            project.saveProperties((String) dialog.getProjectCombo().getSelectedItem(), (String) dialog.getSystemtField().getSelectedItem());
+            project.saveProperties(
+                    (String) dialog.getProjectCombo().getSelectedItem(),
+                    (String) dialog.getSystemField().getSelectedItem(),
+                    dialog.getUserTextField().getText(),
+                    String.valueOf(dialog.getPassTextField().getPassword()));
         }
     }
 }

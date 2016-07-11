@@ -111,6 +111,7 @@ public class ServerConfigurationUI extends DialogWrapper {
         UIUtils.insertSpace(jPanel, 5, 2);
 
         JBLabel urlLabel = new JBLabel(I18nSupport.getValue("server.configuration.field.url.label"));
+        urlLabel.setLabelFor(urlTextField);
         constraints.gridy = 6;
         constraints.gridwidth = 1;
         jPanel.add(urlLabel, constraints);
@@ -124,6 +125,7 @@ public class ServerConfigurationUI extends DialogWrapper {
         jPanel.add(urlTextField, constraints);
 
         JBLabel handlerLabel = new JBLabel(I18nSupport.getValue("server.configuration.field.handler.label"));
+        handlerLabel.setLabelFor(handlerTextField);
         constraints.gridx = 0;
         constraints.gridy = 7;
         jPanel.add(handlerLabel, constraints);

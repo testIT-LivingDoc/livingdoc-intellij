@@ -10,13 +10,15 @@ import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import info.novatec.testit.livingdoc.server.rpc.RpcClientService;
+import org.apache.commons.lang.StringUtils;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Set;
 
 /**
- * Listener for selected item event on "Project Name" field
+ * Listener for selected item event on "Project Name" field.
+ * Systems under test, which exist for this project, are loaded.
  * @see ActionListener
  */
 public class ProjectNameActionListener implements ActionListener {
@@ -38,11 +40,8 @@ public class ProjectNameActionListener implements ActionListener {
 
         sutComboBox.removeAllItems();
 
-        String selectedProject = null;
-        if(actionEvent.getSource() instanceof ComboBox) {
-            ComboBox<String> projectCombo = (ComboBox<String>)actionEvent.getSource();
-            selectedProject = (String)projectCombo.getSelectedItem();
-        }
+        ComboBox<?> projectCombo = (ComboBox<?>)actionEvent.getSource();
+        String selectedProject = (String)projectCombo.getSelectedItem();
 
         try {
             RpcClientService service = new PluginLivingDocXmlRpcClient();
@@ -50,8 +49,11 @@ public class ProjectNameActionListener implements ActionListener {
             for(SystemUnderTest system : systems) {
                 sutComboBox.addItem(system.getName());
             }
-            if(!systems.isEmpty()) {
+            if(StringUtils.isNotBlank(project.getSystemUnderTest().getName())) {
                 sutComboBox.setSelectedItem(project.getSystemUnderTest().getName());
+
+            } else {
+                sutComboBox.setSelectedIndex(0);
             }
         } catch (LivingDocServerException ldse) {
             Messages.showErrorDialog(ldse.getMessage(), I18nSupport.getValue("identify.project.error.loading.systems"));
