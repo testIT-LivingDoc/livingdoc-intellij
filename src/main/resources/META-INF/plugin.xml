@@ -19,7 +19,7 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Repository View"
                     anchor="bottom"
-                    factoryClass="info.novatec.testit.livingdoc.intellij.ui.RepositoryViewUI"
+                    factoryClass="info.novatec.testit.livingdoc.intellij.action.RepositoryViewController"
                     icon="/icons/livingdoc_16.gif"
                     canCloseContents="true"/>
     </extensions>

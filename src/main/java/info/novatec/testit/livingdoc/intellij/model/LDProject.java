@@ -92,7 +92,7 @@ public class LDProject implements Serializable{
         return configuredProject;
     }
 
-    private void load() {
+    public void load() {
         identifier = PluginProperties.getValue(IDENTIFIER_KEY);
 
         properties = PropertiesComponent.getInstance(this.ideaProject);

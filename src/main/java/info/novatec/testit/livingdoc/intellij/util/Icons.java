@@ -14,4 +14,10 @@ public interface Icons {
     Icon EXE_WORKING = IconLoader.getIcon("/icons/executable_working.png");
     Icon NOT_EXECUTABLE = IconLoader.getIcon("/icons/notexecutable.png");
     Icon ERROR = IconLoader.getIcon("/icons/error.png");
+    Icon REFRESH = IconLoader.getIcon("/icons/refresh_tree.gif");
+    Icon EXECUTE = IconLoader.getIcon("/icons/document_execute.gif");
+    Icon FLAG_RIGHT = IconLoader.getIcon("/icons/flag_green.gif");
+    Icon FLAG_WRONG = IconLoader.getIcon("/icons/flag_orange.gif");
+    Icon FLAG_ERROR = IconLoader.getIcon("/icons/flag_red.gif");
+
 }
