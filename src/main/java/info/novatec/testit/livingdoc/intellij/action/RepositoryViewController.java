@@ -73,26 +73,31 @@ public class RepositoryViewController implements ToolWindowFactory {
 
     private void configureActions() {
 
-        configureRefreshRepositoryAction();
+        createRefreshRepositoryAction();
         repositoryViewUI.getActionGroup().addSeparator();
-        configureExecuteDocumentAction();
+        createExecuteDocumentAction();
 
         repositoryViewUI.getActionToolBar().updateActionsImmediately();
     }
 
-    private void configureExecuteDocumentAction() {
+    private void createExecuteDocumentAction() {
         AnAction anAction = new AnAction() {
             @Override
             public void actionPerformed(AnActionEvent e) {
-                // TODO
-                Messages.showInfoMessage("Not implemented","Execute Document");
+
+                DefaultMutableTreeNode[] nodes = repositoryViewUI.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
+
+                LDNode node = (LDNode) nodes[0].getUserObject();
+
+                Messages.showInfoMessage(node.getName(),"Selected Node");
             }
         };
         anAction.getTemplatePresentation().setIcon(Icons.EXECUTE);
+        anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("repository.view.action.execute.tooltip"));
         repositoryViewUI.getActionGroup().add(anAction);
     }
 
-    private void configureRefreshRepositoryAction() {
+    private void createRefreshRepositoryAction() {
         AnAction anAction = new AnAction() {
             @Override
             public void actionPerformed(AnActionEvent e) {
@@ -105,6 +110,7 @@ public class RepositoryViewController implements ToolWindowFactory {
             }
         };
         anAction.getTemplatePresentation().setIcon(Icons.REFRESH);
+        anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("repository.view.action.refresh.tooltip"));
         repositoryViewUI.getActionGroup().add(anAction);
     }
 

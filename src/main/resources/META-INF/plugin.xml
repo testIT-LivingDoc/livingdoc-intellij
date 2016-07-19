@@ -22,10 +22,10 @@
                     factoryClass="info.novatec.testit.livingdoc.intellij.action.RepositoryViewController"
                     icon="/icons/livingdoc_16.gif"
                     canCloseContents="true"/>
+        <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.LivingDocConfigurationType" />
     </extensions>
 
     <actions>
-
     </actions>
 
     <application-components>

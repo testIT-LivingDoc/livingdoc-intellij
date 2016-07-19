@@ -28,6 +28,7 @@ public class RepositoryViewUI extends JPanel {
     private ActionToolbar toolBar;
     private DefaultActionGroup actionGroup;
     private CounterPanel counterPanel;
+    private SimpleTree tree;
 
     public RepositoryViewUI(final boolean withError, final String nodeText) {
 
@@ -59,6 +60,8 @@ public class RepositoryViewUI extends JPanel {
     public CounterPanel getCounterPanel(){
         return counterPanel;
     }
+
+    public SimpleTree getRepositoryTree() { return tree; }
 
     public void initializeRootNode(final boolean withError, final String nodeText) {
         Icon icon = Icons.PROJECT;
@@ -112,7 +115,7 @@ public class RepositoryViewUI extends JPanel {
     }
 
     private void configureRepositoryTree() {
-        SimpleTree tree = new SimpleTree();
+        tree = new SimpleTree();
         tree.setCellRenderer(new LDTreeCellRenderer());
         tree.setRootVisible(true);
         treeModel = new DefaultTreeModel(rootNode, true);
