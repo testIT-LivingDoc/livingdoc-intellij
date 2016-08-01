@@ -10,6 +10,7 @@ import org.jetbrains.annotations.NotNull;
  * The method {@link #createTemplateConfiguration(Project)} is called once per project to create the template run
  * configuration; and all real run configurations (loaded from the workspace or created by the user) are called by
  * cloning the template through the {{@link #createConfiguration(String, RunConfiguration)}} method.
+ *
  * @see ConfigurationFactory
  * @see RemoteRunConfiguration
  */

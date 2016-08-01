@@ -10,7 +10,7 @@
 
     <change-notes><![CDATA[
         v1.0.0 Initial release. <br>
-        Allows for the execution of testIT LivingDoc specifications inside IntelliJ.
+        Allows for the execution of testIT LivingDoc specificationName inside IntelliJ.
     ]]>
     </change-notes>
 
@@ -22,7 +22,10 @@
                     factoryClass="info.novatec.testit.livingdoc.intellij.action.RepositoryViewController"
                     icon="/icons/livingdoc_16.gif"
                     canCloseContents="true"/>
-        <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.LivingDocConfigurationType" />
+        <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.LivingDocConfigurationType"/>
+        <runConfigurationProducer
+                implementation="info.novatec.testit.livingdoc.intellij.run.LivingDocRunConfigurationProducer"
+                order="last"/>
     </extensions>
 
     <actions>

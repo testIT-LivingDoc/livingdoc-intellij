@@ -11,11 +11,12 @@ import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
 
 /**
  * Action to open the configuration to connect with LivingDoc Server:<br>
- *     - The base URL of Confluence<br>
- *     - The XML-RPC handler<br>
+ * - The base URL of Confluence<br>
+ * - The XML-RPC handler<br>
  * It is mandatory press OK button to save the server configuration.<br>
  * Accessed from File > Other Settings > Livingdoc
  * TODO Better to locate in File > Settings > Tools
+ *
  * @see ServerConfigurationUI
  */
 public class ServerConfigurationAction extends AnAction {

@@ -17,7 +17,7 @@ public class PluginProperties {
     private static Properties properties;
 
     public static String getValue(final String key) {
-        if(properties == null) {
+        if (properties == null) {
             loadProperties();
         }
         return properties.getProperty(key);

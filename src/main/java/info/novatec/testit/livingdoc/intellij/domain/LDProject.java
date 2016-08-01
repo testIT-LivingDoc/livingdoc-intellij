@@ -1,4 +1,4 @@
-package info.novatec.testit.livingdoc.intellij.model;
+package info.novatec.testit.livingdoc.intellij.domain;
 
 import com.intellij.ide.util.PropertiesComponent;
 import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
@@ -14,9 +14,10 @@ import java.io.Serializable;
  * {@link PropertiesComponent} is used to get these properties of IntelliJ persistence.
  * You can use {@link #saveProperties(String, String, String, String)} to save the project properties with
  * {@link PropertiesComponent}
+ *
  * @see PluginProperties
  */
-public class LDProject implements Serializable{
+public class LDProject implements Serializable {
 
     private static final long serialVersionUID = -980439077995379150L;
 
@@ -25,14 +26,13 @@ public class LDProject implements Serializable{
     private static final String IDENTIFIER_KEY = "livingdoc.identifier";
     private static final String USERNAME_KEY = "livingdoc.username.key";
     private static final String PASSWORD_KEY = "livingdoc.password.key";
-
+    private final com.intellij.openapi.project.Project ideaProject;
     private boolean configuredProject = true;
     private String identifier;
     private String user;
     private String pass;
     private Project livingDocProject;
     private SystemUnderTest systemUnderTest;
-    private final com.intellij.openapi.project.Project ideaProject;
     private PropertiesComponent properties;
 
     public LDProject(com.intellij.openapi.project.Project project) {

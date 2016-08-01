@@ -1,7 +1,7 @@
 package info.novatec.testit.livingdoc.intellij.util;
 
 import com.intellij.ui.components.JBLabel;
-import info.novatec.testit.livingdoc.intellij.model.LDProject;
+import info.novatec.testit.livingdoc.intellij.domain.LDProject;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import org.apache.commons.lang.StringUtils;
 
@@ -12,8 +12,9 @@ public class UIUtils {
 
     /**
      * Inserts a empty {@link JBLabel} in a {@link JPanel} with {@link GridBagLayout}
-     * @param jPanel {@link JPanel}
-     * @param file Number of file into the grid
+     *
+     * @param jPanel       {@link JPanel}
+     * @param file         Number of file into the grid
      * @param totalColumns Grid total columns
      * @see GridBagLayout
      */
@@ -28,7 +29,8 @@ public class UIUtils {
 
     /**
      * Validates the LivingDoc user and password configured in IntelliJ to connect with LivingDoc repository.
-     * @param ldProject {@link LDProject}
+     *
+     * @param ldProject  {@link LDProject}
      * @param repository {@link Repository}
      * @return True if the credentials are valid. Otherwise, false.
      */
@@ -36,7 +38,7 @@ public class UIUtils {
 
         boolean result = true;
 
-        if(!StringUtils.equals(ldProject.getUser(), repository.getUsername())
+        if (!StringUtils.equals(ldProject.getUser(), repository.getUsername())
                 || !StringUtils.equals(ldProject.getPass(), repository.getPassword())) {
 
             result = false;

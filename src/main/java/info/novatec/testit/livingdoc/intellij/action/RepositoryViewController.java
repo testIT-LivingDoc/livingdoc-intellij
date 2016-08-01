@@ -1,5 +1,6 @@
 package info.novatec.testit.livingdoc.intellij.action;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -9,8 +10,10 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import info.novatec.testit.livingdoc.intellij.model.LDNode;
-import info.novatec.testit.livingdoc.intellij.model.LDProject;
+import info.novatec.testit.livingdoc.intellij.action.repository.ExecuteDocumentAction;
+import info.novatec.testit.livingdoc.intellij.action.repository.OpenRemoteDocumentAction;
+import info.novatec.testit.livingdoc.intellij.domain.LDProject;
+import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.ui.RepositoryViewUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
@@ -26,14 +29,15 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Set;
 
 /**
- * Factory class for tool window configured in plugin.xml with id="Repository View"
+ * Factory class for tool window configured in plugin.xml with id="Repository View".
  * The LivingDoc project configuration must be correct. (See {@link LDProject})
  * This class is a controller fot {@link RepositoryViewUI} view.
+ *
  * @see ToolWindowFactory
  */
 public class RepositoryViewController implements ToolWindowFactory {
 
-    private static final Logger LOG = Logger.getInstance(RepositoryViewController.class);
+    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.action.RepositoryViewController");
 
     private RepositoryViewUI repositoryViewUI;
     private LDProject ldProject;
@@ -43,16 +47,7 @@ public class RepositoryViewController implements ToolWindowFactory {
 
         ldProject = new LDProject(IDEAProject);
 
-        if (ldProject.isConfiguredProject()) {
-
-            repositoryViewUI = new RepositoryViewUI(false, ldProject.getIdeaProject().getName());
-
-            loadRepositories();
-
-        } else {
-            repositoryViewUI = new RepositoryViewUI(true,
-                    I18nSupport.getValue("repository.view.error.project.not.configured"));
-        }
+        loadView();
 
         configureCounter();
         configureActions();
@@ -76,42 +71,53 @@ public class RepositoryViewController implements ToolWindowFactory {
         createRefreshRepositoryAction();
         repositoryViewUI.getActionGroup().addSeparator();
         createExecuteDocumentAction();
+        repositoryViewUI.getActionGroup().addSeparator();
+        createOpenDocumentAction();
 
         repositoryViewUI.getActionToolBar().updateActionsImmediately();
     }
 
+    private void createOpenDocumentAction() {
+        OpenRemoteDocumentAction openRemoteDocumentAction = new OpenRemoteDocumentAction(repositoryViewUI.getRepositoryTree());
+        repositoryViewUI.getActionGroup().add(openRemoteDocumentAction);
+    }
+
     private void createExecuteDocumentAction() {
-        AnAction anAction = new AnAction() {
-            @Override
-            public void actionPerformed(AnActionEvent e) {
+        ExecuteDocumentAction executeDocumentAction = new ExecuteDocumentAction(repositoryViewUI.getRepositoryTree(), false);
+        repositoryViewUI.getActionGroup().add(executeDocumentAction);
 
-                DefaultMutableTreeNode[] nodes = repositoryViewUI.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
-
-                LDNode node = (LDNode) nodes[0].getUserObject();
-
-                Messages.showInfoMessage(node.getName(),"Selected Node");
-            }
-        };
-        anAction.getTemplatePresentation().setIcon(Icons.EXECUTE);
-        anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("repository.view.action.execute.tooltip"));
-        repositoryViewUI.getActionGroup().add(anAction);
+        // With debug mode
+        executeDocumentAction = new ExecuteDocumentAction(repositoryViewUI.getRepositoryTree(), true);
+        repositoryViewUI.getActionGroup().add(executeDocumentAction);
     }
 
     private void createRefreshRepositoryAction() {
+
         AnAction anAction = new AnAction() {
+
             @Override
             public void actionPerformed(AnActionEvent e) {
-
                 ldProject.load();
-
-                repositoryViewUI.getRootNode().removeAllChildren();
-
-                loadRepositories();
+                loadView();
             }
         };
-        anAction.getTemplatePresentation().setIcon(Icons.REFRESH);
+        anAction.getTemplatePresentation().setIcon(AllIcons.Actions.Refresh);
         anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("repository.view.action.refresh.tooltip"));
         repositoryViewUI.getActionGroup().add(anAction);
+    }
+
+    private void loadView() {
+
+        if (ldProject.isConfiguredProject()) {
+
+            repositoryViewUI = new RepositoryViewUI(false, ldProject.getIdeaProject().getName());
+
+            loadRepositories();
+
+        } else {
+            repositoryViewUI = new RepositoryViewUI(true,
+                    I18nSupport.getValue("repository.view.error.project.not.configured"));
+        }
     }
 
     private void loadRepositories() {
@@ -124,7 +130,8 @@ public class RepositoryViewController implements ToolWindowFactory {
             for (Repository repository : repositories) {
 
                 if (UIUtils.validateCredentials(ldProject, repository)) {
-                    LDNode repositoryNode = new LDNode(repository.getProject().getName(), Icons.REPOSITORY);
+                    RepositoryNode repositoryNode = new RepositoryNode(repository.getProject().getName(), Icons.REPOSITORY);
+                    repositoryNode.setRepository(repository);
                     DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
                     repositoryViewUI.getRootNode().add(childNode);
 
@@ -138,7 +145,9 @@ public class RepositoryViewController implements ToolWindowFactory {
                             I18nSupport.getValue("repository.view.error.credentials"),
                             I18nSupport.getValue("repository.view.error.loading.repositories"));
 
-                    repositoryViewUI.initializeRootNode(true,  I18nSupport.getValue("repository.view.error.credentials"));
+                    LOG.debug(I18nSupport.getValue("repository.view.error.loading.repositories"));
+
+                    repositoryViewUI.initializeRootNode(true, I18nSupport.getValue("repository.view.error.credentials"));
                 }
             }
         } catch (LivingDocServerException ldse) {
@@ -147,7 +156,6 @@ public class RepositoryViewController implements ToolWindowFactory {
 
             repositoryViewUI.initializeRootNode(true, ldse.getMessage());
         }
-
         repositoryViewUI.reload();
     }
 }

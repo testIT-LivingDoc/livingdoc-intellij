@@ -3,12 +3,13 @@ package info.novatec.testit.livingdoc.intellij.ui;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
-import info.novatec.testit.livingdoc.intellij.util.Icons;
 
 import javax.swing.*;
 import java.awt.*;
 
 public class CounterPanel extends JPanel {
+
+    private static final long serialVersionUID = -6060605590173432766L;
 
     private final JBTextField rightsField = createOutputField();
     private final JBTextField wrongsField = createOutputField();
@@ -51,19 +52,19 @@ public class CounterPanel extends JPanel {
     private void addComponents() {
 
         JBLabel rightsLabel = new JBLabel(I18nSupport.getValue("repository.view.field.rights.label"),
-                Icons.FLAG_RIGHT, SwingConstants.LEFT);
+                /*Icons.FLAG_RIGHT,*/ SwingConstants.LEFT);
         rightsLabel.setLabelFor(rightsField);
         add(rightsLabel);
         add(rightsField);
 
         JBLabel wrongsLabel = new JBLabel(I18nSupport.getValue("repository.view.field.wrongs.label"),
-                Icons.FLAG_WRONG, SwingConstants.LEFT);
+                /*Icons.FLAG_WRONG,*/ SwingConstants.LEFT);
         wrongsLabel.setLabelFor(wrongsField);
         add(wrongsLabel);
         add(wrongsField);
 
         JBLabel errorsLabel = new JBLabel(I18nSupport.getValue("repository.view.field.errors.label",
-                Icons.FLAG_ERROR, SwingConstants.LEFT));
+                /*Icons.FLAG_ERROR,*/ SwingConstants.LEFT));
         add(errorsLabel);
         add(errorsField);
     }

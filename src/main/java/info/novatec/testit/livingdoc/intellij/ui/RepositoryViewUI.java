@@ -1,9 +1,14 @@
 package info.novatec.testit.livingdoc.intellij.ui;
 
-import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionToolbar;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.components.panels.VerticalLayout;
 import com.intellij.ui.treeStructure.SimpleTree;
-import info.novatec.testit.livingdoc.intellij.model.LDNode;
+import info.novatec.testit.livingdoc.intellij.domain.LDNode;
+import info.novatec.testit.livingdoc.intellij.domain.Node;
+import info.novatec.testit.livingdoc.intellij.domain.RootNode;
 import info.novatec.testit.livingdoc.intellij.ui.renderer.LDTreeCellRenderer;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
@@ -11,15 +16,16 @@ import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 
 /**
  * User interface for LivingDoc Repository View.<br>
- * If you modify the repository tree through {@link #getRootNode()}, may be necessary to refresh the model with
+ * If you modify the repository tree through {@link #getRootNode()}, may be necessary to refresh the domain with
  * {@link #reload()}.<br>
  * To add new new actions, you can do it with {@link #getActionGroup()} and adding the actions.
  */
-public class RepositoryViewUI extends JPanel {
+public class RepositoryViewUI extends SimpleToolWindowPanel {
 
     private static final long serialVersionUID = 3126369479423241802L;
 
@@ -27,12 +33,16 @@ public class RepositoryViewUI extends JPanel {
     private DefaultTreeModel treeModel;
     private ActionToolbar toolBar;
     private DefaultActionGroup actionGroup;
+    private JPanel mainContent;
     private CounterPanel counterPanel;
     private SimpleTree tree;
 
     public RepositoryViewUI(final boolean withError, final String nodeText) {
 
-        setLayout(new BorderLayout());
+        super(false);
+
+        mainContent = new JPanel(new BorderLayout());
+        setContent(mainContent);
 
         initializeRootNode(withError, nodeText);
 
@@ -57,18 +67,20 @@ public class RepositoryViewUI extends JPanel {
         return actionGroup;
     }
 
-    public CounterPanel getCounterPanel(){
+    public CounterPanel getCounterPanel() {
         return counterPanel;
     }
 
-    public SimpleTree getRepositoryTree() { return tree; }
+    public SimpleTree getRepositoryTree() {
+        return tree;
+    }
 
     public void initializeRootNode(final boolean withError, final String nodeText) {
         Icon icon = Icons.PROJECT;
         if (withError) {
             icon = Icons.ERROR;
         }
-        LDNode ideaProjectNode = new LDNode(nodeText, icon);
+        RootNode ideaProjectNode = new RootNode(nodeText, icon);
 
         if (rootNode == null) {
             rootNode = new DefaultMutableTreeNode(ideaProjectNode);
@@ -81,20 +93,20 @@ public class RepositoryViewUI extends JPanel {
 
         for (DocumentNode child : children) {
 
-            LDNode ldNode = new LDNode(child, Icons.EXECUTABLE);
+            Node node = new Node(child, (LDNode) parentNode.getUserObject(), Icons.EXECUTABLE);
 
-            if (ldNode.isExecutable() && ldNode.canBeImplemented()) {
-                ldNode.setIcon(Icons.EXE_DIFF);
+            if (node.isExecutable() && node.canBeImplemented()) {
+                node.setIcon(Icons.EXE_DIFF);
 
-                // TODO isUsingCurrentVersion() not implemented
-                //} else if(ldNode.isExecutable() && isUsingCurrentVersion()) {
-                //    ldNode.setIcon(Icons.EXE_WORKING);
+                // TODO node.isUsingCurrentVersion() not implemented
+                //} else if(node.isExecutable() && isUsingCurrentVersion()) {
+                //    node.setIcon(Icons.EXE_WORKING);
 
-            } else if (!ldNode.isExecutable()) {
-                ldNode.setIcon(Icons.NOT_EXECUTABLE);
+            } else if (!node.isExecutable()) {
+                node.setIcon(Icons.NOT_EXECUTABLE);
             }
 
-            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(ldNode);
+            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(node);
             parentNode.add(childNode);
 
             if (child.hasChildren()) {
@@ -107,20 +119,24 @@ public class RepositoryViewUI extends JPanel {
         ActionManager actionManager = ActionManager.getInstance();
         actionGroup = new DefaultActionGroup();
         toolBar = actionManager.createActionToolbar("LivingDoc.RepositoryViewToolbar",
-                actionGroup ,false);
+                actionGroup, false);
         toolBar.adjustTheSameSize(true);
         //toolBar.setTargetComponent(tree);
-
-        add(toolBar.getComponent(), BorderLayout.WEST);
+        setToolbar(toolBar.getComponent());
     }
 
     private void configureRepositoryTree() {
+
         tree = new SimpleTree();
         tree.setCellRenderer(new LDTreeCellRenderer());
         tree.setRootVisible(true);
+
+        // Basic functionality with single selection, desired multiple selection.
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
         treeModel = new DefaultTreeModel(rootNode, true);
         tree.setModel(treeModel);
-        add(tree, BorderLayout.CENTER);
+        mainContent.add(tree, BorderLayout.CENTER);
     }
 
     private void configureCounterPanel() {
@@ -131,6 +147,6 @@ public class RepositoryViewUI extends JPanel {
         jPanel.add(counterPanel);
         jPanel.add(new ProgressBar());
 
-        add(jPanel, BorderLayout.NORTH);
+        mainContent.add(jPanel, BorderLayout.NORTH);
     }
 }

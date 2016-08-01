@@ -3,7 +3,7 @@ package info.novatec.testit.livingdoc.intellij.ui.listener;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
-import info.novatec.testit.livingdoc.intellij.model.LDProject;
+import info.novatec.testit.livingdoc.intellij.domain.LDProject;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.ui.IdentifyProjectUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
@@ -19,6 +19,7 @@ import java.util.Set;
 /**
  * When the window is opened, this listener fills the {@link ComboBox}
  * with LivingDoc projects.
+ *
  * @see WindowListener
  * @see PluginLivingDocXmlRpcClient
  * TODO Add loading popup
@@ -42,22 +43,28 @@ public class IdentifyProjectWindowListener implements WindowListener {
     }
 
     @Override
-    public void windowClosing(WindowEvent e) {}
+    public void windowClosing(WindowEvent e) {
+    }
 
     @Override
-    public void windowClosed(WindowEvent e) {}
+    public void windowClosed(WindowEvent e) {
+    }
 
     @Override
-    public void windowIconified(WindowEvent e) {}
+    public void windowIconified(WindowEvent e) {
+    }
 
     @Override
-    public void windowDeiconified(WindowEvent e) {}
+    public void windowDeiconified(WindowEvent e) {
+    }
 
     @Override
-    public void windowActivated(WindowEvent e) {}
+    public void windowActivated(WindowEvent e) {
+    }
 
     @Override
-    public void windowDeactivated(WindowEvent e) {}
+    public void windowDeactivated(WindowEvent e) {
+    }
 
     private void loadProjects() {
         RpcClientService service = new PluginLivingDocXmlRpcClient();
@@ -72,7 +79,7 @@ public class IdentifyProjectWindowListener implements WindowListener {
                 identifyProjectUI.getProjectCombo().setSelectedIndex(0);
             }
         } catch (LivingDocServerException ldse) {
-            Messages.showErrorDialog(this.ldProject.getIdeaProject(),I18nSupport.getValue("identify.project.error.loading.project.desc"), I18nSupport.getValue("identify.project.error.loading.project"));
+            Messages.showErrorDialog(this.ldProject.getIdeaProject(), I18nSupport.getValue("identify.project.error.loading.project.desc"), I18nSupport.getValue("identify.project.error.loading.project"));
             LOG.error(ldse);
         }
     }

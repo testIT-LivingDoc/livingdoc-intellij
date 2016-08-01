@@ -21,6 +21,7 @@ import java.awt.*;
  * User Interface for LivingDoc server configuration.
  * The dialog's layout is a {@link GridBagLayout}.
  * The default fields values are configured in {@link PluginProperties}
+ *
  * @see DialogWrapper
  */
 public class ServerConfigurationUI extends DialogWrapper {
@@ -67,10 +68,10 @@ public class ServerConfigurationUI extends DialogWrapper {
         this.url = propertiesComponent.getValue(ServerPropertiesManager.URL);
         this.handler = propertiesComponent.getValue(ServerPropertiesManager.HANDLER);
 
-        if(StringUtils.isBlank(this.url)) {
+        if (StringUtils.isBlank(this.url)) {
             this.url = PluginProperties.getValue("livingdoc.url.default");
         }
-        if(StringUtils.isBlank(this.handler)) {
+        if (StringUtils.isBlank(this.handler)) {
             this.handler = PluginProperties.getValue("livingdoc.handler.default");
         }
     }

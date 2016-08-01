@@ -9,6 +9,6 @@ public class I18nSupportTest {
     public void getValue() {
         String value = I18nSupport.getValue("server.configuration.header");
         Assert.assertNotNull(value);
-        Assert.assertEquals("LivingDoc",value);
+        Assert.assertEquals("LivingDoc", value);
     }
 }

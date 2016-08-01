@@ -4,7 +4,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.Messages;
-import info.novatec.testit.livingdoc.intellij.model.LDProject;
+import info.novatec.testit.livingdoc.intellij.domain.LDProject;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
@@ -19,6 +19,7 @@ import java.util.Set;
 /**
  * Listener for selected item event on "Project Name" field.
  * Systems under test, which exist for this project, are loaded.
+ *
  * @see ActionListener
  */
 public class ProjectNameActionListener implements ActionListener {
@@ -40,16 +41,16 @@ public class ProjectNameActionListener implements ActionListener {
 
         sutComboBox.removeAllItems();
 
-        ComboBox<?> projectCombo = (ComboBox<?>)actionEvent.getSource();
-        String selectedProject = (String)projectCombo.getSelectedItem();
+        ComboBox<?> projectCombo = (ComboBox<?>) actionEvent.getSource();
+        String selectedProject = (String) projectCombo.getSelectedItem();
 
         try {
             RpcClientService service = new PluginLivingDocXmlRpcClient();
             Set<SystemUnderTest> systems = service.getSystemUnderTestsOfProject(selectedProject, project.getIdentifier());
-            for(SystemUnderTest system : systems) {
+            for (SystemUnderTest system : systems) {
                 sutComboBox.addItem(system.getName());
             }
-            if(StringUtils.isNotBlank(project.getSystemUnderTest().getName())) {
+            if (StringUtils.isNotBlank(project.getSystemUnderTest().getName())) {
                 sutComboBox.setSelectedItem(project.getSystemUnderTest().getName());
 
             } else {

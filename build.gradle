@@ -16,9 +16,26 @@ repositories {
     mavenCentral()
 }
 
+// This issue was recently updated and is marked fixed, ready for release with version 2016.2 release.
+// noinspection GroovyAssignabilityCheck
+configurations {
+    //all*.exclude group: 'xml-apis'
+    //all*.exclude group: 'xerces'
+}
+
 dependencies {
 
     compile('info.novatec.testit:livingdoc-client:1.1.2') {
+        // Exclude to solver conflict with slf4j lib of IntelliJ classpath.
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+
+    compile('info.novatec.testit:livingdoc-cli:1.1.2') {
+        // Exclude to solver conflict with slf4j lib of IntelliJ classpath.
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+    }
+
+    compile('info.novatec.testit:livingdoc-server:1.1.2') {
         // Exclude to solver conflict with slf4j lib of IntelliJ classpath.
         exclude group: 'org.slf4j', module: 'slf4j-api'
     }

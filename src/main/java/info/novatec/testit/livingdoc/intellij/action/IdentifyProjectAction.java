@@ -3,7 +3,7 @@ package info.novatec.testit.livingdoc.intellij.action;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.DialogWrapper;
-import info.novatec.testit.livingdoc.intellij.model.LDProject;
+import info.novatec.testit.livingdoc.intellij.domain.LDProject;
 import info.novatec.testit.livingdoc.intellij.ui.IdentifyProjectUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
@@ -11,6 +11,7 @@ import info.novatec.testit.livingdoc.intellij.util.Icons;
 /**
  * Action to open the project configuration for LivingDoc.
  * Accessed from "Project contextual menu" (click on right button on IntelliJ project)
+ *
  * @see IdentifyProjectUI
  */
 public class IdentifyProjectAction extends AnAction {
