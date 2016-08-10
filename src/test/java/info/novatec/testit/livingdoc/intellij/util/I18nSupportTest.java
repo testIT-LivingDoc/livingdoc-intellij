@@ -7,8 +7,8 @@ public class I18nSupportTest {
 
     @Test
     public void getValue() {
-        String value = I18nSupport.getValue("server.configuration.header");
-        Assert.assertNotNull(value);
-        Assert.assertEquals("LivingDoc", value);
+        String result = I18nSupport.getValue("server.configuration.header");
+        Assert.assertNotNull(result);
+        Assert.assertEquals("LivingDoc", result);
     }
 }

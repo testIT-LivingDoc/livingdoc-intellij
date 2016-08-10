@@ -24,16 +24,16 @@ import java.awt.*;
  * If you modify the repository tree through {@link #getRootNode()}, may be necessary to refresh the domain with
  * {@link #reload()}.<br>
  * To add new new actions, you can do it with {@link #getActionGroup()} and adding the actions.
+ * se
  */
 public class RepositoryViewUI extends SimpleToolWindowPanel {
 
     private static final long serialVersionUID = 3126369479423241802L;
-
+    private final JPanel mainContent;
     private DefaultMutableTreeNode rootNode;
     private DefaultTreeModel treeModel;
     private ActionToolbar toolBar;
     private DefaultActionGroup actionGroup;
-    private JPanel mainContent;
     private CounterPanel counterPanel;
     private SimpleTree tree;
 
@@ -76,11 +76,10 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
     }
 
     public void initializeRootNode(final boolean withError, final String nodeText) {
-        Icon icon = Icons.PROJECT;
+        RootNode ideaProjectNode = new RootNode(nodeText);
         if (withError) {
-            icon = Icons.ERROR;
+            ideaProjectNode.setIcon(Icons.ERROR);
         }
-        RootNode ideaProjectNode = new RootNode(nodeText, icon);
 
         if (rootNode == null) {
             rootNode = new DefaultMutableTreeNode(ideaProjectNode);
@@ -93,7 +92,7 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
 
         for (DocumentNode child : children) {
 
-            Node node = new Node(child, (LDNode) parentNode.getUserObject(), Icons.EXECUTABLE);
+            Node node = new Node(child, (LDNode) parentNode.getUserObject());
 
             if (node.isExecutable() && node.canBeImplemented()) {
                 node.setIcon(Icons.EXE_DIFF);
@@ -116,12 +115,12 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
     }
 
     private void configureActionToolBar() {
+
         ActionManager actionManager = ActionManager.getInstance();
         actionGroup = new DefaultActionGroup();
-        toolBar = actionManager.createActionToolbar("LivingDoc.RepositoryViewToolbar",
-                actionGroup, false);
+        toolBar = actionManager.createActionToolbar("LivingDoc.RepositoryViewToolbar", actionGroup, false);
         toolBar.adjustTheSameSize(true);
-        //toolBar.setTargetComponent(tree);
+        toolBar.setTargetComponent(tree);
         setToolbar(toolBar.getComponent());
     }
 

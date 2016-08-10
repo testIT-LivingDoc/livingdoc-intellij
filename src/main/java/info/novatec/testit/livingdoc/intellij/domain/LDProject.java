@@ -24,8 +24,8 @@ public class LDProject implements Serializable {
     private static final String SYSTEM_KEY = "livingdoc.system.key";
     private static final String PROJECT_KEY = "livingdoc.project.key";
     private static final String IDENTIFIER_KEY = "livingdoc.identifier";
-    private static final String USERNAME_KEY = "livingdoc.username.key";
-    private static final String PASSWORD_KEY = "livingdoc.password.key";
+    private static final String USER_KEY = "livingdoc.username.key";
+    private static final String PASS_KEY = "livingdoc.password.key";
     private final com.intellij.openapi.project.Project ideaProject;
     private boolean configuredProject = true;
     private String identifier;
@@ -46,8 +46,8 @@ public class LDProject implements Serializable {
 
         properties.setValue(PluginProperties.getValue(PROJECT_KEY), projectName);
         properties.setValue(PluginProperties.getValue(SYSTEM_KEY), systemName);
-        properties.setValue(PluginProperties.getValue(USERNAME_KEY), userName);
-        properties.setValue(PluginProperties.getValue(PASSWORD_KEY), password);
+        properties.setValue(PluginProperties.getValue(USER_KEY), userName);
+        properties.setValue(PluginProperties.getValue(PASS_KEY), password);
     }
 
     @Override
@@ -92,7 +92,11 @@ public class LDProject implements Serializable {
         return configuredProject;
     }
 
-    public void load() {
+    public void reload() {
+        load();
+    }
+
+    private void load() {
         identifier = PluginProperties.getValue(IDENTIFIER_KEY);
 
         properties = PropertiesComponent.getInstance(this.ideaProject);
@@ -105,8 +109,8 @@ public class LDProject implements Serializable {
 
         systemUnderTest.setProject(livingDocProject);
 
-        user = properties.getValue(PluginProperties.getValue(USERNAME_KEY));
-        pass = properties.getValue(PluginProperties.getValue(PASSWORD_KEY));
+        user = properties.getValue(PluginProperties.getValue(USER_KEY));
+        pass = properties.getValue(PluginProperties.getValue(PASS_KEY));
 
         configuredProject = StringUtils.isNotBlank(systemName);
     }

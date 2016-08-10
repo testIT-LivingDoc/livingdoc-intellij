@@ -1,17 +1,24 @@
 package info.novatec.testit.livingdoc.intellij.util;
 
+
+import info.novatec.testit.livingdoc.intellij.ui.UIUtils;
+import org.junit.Assert;
 import org.junit.Test;
+
+import javax.swing.*;
+import java.awt.*;
+
 
 public class UIUtilsTest {
 
     @Test
     public void validateCredentials() {
 
-        // TODO units tests
-        /*LDProject ldProject = new LDProject(null);
-        Repository repository = new Repository();
+        JPanel jPanel = new JPanel();
+        UIUtils.insertSpace(jPanel, 2, 2);
 
-        boolean result = UIUtils.validateCredentials(ldProject, repository);
-        Assert.assertFalse(result);*/
+        Component component = jPanel.getComponent(0);
+        Assert.assertNotNull(component);
     }
+
 }

@@ -8,7 +8,7 @@ import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
  *
  * @see ServerPropertiesManager
  */
-class ServerPropertiesManagerImpl implements ServerPropertiesManager {
+public class ServerPropertiesManagerImpl implements ServerPropertiesManager {
 
     private final PropertiesComponent properties;
 

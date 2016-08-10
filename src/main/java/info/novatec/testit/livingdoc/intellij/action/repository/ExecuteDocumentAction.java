@@ -23,23 +23,21 @@ import info.novatec.testit.livingdoc.server.domain.Repository;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
- * LivingDoc execution on selected node.
+ * LivingDoc execution on selected node (specification).
  *
  * @see AnAction
  * @see info.novatec.testit.livingdoc.intellij.run.LivingDocSettingsEditor
  */
 public class ExecuteDocumentAction extends AnAction {
 
-    private SimpleTree repositoryTree;
+    private final SimpleTree repositoryTree;
     private boolean debugMode = false;
 
     /**
-     * Constructor
-     *
      * @param tree        {@link SimpleTree} Repository tree.
      * @param isDebugMode Kind of execution: <ul>
      *                    <li>true to activate debug mode</li>
-     *                    <li>false otherwise</li>
+     *                    <li>false otherwise. In this case, you will see the run configuration user interface.</li>
      *                    </ul>
      */
     public ExecuteDocumentAction(final SimpleTree tree, final boolean isDebugMode) {
@@ -63,7 +61,7 @@ public class ExecuteDocumentAction extends AnAction {
 
     /**
      * Action handler. Only specification nodes will be executed.<br>
-     * NOTE: Basic functionality with single selection, desired multiple selection.
+     * NOTE: Basic functionality with single selection, desired multiple selection. TODO
      *
      * @param actionEvent Carries information on the invocation place
      */
@@ -106,14 +104,14 @@ public class ExecuteDocumentAction extends AnAction {
     }
 
     private void fillRunConfiguration(RemoteRunConfiguration runConfiguration, Node node, final LDProject ldProject) {
-        RepositoryNode repositoryNode = RepositoryViewUtils.getRepositoryNode(node);
+
+        RepositoryNode repositoryNode = RepositoryViewController.getRepositoryNode(node);
         Repository repository = repositoryNode.getRepository();
-        
+
         runConfiguration.setRepositoryUID(repository.getUid());
         runConfiguration.setRepositoryURL(repository.getBaseTestUrl());
         runConfiguration.setSpecificationName(node.getName());
         runConfiguration.setRepositoryClass(repository.getType().getClassName());
-        //runConfiguration.setRepositoryLocal(repositoryNode.isLocal());
         runConfiguration.setWorkingVersion(node.isUsingCurrentVersion());
         runConfiguration.setUser(ldProject.getUser());
         runConfiguration.setPass(ldProject.getPass());

@@ -13,7 +13,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.LabeledComponent;
 import com.intellij.psi.JavaCodeFragment;
 import com.intellij.psi.PsiClass;
-import com.intellij.psi.PsiElement;
 import com.intellij.psi.util.PsiMethodUtil;
 import com.intellij.ui.EditorTextFieldWithBrowseButton;
 import com.intellij.ui.PanelWithAnchor;
@@ -26,7 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 
 /**
- * TO specify execution options of LivingDoc's Plugin
+ * To specify execution options of LivingDoc's Plugin
  * The UI is defined in LivingDocSettingsEditor.form
  *
  * @see RemoteRunConfiguration
@@ -118,17 +117,16 @@ public class LivingDocSettingsEditor extends SettingsEditor<RemoteRunConfigurati
 
     private void createUIComponents() {
         myMainClass = new LabeledComponent<>();
-        myMainClass.setComponent(new EditorTextFieldWithBrowseButton(myProject, true, new JavaCodeFragment.VisibilityChecker() {
-            @Override
-            public Visibility isDeclarationVisible(PsiElement declaration, PsiElement place) {
-                if (declaration instanceof PsiClass) {
-                    final PsiClass aClass = (PsiClass) declaration;
-                    if (ConfigurationUtil.MAIN_CLASS.value(aClass) && PsiMethodUtil.findMainMethod(aClass) != null) {
-                        return Visibility.VISIBLE;
-                    }
+        myMainClass.setComponent(new EditorTextFieldWithBrowseButton(myProject, true, (declaration, place) -> {
+
+            if (declaration instanceof PsiClass) {
+                final PsiClass aClass = (PsiClass) declaration;
+                if (ConfigurationUtil.MAIN_CLASS.value(aClass) && PsiMethodUtil.findMainMethod(aClass) != null) {
+                    return JavaCodeFragment.VisibilityChecker.Visibility.VISIBLE;
                 }
-                return JavaCodeFragment.VisibilityChecker.Visibility.NOT_VISIBLE;
             }
-        }));
+            return JavaCodeFragment.VisibilityChecker.Visibility.NOT_VISIBLE;
+        }
+        ));
     }
 }

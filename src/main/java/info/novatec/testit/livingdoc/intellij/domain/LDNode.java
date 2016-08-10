@@ -6,7 +6,8 @@ import javax.swing.*;
 import java.io.Serializable;
 
 /**
- * TODO javadoc
+ * Parent class for the nodes of the repository view tree
+ * @see LDNodeType
  */
 public class LDNode implements Serializable {
 
@@ -16,7 +17,7 @@ public class LDNode implements Serializable {
     private Icon icon;
     private LDNodeType type;
 
-    public LDNode(final String nodeName, final Icon nodeIcon, final LDNodeType nodeType) {
+    LDNode(final String nodeName, final Icon nodeIcon, final LDNodeType nodeType) {
         this.name = nodeName;
         this.icon = nodeIcon;
         this.type = nodeType;

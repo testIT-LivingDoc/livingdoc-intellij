@@ -26,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
  * configuration settings (Displayed in multiple tabs if there's more than one):
  * <ul>
  * <li>{@link LivingDocSettingsEditor}</li>
+ * <li>{@link LogConfigurationPanel}</li>
  * </ul>
  *
  * @see ApplicationConfiguration
@@ -45,7 +46,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     private String pass;
 
 
-    protected RemoteRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, final String name) {
+    RemoteRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, final String name) {
         super(name, project, factory);
     }
 
@@ -54,8 +55,6 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
         SettingsEditorGroup<RemoteRunConfiguration> settingsEditorGroup = new SettingsEditorGroup<>();
         settingsEditorGroup.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new LivingDocSettingsEditor(getProject()));
-        // For code coverage
-        //JavaRunConfigurationExtensionManager.getInstance().appendEditors(this, settingsEditorGroup);
         settingsEditorGroup.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel<>());
         return settingsEditorGroup;
     }
@@ -69,7 +68,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
         if (StringUtils.isBlank(repositoryURL)) {
             throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.repositoryurl.error"));
         }
-        if (StringUtils.isBlank((specificationName))) {
+        if (StringUtils.isBlank(specificationName)) {
             throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.specificationName.error"));
         }
         if (StringUtils.isBlank(repositoryClass)) {

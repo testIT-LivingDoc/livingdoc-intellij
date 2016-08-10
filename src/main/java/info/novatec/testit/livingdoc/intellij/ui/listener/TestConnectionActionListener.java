@@ -15,8 +15,6 @@ import java.awt.event.ActionListener;
  * Tests the server connection with the fields url and handler.
  *
  * @see ActionListener
- * <p>
- * TODO Add loading popup
  */
 public class TestConnectionActionListener implements ActionListener {
 

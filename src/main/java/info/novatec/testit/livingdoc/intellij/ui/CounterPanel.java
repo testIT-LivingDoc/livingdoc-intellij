@@ -19,7 +19,6 @@ public class CounterPanel extends JPanel {
     public CounterPanel() {
 
         setLayout(new FlowLayout(FlowLayout.CENTER));
-        //setBorder(new BottomLineBorder());
 
         addComponents();
     }

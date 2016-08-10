@@ -1,4 +1,4 @@
-package info.novatec.testit.livingdoc.intellij.action;
+package info.novatec.testit.livingdoc.intellij.action.repository;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
@@ -10,19 +10,18 @@ import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import info.novatec.testit.livingdoc.intellij.action.repository.ExecuteDocumentAction;
-import info.novatec.testit.livingdoc.intellij.action.repository.OpenRemoteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.domain.LDProject;
+import info.novatec.testit.livingdoc.intellij.domain.Node;
 import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.ui.RepositoryViewUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
-import info.novatec.testit.livingdoc.intellij.util.UIUtils;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.rpc.RpcClientService;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -37,15 +36,29 @@ import java.util.Set;
  */
 public class RepositoryViewController implements ToolWindowFactory {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.action.RepositoryViewController");
+    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.action.repository.RepositoryViewController");
 
     private RepositoryViewUI repositoryViewUI;
     private LDProject ldProject;
 
-    @Override
-    public void createToolWindowContent(@NotNull Project IDEAProject, @NotNull ToolWindow toolWindow) {
+    /**
+     * Recursive method to find the node's repository through node's parent.
+     *
+     * @param node {@link Node} Livingdoc specification node
+     * @return @{@link RepositoryNode}
+     */
+    public static RepositoryNode getRepositoryNode(final Node node) {
+        if (node.getParent() instanceof RepositoryNode) {
+            return (RepositoryNode) node.getParent();
+        } else {
+            return getRepositoryNode((Node) node.getParent());
+        }
+    }
 
-        ldProject = new LDProject(IDEAProject);
+    @Override
+    public void createToolWindowContent(@NotNull Project ideaProject, @NotNull ToolWindow toolWindow) {
+
+        ldProject = new LDProject(ideaProject);
 
         loadView();
 
@@ -87,8 +100,8 @@ public class RepositoryViewController implements ToolWindowFactory {
         repositoryViewUI.getActionGroup().add(executeDocumentAction);
 
         // With debug mode
-        executeDocumentAction = new ExecuteDocumentAction(repositoryViewUI.getRepositoryTree(), true);
-        repositoryViewUI.getActionGroup().add(executeDocumentAction);
+        ExecuteDocumentAction debugDocumentAction = new ExecuteDocumentAction(repositoryViewUI.getRepositoryTree(), true);
+        repositoryViewUI.getActionGroup().add(debugDocumentAction);
     }
 
     private void createRefreshRepositoryAction() {
@@ -97,7 +110,7 @@ public class RepositoryViewController implements ToolWindowFactory {
 
             @Override
             public void actionPerformed(AnActionEvent e) {
-                ldProject.load();
+                ldProject.reload();
                 loadView();
             }
         };
@@ -129,8 +142,8 @@ public class RepositoryViewController implements ToolWindowFactory {
 
             for (Repository repository : repositories) {
 
-                if (UIUtils.validateCredentials(ldProject, repository)) {
-                    RepositoryNode repositoryNode = new RepositoryNode(repository.getProject().getName(), Icons.REPOSITORY);
+                if (validateCredentials(ldProject, repository)) {
+                    RepositoryNode repositoryNode = new RepositoryNode(repository.getProject().getName());
                     repositoryNode.setRepository(repository);
                     DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
                     repositoryViewUI.getRootNode().add(childNode);
@@ -157,5 +170,25 @@ public class RepositoryViewController implements ToolWindowFactory {
             repositoryViewUI.initializeRootNode(true, ldse.getMessage());
         }
         repositoryViewUI.reload();
+    }
+
+    /**
+     * Validates the LivingDoc user and password configured in IntelliJ to connect with LivingDoc repository.
+     *
+     * @param ldProject  {@link LDProject}
+     * @param repository {@link Repository}
+     * @return True if the credentials are valid. Otherwise, false.
+     */
+    private boolean validateCredentials(final LDProject ldProject, final Repository repository) {
+
+        boolean result = true;
+
+        if (!StringUtils.equals(ldProject.getUser(), repository.getUsername())
+                || !StringUtils.equals(ldProject.getPass(), repository.getPassword())) {
+
+            result = false;
+        }
+
+        return result;
     }
 }

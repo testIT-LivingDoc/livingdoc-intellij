@@ -9,6 +9,7 @@ import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
 import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
 
+
 /**
  * Action to open the configuration to connect with LivingDoc Server:<br>
  * - The base URL of Confluence<br>

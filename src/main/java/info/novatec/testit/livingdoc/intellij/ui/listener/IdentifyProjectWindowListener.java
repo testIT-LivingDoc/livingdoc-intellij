@@ -22,7 +22,6 @@ import java.util.Set;
  *
  * @see WindowListener
  * @see PluginLivingDocXmlRpcClient
- * TODO Add loading popup
  */
 public class IdentifyProjectWindowListener implements WindowListener {
 
@@ -44,26 +43,32 @@ public class IdentifyProjectWindowListener implements WindowListener {
 
     @Override
     public void windowClosing(WindowEvent e) {
+        //not used
     }
 
     @Override
     public void windowClosed(WindowEvent e) {
+        //not used
     }
 
     @Override
     public void windowIconified(WindowEvent e) {
+        //not used
     }
 
     @Override
     public void windowDeiconified(WindowEvent e) {
+        //not used
     }
 
     @Override
     public void windowActivated(WindowEvent e) {
+        //not used
     }
 
     @Override
     public void windowDeactivated(WindowEvent e) {
+        //not used
     }
 
     private void loadProjects() {

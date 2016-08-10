@@ -21,7 +21,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  *
  * @see AnAction
  */
-public class OpenRemoteDocumentAction extends AnAction {
+class OpenRemoteDocumentAction extends AnAction {
 
     private final SimpleTree repositoryTree;
 
@@ -49,7 +49,7 @@ public class OpenRemoteDocumentAction extends AnAction {
         if (((LDNode) userObject).getType() == LDNodeType.SPECIFICATION) {
 
             Node node = (Node) userObject;
-            RepositoryNode repositoryNode = RepositoryViewUtils.getRepositoryNode(node);
+            RepositoryNode repositoryNode = RepositoryViewController.getRepositoryNode(node);
 
             BrowserLauncher browser = new BrowserLauncherImpl();
 

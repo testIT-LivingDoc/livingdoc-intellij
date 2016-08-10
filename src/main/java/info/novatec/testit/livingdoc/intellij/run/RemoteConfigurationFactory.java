@@ -16,12 +16,12 @@ import org.jetbrains.annotations.NotNull;
  */
 public class RemoteConfigurationFactory extends ConfigurationFactory {
 
-    protected RemoteConfigurationFactory(@NotNull ConfigurationType type) {
+    RemoteConfigurationFactory(@NotNull ConfigurationType type) {
         super(type);
     }
 
     @Override
-    public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
+    public RunConfiguration createTemplateConfiguration(Project project) {
         return new RemoteRunConfiguration(project, this, getType().getDisplayName());
     }
 }

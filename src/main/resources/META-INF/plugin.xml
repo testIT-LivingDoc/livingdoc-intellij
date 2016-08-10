@@ -19,13 +19,10 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Repository View"
                     anchor="bottom"
-                    factoryClass="info.novatec.testit.livingdoc.intellij.action.RepositoryViewController"
+                    factoryClass="info.novatec.testit.livingdoc.intellij.action.repository.RepositoryViewController"
                     icon="/icons/livingdoc_16.gif"
                     canCloseContents="true"/>
         <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.LivingDocConfigurationType"/>
-        <runConfigurationProducer
-                implementation="info.novatec.testit.livingdoc.intellij.run.LivingDocRunConfigurationProducer"
-                order="last"/>
     </extensions>
 
     <actions>

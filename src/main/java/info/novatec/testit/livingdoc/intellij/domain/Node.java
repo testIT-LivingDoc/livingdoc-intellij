@@ -1,14 +1,15 @@
 package info.novatec.testit.livingdoc.intellij.domain;
 
+import info.novatec.testit.livingdoc.intellij.util.Icons;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-import javax.swing.*;
-
 /**
- * Custom Tree Node for LivingDoc plugin.
+ * Custom tree node for LivingDoc plugin.
  * It's the user object for {@link javax.swing.tree.DefaultMutableTreeNode}
  * Built from {@link info.novatec.testit.livingdoc.server.domain.DocumentNode}
+ *
+ * @see LDNode
  */
 public class Node extends LDNode {
 
@@ -19,9 +20,9 @@ public class Node extends LDNode {
     private boolean canBeImplemented;
     private boolean usingCurrentVersion;
 
-    public Node(DocumentNode node, LDNode parentNode, final Icon icon) {
+    public Node(DocumentNode node, LDNode parentNode) {
 
-        super(node.getTitle(), icon, LDNodeType.SPECIFICATION);
+        super(node.getTitle(), Icons.EXECUTABLE, LDNodeType.SPECIFICATION);
 
         this.parent = parentNode;
         this.executable = node.isExecutable();

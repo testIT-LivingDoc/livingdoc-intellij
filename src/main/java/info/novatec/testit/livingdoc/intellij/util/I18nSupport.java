@@ -16,6 +16,10 @@ public class I18nSupport {
     @NonNls
     private static final ResourceBundle bundle = ResourceBundle.getBundle(BUNDLE_PATH);
 
+    private I18nSupport() {
+        //Utility class
+    }
+
     public static String getValue
             (@PropertyKey(resourceBundle = BUNDLE_PATH) String key, Object... params) {
 

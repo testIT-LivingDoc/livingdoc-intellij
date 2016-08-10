@@ -3,13 +3,11 @@ package info.novatec.testit.livingdoc.intellij.ui;
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
-import com.intellij.ui.JBColor;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.ui.listener.TestConnectionActionListener;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
-import info.novatec.testit.livingdoc.intellij.util.UIUtils;
 import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.Nullable;
@@ -87,7 +85,6 @@ public class ServerConfigurationUI extends DialogWrapper {
         GridBagConstraints constraints = new GridBagConstraints();
 
         JBLabel titleLabel = new JBLabel(I18nSupport.getValue("server.configuration.title"));
-        titleLabel.setForeground(new JBColor(JBColor.BLACK, JBColor.ORANGE));
         titleLabel.setFont(new Font(null, Font.BOLD, 20));
         constraints.gridx = 0;
         constraints.gridy = 0;
