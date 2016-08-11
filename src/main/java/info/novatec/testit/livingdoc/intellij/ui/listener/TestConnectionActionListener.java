@@ -18,7 +18,7 @@ import java.awt.event.ActionListener;
  */
 public class TestConnectionActionListener implements ActionListener {
 
-    private static final Logger LOG = Logger.getInstance(TestConnectionActionListener.class);
+    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.ui.listener.TestConnectionActionListener");
 
     private final JBTextField urlTextField;
     private final JBTextField handlerTextField;
@@ -36,11 +36,12 @@ public class TestConnectionActionListener implements ActionListener {
             if (testOk) {
                 Messages.showInfoMessage(I18nSupport.getValue("server.configuration.button.test.ok"), I18nSupport.getValue("server.configuration.button.test.title"));
             } else {
-                Messages.showErrorDialog(I18nSupport.getValue("server.configuration.button.test.ko"), I18nSupport.getValue("server.configuration.button.test.error"));
+                LOG.warn(I18nSupport.getValue("server.configuration.button.test.ko"));
+                Messages.showErrorDialog(I18nSupport.getValue("server.configuration.button.test.ko"), I18nSupport.getValue("server.configuration.button.test.title"));
             }
         } catch (LivingDocServerException ldse) {
-            Messages.showErrorDialog(ldse.getMessage(), I18nSupport.getValue("server.configuration.button.test.error"));
             LOG.error(ldse);
+            Messages.showErrorDialog(ldse.getMessage(), I18nSupport.getValue("server.configuration.button.test.title"));
         }
     }
 }
