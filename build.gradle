@@ -1,0 +1,52 @@
+plugins {
+    id "org.jetbrains.intellij" version "0.1.10"
+}
+
+apply plugin: 'idea'
+apply plugin: 'java'
+
+intellij {
+    pluginName 'livingdoc-intellij-plugin'
+}
+
+group 'info.novatec.testit'
+version '1.0.0-SNAPSHOT'
+sourceCompatibility=1.8
+targetCompatibility=1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    compile('info.novatec.testit:livingdoc-client:1.1.2') {
+        // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        // Exclude to resolve a conflict with jaxp implementation in runtime
+        exclude group: 'xmlrpc', module:'xmlrpc'
+        exclude group: 'org.apache.xmlrpc', module:'xmlrpc-client'
+    }
+
+    compile('info.novatec.testit:livingdoc-cli:1.1.2') {
+        // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+
+        exclude group:'info.novatec.testit', module: 'livingdoc-client'
+    }
+
+    compile('info.novatec.testit:livingdoc-server:1.1.2') {
+        // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+
+        exclude group:'info.novatec.testit', module: 'livingdoc-client'
+    }
+
+    // It's necessary to resolve a conflict with javax.transaction:jta:1.0.1B
+    compile('org.hibernate:hibernate-core:3.5.6-Final') {
+        // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
+        exclude group: 'org.slf4j', module: 'slf4j-api'
+        // Exclude to resolve a conflict with jaxp implementation in runtime
+        exclude group: 'xml-apis', module:'xml-apis'
+    }
+}

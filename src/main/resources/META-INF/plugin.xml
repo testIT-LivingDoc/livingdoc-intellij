@@ -1,0 +1,37 @@
+<idea-plugin version="2">
+    <id>info.novatec.testit.livingdoc.intellij</id>
+    <name>Testit LivingDoc Intellij IDEA Plugin</name>
+    <version>1.0</version>
+    <vendor email="livingdoc@novatec-gmbh.de" url="http://www.novatec-gmbh.de/en/">NovaTec Solutions GmbH</vendor>
+
+    <description><![CDATA[
+
+    ]]></description>
+
+    <change-notes><![CDATA[
+        v1.0.0 Initial release. <br>
+        Allows for the execution of testIT LivingDoc specificationName inside IntelliJ.
+    ]]>
+    </change-notes>
+
+    <idea-version since-build="141.0"/>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <toolWindow id="Repository View"
+                    anchor="bottom"
+                    factoryClass="info.novatec.testit.livingdoc.intellij.action.repository.RepositoryViewController"
+                    icon="/icons/livingdoc_16.gif"
+                    canCloseContents="true"/>
+        <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.LivingDocConfigurationType"/>
+    </extensions>
+
+    <actions>
+    </actions>
+
+    <application-components>
+        <component>
+            <implementation-class>info.novatec.testit.livingdoc.intellij.PluginRegistration</implementation-class>
+        </component>
+    </application-components>
+
+</idea-plugin>
