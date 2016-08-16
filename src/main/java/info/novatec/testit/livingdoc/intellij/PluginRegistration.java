@@ -3,6 +3,7 @@ package info.novatec.testit.livingdoc.intellij;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.components.ApplicationComponent;
+import com.intellij.openapi.extensions.PluginId;
 import info.novatec.testit.livingdoc.intellij.action.IdentifyProjectAction;
 import info.novatec.testit.livingdoc.intellij.action.ServerConfigurationAction;
 import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
@@ -25,13 +26,14 @@ public class PluginRegistration implements ApplicationComponent {
         ActionManager actionManager = ActionManager.getInstance();
 
         ServerConfigurationAction serverConfigurationAction = new ServerConfigurationAction();
-        actionManager.registerAction(PluginProperties.getValue("plugin.action.server.configuration"), serverConfigurationAction);
+        PluginId pluginId = PluginId.getId(getComponentName());
+        actionManager.registerAction(PluginProperties.getValue("plugin.action.server.configuration"), serverConfigurationAction, pluginId);
         DefaultActionGroup fileSettingsMenu = (DefaultActionGroup) actionManager.getAction(IDE_FILE_SETTINGS_MENU);
         fileSettingsMenu.addSeparator();
         fileSettingsMenu.add(serverConfigurationAction);
 
         IdentifyProjectAction identifyProjectAction = new IdentifyProjectAction();
-        actionManager.registerAction(PluginProperties.getValue("plugin.action.identify.project"), identifyProjectAction);
+        actionManager.registerAction(PluginProperties.getValue("plugin.action.identify.project"), identifyProjectAction, pluginId);
         DefaultActionGroup projectMenu = (DefaultActionGroup) actionManager.getAction(IDE_PROJECT_CONTEXTUAL_MENU);
         projectMenu.addSeparator();
         projectMenu.add(identifyProjectAction);
@@ -46,6 +48,6 @@ public class PluginRegistration implements ApplicationComponent {
     @Override
     public String getComponentName() {
 
-        return PluginProperties.getValue("plugin.name");
+        return PluginProperties.getValue("plugin.id");
     }
 }

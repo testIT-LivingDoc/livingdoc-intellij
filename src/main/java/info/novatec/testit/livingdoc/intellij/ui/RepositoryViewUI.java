@@ -22,36 +22,42 @@ import java.awt.*;
 /**
  * User interface for LivingDoc Repository View.<br>
  * If you modify the repository tree through {@link #getRootNode()}, may be necessary to refresh the domain with
- * {@link #reload()}.<br>
- * To add new new actions, you can do it with {@link #getActionGroup()} and adding the actions.
- * se
+ * {@link #reloadTree()}.<br>
+ * To add new actions, use {@link #getActionGroup()}
+ * @see SimpleToolWindowPanel
  */
 public class RepositoryViewUI extends SimpleToolWindowPanel {
 
     private static final long serialVersionUID = 3126369479423241802L;
     private final JPanel mainContent;
-    private DefaultMutableTreeNode rootNode;
+    private final DefaultMutableTreeNode rootNode;
     private DefaultTreeModel treeModel;
     private ActionToolbar toolBar;
     private DefaultActionGroup actionGroup;
     private CounterPanel counterPanel;
+    private ProgressBar progressBar;
     private SimpleTree tree;
 
-    public RepositoryViewUI(final boolean withError, final String nodeText) {
 
+    public RepositoryViewUI(RootNode rootTreeNode) {
         super(false);
 
         mainContent = new JPanel(new BorderLayout());
         setContent(mainContent);
 
-        initializeRootNode(withError, nodeText);
+        this.rootNode = new DefaultMutableTreeNode(rootTreeNode);
 
-        configureRepositoryTree();
-        configureActionToolBar();
-        configureCounterPanel();
+        createRepositoryTree();
+        createActionToolBar();
+        createCounterPanel();
     }
 
-    public void reload() {
+    public void resetTree(RootNode newRootNode) {
+        rootNode.removeAllChildren();
+        rootNode.setUserObject(newRootNode);
+    }
+
+    public void reloadTree() {
         treeModel.reload();
     }
 
@@ -73,19 +79,6 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
 
     public SimpleTree getRepositoryTree() {
         return tree;
-    }
-
-    public void initializeRootNode(final boolean withError, final String nodeText) {
-        RootNode ideaProjectNode = new RootNode(nodeText);
-        if (withError) {
-            ideaProjectNode.setIcon(Icons.ERROR);
-        }
-
-        if (rootNode == null) {
-            rootNode = new DefaultMutableTreeNode(ideaProjectNode);
-        } else {
-            rootNode.setUserObject(ideaProjectNode);
-        }
     }
 
     public void paintDocumentNode(java.util.List<DocumentNode> children, DefaultMutableTreeNode parentNode) {
@@ -114,7 +107,7 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         }
     }
 
-    private void configureActionToolBar() {
+    private void createActionToolBar() {
 
         ActionManager actionManager = ActionManager.getInstance();
         actionGroup = new DefaultActionGroup();
@@ -124,7 +117,7 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         setToolbar(toolBar.getComponent());
     }
 
-    private void configureRepositoryTree() {
+    private void createRepositoryTree() {
 
         tree = new SimpleTree();
         tree.setCellRenderer(new LDTreeCellRenderer());
@@ -138,13 +131,14 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         mainContent.add(tree, BorderLayout.CENTER);
     }
 
-    private void configureCounterPanel() {
+    private void createCounterPanel() {
 
         counterPanel = new CounterPanel();
+        progressBar = new ProgressBar();
 
         JPanel jPanel = new JPanel(new VerticalLayout(0));
         jPanel.add(counterPanel);
-        jPanel.add(new ProgressBar());
+        jPanel.add(progressBar);
 
         mainContent.add(jPanel, BorderLayout.NORTH);
     }
