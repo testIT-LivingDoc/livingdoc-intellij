@@ -5,6 +5,7 @@ import com.intellij.ide.browsers.BrowserLauncher;
 import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.ui.treeStructure.SimpleTree;
 import info.novatec.testit.livingdoc.intellij.domain.LDNode;
 import info.novatec.testit.livingdoc.intellij.domain.LDNodeType;
@@ -12,12 +13,14 @@ import info.novatec.testit.livingdoc.intellij.domain.Node;
 import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.server.domain.Specification;
+import org.apache.commons.lang3.ArrayUtils;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * The action shows the selected document(s) from the Confluence repository in the web browser.
- * A web browser tab is opened for each selected document.
+ * A web browser tab is opened for each selected document.<br>
+ * See {@link #update(AnActionEvent)} for the display restrictions.
  *
  * @see AnAction
  */
@@ -64,5 +67,26 @@ class OpenRemoteDocumentAction extends AnAction {
                 browser.open(specification.getRepository().getType().resolveName(specification));
             }
         }
+    }
+
+    /**
+     * This action will be enabled only for specification nodes {@link LDNodeType}
+     * @param actionEvent Carries information on the invocation place
+     */
+    @Override
+    public void update(AnActionEvent actionEvent) {
+
+        super.update(actionEvent);
+
+        Presentation presentation = actionEvent.getPresentation();
+
+        DefaultMutableTreeNode[] selectedNodes = repositoryTree.getSelectedNodes(DefaultMutableTreeNode.class, null);
+        if(ArrayUtils.isEmpty(selectedNodes)) {
+            presentation.setEnabled(false);
+            return;
+        }
+
+        Object userObject = selectedNodes[0].getUserObject();
+        presentation.setEnabled(((LDNode) userObject).getType() == LDNodeType.SPECIFICATION);
     }
 }

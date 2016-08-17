@@ -21,7 +21,6 @@ import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.rpc.RpcClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
-
 import javax.swing.tree.DefaultMutableTreeNode;
 import java.util.Set;
 
@@ -46,8 +45,6 @@ public class RepositoryViewController implements ToolWindowFactory {
         ldProject = new LDProject(ideaProject);
 
         loadView();
-
-        configureActions();
 
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(repositoryViewUI, ldProject.getIdeaProject().getName(), false);
@@ -74,6 +71,8 @@ public class RepositoryViewController implements ToolWindowFactory {
     private void loadView() {
 
         repositoryViewUI = new RepositoryViewUI(getDefaultRootNode());
+
+        configureActions();
 
         loadRepositories();
     }

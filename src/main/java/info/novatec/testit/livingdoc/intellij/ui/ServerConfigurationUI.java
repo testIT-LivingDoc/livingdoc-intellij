@@ -4,6 +4,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.ui.listener.TestConnectionActionListener;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
@@ -24,7 +25,7 @@ import java.awt.*;
  */
 public class ServerConfigurationUI extends DialogWrapper {
 
-    private JPanel jPanel;
+    private JBPanel jPanel;
     private String url;
     private String handler;
     private JBTextField urlTextField;
@@ -80,7 +81,7 @@ public class ServerConfigurationUI extends DialogWrapper {
 
     private void addComponents() {
 
-        jPanel = new JPanel(new GridBagLayout());
+        jPanel = new JBPanel(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
 

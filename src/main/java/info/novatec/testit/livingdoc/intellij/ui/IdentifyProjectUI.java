@@ -4,6 +4,7 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.ui.listener.IdentifyProjectWindowListener;
@@ -23,7 +24,7 @@ import java.awt.*;
 public class IdentifyProjectUI extends DialogWrapper {
 
     private final Project ideaProject;
-    private JPanel jPanel;
+    private JBPanel jPanel;
     private ComboBox<String> projectCombo;
     private ComboBox<String> systemCombo;
     private JBTextField userTextField;
@@ -77,7 +78,7 @@ public class IdentifyProjectUI extends DialogWrapper {
 
     private void addComponents() {
 
-        jPanel = new JPanel(new GridBagLayout());
+        jPanel = new JBPanel(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
 

@@ -4,6 +4,7 @@ import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.panels.VerticalLayout;
 import com.intellij.ui.treeStructure.SimpleTree;
 import info.novatec.testit.livingdoc.intellij.domain.LDNode;
@@ -13,23 +14,24 @@ import info.novatec.testit.livingdoc.intellij.ui.renderer.LDTreeCellRenderer;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
+
 
 /**
  * User interface for LivingDoc Repository View.<br>
  * If you modify the repository tree through {@link #getRootNode()}, may be necessary to refresh the domain with
  * {@link #reloadTree()}.<br>
  * To add new actions, use {@link #getActionGroup()}
+ *
  * @see SimpleToolWindowPanel
  */
 public class RepositoryViewUI extends SimpleToolWindowPanel {
 
     private static final long serialVersionUID = 3126369479423241802L;
-    private final JPanel mainContent;
+    private final JBPanel mainContent;
     private final DefaultMutableTreeNode rootNode;
     private DefaultTreeModel treeModel;
     private ActionToolbar toolBar;
@@ -42,7 +44,7 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
     public RepositoryViewUI(RootNode rootTreeNode) {
         super(false);
 
-        mainContent = new JPanel(new BorderLayout());
+        mainContent = new JBPanel(new BorderLayout());
         setContent(mainContent);
 
         this.rootNode = new DefaultMutableTreeNode(rootTreeNode);
@@ -136,7 +138,7 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         counterPanel = new CounterPanel();
         progressBar = new ProgressBar();
 
-        JPanel jPanel = new JPanel(new VerticalLayout(0));
+        JBPanel jPanel = new JBPanel(new VerticalLayout(0));
         jPanel.add(counterPanel);
         jPanel.add(progressBar);
 
