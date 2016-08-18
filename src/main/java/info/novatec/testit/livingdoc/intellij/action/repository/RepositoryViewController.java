@@ -1,6 +1,8 @@
 package info.novatec.testit.livingdoc.intellij.action.repository;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -8,9 +10,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.ui.PopupHandler;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import info.novatec.testit.livingdoc.intellij.domain.*;
+import info.novatec.testit.livingdoc.intellij.domain.LDProject;
+import info.novatec.testit.livingdoc.intellij.domain.Node;
+import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
+import info.novatec.testit.livingdoc.intellij.domain.RootNode;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.ui.RepositoryViewUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
@@ -21,7 +27,9 @@ import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.rpc.RpcClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
 import java.util.Set;
 
 /**
@@ -38,6 +46,19 @@ public class RepositoryViewController implements ToolWindowFactory {
     private RepositoryViewUI repositoryViewUI;
     private LDProject ldProject;
 
+    /**
+     * Recursive method to find the node's repository through node's parent.
+     *
+     * @param node {@link Node} Livingdoc specification node
+     * @return @{@link RepositoryNode}
+     */
+    public static RepositoryNode getRepositoryNode(final Node node) {
+        if (node.getParent() instanceof RepositoryNode) {
+            return (RepositoryNode) node.getParent();
+        } else {
+            return getRepositoryNode((Node) node.getParent());
+        }
+    }
 
     @Override
     public void createToolWindowContent(@NotNull Project ideaProject, @NotNull ToolWindow toolWindow) {
@@ -52,20 +73,6 @@ public class RepositoryViewController implements ToolWindowFactory {
         content.putUserData(ToolWindow.SHOW_CONTENT_ICON, Boolean.TRUE);
         content.setCloseable(true);
         toolWindow.getContentManager().addContent(content);
-    }
-
-    /**
-     * Recursive method to find the node's repository through node's parent.
-     *
-     * @param node {@link Node} Livingdoc specification node
-     * @return @{@link RepositoryNode}
-     */
-    public static RepositoryNode getRepositoryNode(final Node node) {
-        if (node.getParent() instanceof RepositoryNode) {
-            return (RepositoryNode) node.getParent();
-        } else {
-            return getRepositoryNode((Node) node.getParent());
-        }
     }
 
     private void loadView() {
@@ -86,6 +93,17 @@ public class RepositoryViewController implements ToolWindowFactory {
         createOpenDocumentAction();
 
         repositoryViewUI.getActionToolBar().updateActionsImmediately();
+
+        // Context menu with the plugin actions.
+        repositoryViewUI.getRepositoryTree().addMouseListener(new PopupHandler() {
+
+            @Override
+            public void invokePopup(final Component comp, final int x, final int y) {
+
+                ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("LivingDoc.RepositoryViewToolbar", repositoryViewUI.getActionGroup());
+                actionPopupMenu.getComponent().show(comp, x, y);
+            }
+        });
     }
 
     private void createOpenDocumentAction() {
@@ -118,6 +136,7 @@ public class RepositoryViewController implements ToolWindowFactory {
         };
         anAction.getTemplatePresentation().setIcon(AllIcons.Actions.Refresh);
         anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("repository.view.action.refresh.tooltip"));
+        anAction.getTemplatePresentation().setText(I18nSupport.getValue("repository.view.action.refresh.tooltip"));
         repositoryViewUI.getActionGroup().add(anAction);
     }
 
@@ -178,7 +197,7 @@ public class RepositoryViewController implements ToolWindowFactory {
     }
 
     private RootNode getDefaultRootNode() {
-        return  new RootNode(ldProject.getIdeaProject().getName() + " [" + ldProject.getSystemUnderTest().getName() + "]");
+        return new RootNode(ldProject.getIdeaProject().getName() + " [" + ldProject.getSystemUnderTest().getName() + "]");
     }
 
     /**

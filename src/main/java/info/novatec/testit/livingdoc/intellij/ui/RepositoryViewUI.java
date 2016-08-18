@@ -112,7 +112,8 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
     private void createActionToolBar() {
 
         ActionManager actionManager = ActionManager.getInstance();
-        actionGroup = new DefaultActionGroup();
+        actionGroup = new DefaultActionGroup(null, true);
+
         toolBar = actionManager.createActionToolbar("LivingDoc.RepositoryViewToolbar", actionGroup, false);
         toolBar.adjustTheSameSize(true);
         toolBar.setTargetComponent(tree);
