@@ -8,6 +8,7 @@ import com.intellij.ide.browsers.WebBrowserManager;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.vfs.VirtualFile;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
@@ -19,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.xml.sax.SAXException;
 
+import javax.swing.*;
 import java.io.*;
 
 
@@ -50,6 +52,8 @@ public class LivingDocProcessListener extends ProcessAdapter {
             try {
                 Specification specification = buildSpecificationReport();
 
+                updateStatusLine(specification);
+
                 File resultFile = loadResultFile(specification);
 
                 createOrUpdateIntellijResource(resultFile);
@@ -58,6 +62,26 @@ public class LivingDocProcessListener extends ProcessAdapter {
                 LOG.error(e.getMessage());
             }
         }
+    }
+
+    private void updateStatusLine(Specification specification) {
+
+        boolean hasError = false;
+        for (Execution execution : specification.getExecutions()) {
+            if(execution.hasException() || execution.hasFailed()) {
+                hasError = true;
+            }
+        }
+
+        final boolean finalHasError = hasError;
+
+        SwingUtilities.invokeLater(()-> {
+            if(finalHasError) {
+                runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
+            }
+            runConfiguration.getStatusLine().setFraction(1d);
+        });
+
     }
 
     private Specification buildSpecificationReport() throws IOException, SAXException {

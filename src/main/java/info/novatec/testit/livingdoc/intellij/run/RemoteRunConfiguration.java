@@ -10,6 +10,7 @@ import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.execution.configurations.RunProfileState;
 import com.intellij.execution.configurations.RuntimeConfigurationException;
 import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.testframework.ui.TestStatusLine;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.project.Project;
@@ -44,6 +45,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
     private String user;
     private String pass;
+    private TestStatusLine statusLine;
 
 
     RemoteRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, final String name) {
@@ -156,5 +158,13 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
     public void setRepositoryName(final String repositoryName) {
         this.repositoryName = repositoryName;
+    }
+
+    public void setStatusLine(TestStatusLine statusLine) {
+        this.statusLine = statusLine;
+    }
+
+    public TestStatusLine getStatusLine() {
+        return statusLine;
     }
 }

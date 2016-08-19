@@ -1,6 +1,8 @@
 package info.novatec.testit.livingdoc.intellij.action.repository;
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.ActionPopupMenu;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
@@ -8,11 +10,13 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.ui.PopupHandler;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
 import info.novatec.testit.livingdoc.intellij.domain.LDProject;
 import info.novatec.testit.livingdoc.intellij.domain.Node;
 import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
+import info.novatec.testit.livingdoc.intellij.domain.RootNode;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.ui.RepositoryViewUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
@@ -21,10 +25,11 @@ import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.rpc.RpcClientService;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.awt.*;
 import java.util.Set;
 
 /**
@@ -62,21 +67,21 @@ public class RepositoryViewController implements ToolWindowFactory {
 
         loadView();
 
-        configureCounter();
-        configureActions();
-
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(repositoryViewUI,
-                ldProject.getIdeaProject().getName() + " [" + ldProject.getSystemUnderTest().getName() + "]", false);
+        Content content = contentFactory.createContent(repositoryViewUI, ldProject.getIdeaProject().getName(), false);
         content.setIcon(Icons.LIVINGDOC);
         content.putUserData(ToolWindow.SHOW_CONTENT_ICON, Boolean.TRUE);
         content.setCloseable(true);
         toolWindow.getContentManager().addContent(content);
     }
 
-    private void configureCounter() {
-        repositoryViewUI.getCounterPanel().setTotal(0);
-        repositoryViewUI.getCounterPanel().setRightsValue(0);
+    private void loadView() {
+
+        repositoryViewUI = new RepositoryViewUI(getDefaultRootNode());
+
+        configureActions();
+
+        loadRepositories();
     }
 
     private void configureActions() {
@@ -88,6 +93,17 @@ public class RepositoryViewController implements ToolWindowFactory {
         createOpenDocumentAction();
 
         repositoryViewUI.getActionToolBar().updateActionsImmediately();
+
+        // Context menu with the plugin actions.
+        repositoryViewUI.getRepositoryTree().addMouseListener(new PopupHandler() {
+
+            @Override
+            public void invokePopup(final Component comp, final int x, final int y) {
+
+                ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("LivingDoc.RepositoryViewToolbar", repositoryViewUI.getActionGroup());
+                actionPopupMenu.getComponent().show(comp, x, y);
+            }
+        });
     }
 
     private void createOpenDocumentAction() {
@@ -96,11 +112,11 @@ public class RepositoryViewController implements ToolWindowFactory {
     }
 
     private void createExecuteDocumentAction() {
-        ExecuteDocumentAction executeDocumentAction = new ExecuteDocumentAction(repositoryViewUI.getRepositoryTree(), false);
+        ExecuteDocumentAction executeDocumentAction = new ExecuteDocumentAction(repositoryViewUI, false);
         repositoryViewUI.getActionGroup().add(executeDocumentAction);
 
         // With debug mode
-        ExecuteDocumentAction debugDocumentAction = new ExecuteDocumentAction(repositoryViewUI.getRepositoryTree(), true);
+        ExecuteDocumentAction debugDocumentAction = new ExecuteDocumentAction(repositoryViewUI, true);
         repositoryViewUI.getActionGroup().add(debugDocumentAction);
     }
 
@@ -109,41 +125,39 @@ public class RepositoryViewController implements ToolWindowFactory {
         AnAction anAction = new AnAction() {
 
             @Override
-            public void actionPerformed(AnActionEvent e) {
+            public void actionPerformed(AnActionEvent anActionEvent) {
+
                 ldProject.reload();
-                loadView();
+
+                repositoryViewUI.resetTree(getDefaultRootNode());
+
+                loadRepositories();
             }
         };
         anAction.getTemplatePresentation().setIcon(AllIcons.Actions.Refresh);
         anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("repository.view.action.refresh.tooltip"));
+        anAction.getTemplatePresentation().setText(I18nSupport.getValue("repository.view.action.refresh.tooltip"));
         repositoryViewUI.getActionGroup().add(anAction);
-    }
-
-    private void loadView() {
-
-        if (ldProject.isConfiguredProject()) {
-
-            repositoryViewUI = new RepositoryViewUI(false, ldProject.getIdeaProject().getName());
-
-            loadRepositories();
-
-        } else {
-            repositoryViewUI = new RepositoryViewUI(true,
-                    I18nSupport.getValue("repository.view.error.project.not.configured"));
-        }
     }
 
     private void loadRepositories() {
 
-        RpcClientService service = new PluginLivingDocXmlRpcClient();
+        if (!ldProject.isConfiguredProject()) {
+            repositoryViewUI.resetTree(getErrorRootNode(I18nSupport.getValue("repository.view.error.project.not.configured")));
+            return;
+        }
+
         try {
+            RpcClientService service = new PluginLivingDocXmlRpcClient();
             Set<Repository> repositories = service.getAllRepositoriesForSystemUnderTest(ldProject.getSystemUnderTest(),
                     ldProject.getIdentifier());
 
             for (Repository repository : repositories) {
+                
+                RepositoryNode repositoryNode;
 
                 if (validateCredentials(ldProject, repository)) {
-                    RepositoryNode repositoryNode = new RepositoryNode(repository.getProject().getName());
+                    repositoryNode = new RepositoryNode(repository.getProject().getName());
                     repositoryNode.setRepository(repository);
                     DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
                     repositoryViewUI.getRootNode().add(childNode);
@@ -154,22 +168,36 @@ public class RepositoryViewController implements ToolWindowFactory {
                     repositoryViewUI.paintDocumentNode(documentNode.getChildren(), childNode);
 
                 } else {
+
                     Messages.showErrorDialog(ldProject.getIdeaProject(),
+
                             I18nSupport.getValue("repository.view.error.credentials"),
                             I18nSupport.getValue("repository.view.error.loading.repositories"));
 
-                    LOG.debug(I18nSupport.getValue("repository.view.error.loading.repositories"));
-
-                    repositoryViewUI.initializeRootNode(true, I18nSupport.getValue("repository.view.error.credentials"));
+                    repositoryNode = new RepositoryNode(I18nSupport.getValue("repository.view.error.credentials"));
+                    repositoryNode.setIcon(Icons.ERROR);
+                    repositoryViewUI.getRootNode().add(new DefaultMutableTreeNode(repositoryNode));
                 }
             }
-        } catch (LivingDocServerException ldse) {
-            Messages.showErrorDialog(ldProject.getIdeaProject(), ldse.getMessage(), I18nSupport.getValue("repository.view.error.loading.repositories"));
-            LOG.error(ldse);
 
-            repositoryViewUI.initializeRootNode(true, ldse.getMessage());
+            repositoryViewUI.reloadTree();
+
+        } catch (LivingDocServerException ldse) {
+            LOG.error(ldse);
+            Messages.showErrorDialog(ldProject.getIdeaProject(), ldse.getMessage(), I18nSupport.getValue("repository.view.error.loading.repositories"));
+
+            repositoryViewUI.resetTree(getErrorRootNode(ldse.getMessage()));
         }
-        repositoryViewUI.reload();
+    }
+
+    private RootNode getErrorRootNode(final String descError) {
+        RootNode rootNode = new RootNode(descError);
+        rootNode.setIcon(Icons.ERROR);
+        return rootNode;
+    }
+
+    private RootNode getDefaultRootNode() {
+        return new RootNode(ldProject.getIdeaProject().getName() + " [" + ldProject.getSystemUnderTest().getName() + "]");
     }
 
     /**

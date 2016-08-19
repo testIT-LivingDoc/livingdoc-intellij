@@ -12,39 +12,42 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-import com.intellij.ui.treeStructure.SimpleTree;
+
 import info.novatec.testit.livingdoc.intellij.domain.*;
 import info.novatec.testit.livingdoc.intellij.run.LivingDocConfigurationType;
 import info.novatec.testit.livingdoc.intellij.run.RemoteRunConfiguration;
+import info.novatec.testit.livingdoc.intellij.ui.RepositoryViewUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.runner.Main;
 import info.novatec.testit.livingdoc.server.domain.Repository;
+import org.apache.commons.lang3.ArrayUtils;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
  * LivingDoc execution on selected node (specification).
+ * See {@link #update(AnActionEvent)} for the display restrictions.
  *
  * @see AnAction
- * @see info.novatec.testit.livingdoc.intellij.run.LivingDocSettingsEditor
+ * @see RemoteRunConfiguration
  */
 public class ExecuteDocumentAction extends AnAction {
 
-    private final SimpleTree repositoryTree;
+    private final RepositoryViewUI repositoryViewUI;
     private boolean debugMode = false;
 
     /**
-     * @param tree        {@link SimpleTree} Repository tree.
-     * @param isDebugMode Kind of execution: <ul>
-     *                    <li>true to activate debug mode</li>
-     *                    <li>false otherwise. In this case, you will see the run configuration user interface.</li>
-     *                    </ul>
+     * @param repositoryViewUI {@link RepositoryViewUI} User interface fot Repository View.
+     * @param isDebugMode      Kind of execution: <ul>
+     *                         <li>true to activate debug mode</li>
+     *                         <li>false otherwise. In this case, you will see the run configuration user interface.</li></ul>
      */
-    public ExecuteDocumentAction(final SimpleTree tree, final boolean isDebugMode) {
+    public ExecuteDocumentAction(final RepositoryViewUI repositoryViewUI, final boolean isDebugMode) {
 
         super();
 
-        this.repositoryTree = tree;
+        this.repositoryViewUI = repositoryViewUI;
         this.debugMode = isDebugMode;
 
         Presentation presentation = getTemplatePresentation();
@@ -68,7 +71,7 @@ public class ExecuteDocumentAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent actionEvent) {
 
-        DefaultMutableTreeNode[] nodes = repositoryTree.getSelectedNodes(DefaultMutableTreeNode.class, null);
+        DefaultMutableTreeNode[] nodes = repositoryViewUI.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
 
         Object userObject = nodes[0].getUserObject();
 
@@ -85,7 +88,7 @@ public class ExecuteDocumentAction extends AnAction {
                     runManager.getConfigurationTemplate(livingDocConfigurationType.getConfigurationFactories()[0]);
             runnerAndConfigurationSettings.setName(node.getName());
             runnerAndConfigurationSettings.setTemporary(false);
-            runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(true);
+            runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(false);
 
             RemoteRunConfiguration runConfiguration =
                     (RemoteRunConfiguration) runnerAndConfigurationSettings.getConfiguration();
@@ -99,7 +102,36 @@ public class ExecuteDocumentAction extends AnAction {
                 executor = DefaultRunExecutor.getRunExecutorInstance();
             }
 
+            SwingUtilities.invokeLater(()->repositoryViewUI.resetStatusLine());
+
             ProgramRunnerUtil.executeConfiguration(ldProject.getIdeaProject(), runnerAndConfigurationSettings, executor);
+        }
+    }
+
+    /**
+     * This action will be enabled only for executable nodes
+     *
+     * @param actionEvent Carries information on the invocation place
+     */
+    @Override
+    public void update(AnActionEvent actionEvent) {
+
+        super.update(actionEvent);
+
+        Presentation presentation = actionEvent.getPresentation();
+
+        DefaultMutableTreeNode[] selectedNodes = repositoryViewUI.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
+        if (ArrayUtils.isEmpty(selectedNodes)) {
+            presentation.setEnabled(false);
+            return;
+        }
+
+        Object userObject = selectedNodes[0].getUserObject();
+        try {
+            Node node = (Node) userObject;
+            presentation.setEnabled(node.getType() == LDNodeType.SPECIFICATION && node.isExecutable());
+        } catch (ClassCastException cce) {
+            presentation.setEnabled(false);
         }
     }
 
@@ -121,5 +153,7 @@ public class ExecuteDocumentAction extends AnAction {
         runConfiguration.setModule(modules[0]);
 
         runConfiguration.MAIN_CLASS_NAME = Main.class.getName();
+
+        runConfiguration.setStatusLine(repositoryViewUI.getStatusLine());
     }
 }

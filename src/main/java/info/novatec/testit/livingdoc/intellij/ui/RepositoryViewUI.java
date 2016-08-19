@@ -1,10 +1,12 @@
 package info.novatec.testit.livingdoc.intellij.ui;
 
+import com.intellij.execution.testframework.ui.TestStatusLine;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
-import com.intellij.ui.components.panels.VerticalLayout;
+import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.treeStructure.SimpleTree;
 import info.novatec.testit.livingdoc.intellij.domain.LDNode;
 import info.novatec.testit.livingdoc.intellij.domain.Node;
@@ -13,45 +15,58 @@ import info.novatec.testit.livingdoc.intellij.ui.renderer.LDTreeCellRenderer;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 
+
 /**
  * User interface for LivingDoc Repository View.<br>
  * If you modify the repository tree through {@link #getRootNode()}, may be necessary to refresh the domain with
- * {@link #reload()}.<br>
- * To add new new actions, you can do it with {@link #getActionGroup()} and adding the actions.
- * se
+ * {@link #reloadTree()}.<br>
+ * To add new actions, use {@link #getActionGroup()}
+ *
+ * @see SimpleToolWindowPanel
  */
 public class RepositoryViewUI extends SimpleToolWindowPanel {
 
     private static final long serialVersionUID = 3126369479423241802L;
-    private final JPanel mainContent;
-    private DefaultMutableTreeNode rootNode;
+    private final JBPanel mainContent;
+    private final DefaultMutableTreeNode rootNode;
     private DefaultTreeModel treeModel;
     private ActionToolbar toolBar;
     private DefaultActionGroup actionGroup;
-    private CounterPanel counterPanel;
     private SimpleTree tree;
+    private TestStatusLine statusLine;
 
-    public RepositoryViewUI(final boolean withError, final String nodeText) {
 
+    public RepositoryViewUI(RootNode rootTreeNode) {
         super(false);
 
-        mainContent = new JPanel(new BorderLayout());
+        mainContent = new JBPanel(new BorderLayout());
         setContent(mainContent);
 
-        initializeRootNode(withError, nodeText);
+        this.rootNode = new DefaultMutableTreeNode(rootTreeNode);
 
-        configureRepositoryTree();
-        configureActionToolBar();
-        configureCounterPanel();
+        createRepositoryTree();
+        createActionToolBar();
+        createStatusLine();
     }
 
-    public void reload() {
+    public void resetTree(RootNode newRootNode) {
+        rootNode.removeAllChildren();
+        rootNode.setUserObject(newRootNode);
+
+        resetStatusLine();
+    }
+
+    public void resetStatusLine() {
+        statusLine.setStatusColor(ColorProgressBar.GREEN);
+        statusLine.setFraction(0d);
+    }
+
+    public void reloadTree() {
         treeModel.reload();
     }
 
@@ -67,25 +82,12 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         return actionGroup;
     }
 
-    public CounterPanel getCounterPanel() {
-        return counterPanel;
-    }
-
     public SimpleTree getRepositoryTree() {
         return tree;
     }
 
-    public void initializeRootNode(final boolean withError, final String nodeText) {
-        RootNode ideaProjectNode = new RootNode(nodeText);
-        if (withError) {
-            ideaProjectNode.setIcon(Icons.ERROR);
-        }
-
-        if (rootNode == null) {
-            rootNode = new DefaultMutableTreeNode(ideaProjectNode);
-        } else {
-            rootNode.setUserObject(ideaProjectNode);
-        }
+    public TestStatusLine getStatusLine(){
+        return statusLine;
     }
 
     public void paintDocumentNode(java.util.List<DocumentNode> children, DefaultMutableTreeNode parentNode) {
@@ -114,17 +116,18 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         }
     }
 
-    private void configureActionToolBar() {
+    private void createActionToolBar() {
 
         ActionManager actionManager = ActionManager.getInstance();
-        actionGroup = new DefaultActionGroup();
+        actionGroup = new DefaultActionGroup(null, true);
+
         toolBar = actionManager.createActionToolbar("LivingDoc.RepositoryViewToolbar", actionGroup, false);
         toolBar.adjustTheSameSize(true);
         toolBar.setTargetComponent(tree);
         setToolbar(toolBar.getComponent());
     }
 
-    private void configureRepositoryTree() {
+    private void createRepositoryTree() {
 
         tree = new SimpleTree();
         tree.setCellRenderer(new LDTreeCellRenderer());
@@ -138,14 +141,10 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         mainContent.add(tree, BorderLayout.CENTER);
     }
 
-    private void configureCounterPanel() {
+    private void createStatusLine() {
 
-        counterPanel = new CounterPanel();
-
-        JPanel jPanel = new JPanel(new VerticalLayout(0));
-        jPanel.add(counterPanel);
-        jPanel.add(new ProgressBar());
-
-        mainContent.add(jPanel, BorderLayout.NORTH);
+        statusLine = new TestStatusLine();
+        statusLine.setText("");
+        mainContent.add(statusLine, BorderLayout.NORTH);
     }
 }
