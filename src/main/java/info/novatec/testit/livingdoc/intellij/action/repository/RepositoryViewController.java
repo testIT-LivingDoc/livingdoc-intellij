@@ -112,11 +112,11 @@ public class RepositoryViewController implements ToolWindowFactory {
     }
 
     private void createExecuteDocumentAction() {
-        ExecuteDocumentAction executeDocumentAction = new ExecuteDocumentAction(repositoryViewUI.getRepositoryTree(), false);
+        ExecuteDocumentAction executeDocumentAction = new ExecuteDocumentAction(repositoryViewUI, false);
         repositoryViewUI.getActionGroup().add(executeDocumentAction);
 
         // With debug mode
-        ExecuteDocumentAction debugDocumentAction = new ExecuteDocumentAction(repositoryViewUI.getRepositoryTree(), true);
+        ExecuteDocumentAction debugDocumentAction = new ExecuteDocumentAction(repositoryViewUI, true);
         repositoryViewUI.getActionGroup().add(debugDocumentAction);
     }
 
@@ -153,7 +153,7 @@ public class RepositoryViewController implements ToolWindowFactory {
                     ldProject.getIdentifier());
 
             for (Repository repository : repositories) {
-
+                
                 RepositoryNode repositoryNode;
 
                 if (validateCredentials(ldProject, repository)) {

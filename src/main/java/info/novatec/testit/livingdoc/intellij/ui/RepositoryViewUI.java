@@ -1,11 +1,12 @@
 package info.novatec.testit.livingdoc.intellij.ui;
 
+import com.intellij.execution.testframework.ui.TestStatusLine;
 import com.intellij.openapi.actionSystem.ActionManager;
 import com.intellij.openapi.actionSystem.ActionToolbar;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
+import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.components.JBPanel;
-import com.intellij.ui.components.panels.VerticalLayout;
 import com.intellij.ui.treeStructure.SimpleTree;
 import info.novatec.testit.livingdoc.intellij.domain.LDNode;
 import info.novatec.testit.livingdoc.intellij.domain.Node;
@@ -36,9 +37,8 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
     private DefaultTreeModel treeModel;
     private ActionToolbar toolBar;
     private DefaultActionGroup actionGroup;
-    private CounterPanel counterPanel;
-    private ProgressBar progressBar;
     private SimpleTree tree;
+    private TestStatusLine statusLine;
 
 
     public RepositoryViewUI(RootNode rootTreeNode) {
@@ -51,12 +51,19 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
 
         createRepositoryTree();
         createActionToolBar();
-        createCounterPanel();
+        createStatusLine();
     }
 
     public void resetTree(RootNode newRootNode) {
         rootNode.removeAllChildren();
         rootNode.setUserObject(newRootNode);
+
+        resetStatusLine();
+    }
+
+    public void resetStatusLine() {
+        statusLine.setStatusColor(ColorProgressBar.GREEN);
+        statusLine.setFraction(0d);
     }
 
     public void reloadTree() {
@@ -75,12 +82,12 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         return actionGroup;
     }
 
-    public CounterPanel getCounterPanel() {
-        return counterPanel;
-    }
-
     public SimpleTree getRepositoryTree() {
         return tree;
+    }
+
+    public TestStatusLine getStatusLine(){
+        return statusLine;
     }
 
     public void paintDocumentNode(java.util.List<DocumentNode> children, DefaultMutableTreeNode parentNode) {
@@ -134,15 +141,10 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         mainContent.add(tree, BorderLayout.CENTER);
     }
 
-    private void createCounterPanel() {
+    private void createStatusLine() {
 
-        counterPanel = new CounterPanel();
-        progressBar = new ProgressBar();
-
-        JBPanel jPanel = new JBPanel(new VerticalLayout(0));
-        jPanel.add(counterPanel);
-        jPanel.add(progressBar);
-
-        mainContent.add(jPanel, BorderLayout.NORTH);
+        statusLine = new TestStatusLine();
+        statusLine.setText("");
+        mainContent.add(statusLine, BorderLayout.NORTH);
     }
 }
