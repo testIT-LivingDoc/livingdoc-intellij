@@ -13,10 +13,7 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import info.novatec.testit.livingdoc.intellij.domain.LDProject;
-import info.novatec.testit.livingdoc.intellij.domain.Node;
-import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
-import info.novatec.testit.livingdoc.intellij.domain.RootNode;
+import info.novatec.testit.livingdoc.intellij.domain.*;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.ui.RepositoryViewUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
@@ -153,7 +150,7 @@ public class RepositoryViewController implements ToolWindowFactory {
                     ldProject.getIdentifier());
 
             for (Repository repository : repositories) {
-                
+
                 RepositoryNode repositoryNode;
 
                 if (validateCredentials(ldProject, repository)) {
@@ -165,7 +162,7 @@ public class RepositoryViewController implements ToolWindowFactory {
                     DocumentNode documentNode = service.getSpecificationHierarchy(repository,
                             ldProject.getSystemUnderTest(), ldProject.getIdentifier());
 
-                    repositoryViewUI.paintDocumentNode(documentNode.getChildren(), childNode);
+                    paintDocumentNode(documentNode.getChildren(), childNode);
 
                 } else {
 
@@ -201,6 +198,51 @@ public class RepositoryViewController implements ToolWindowFactory {
     }
 
     /**
+     * @param childNode  {@link DocumentNode}
+     * @param userObject {@link LDNode}
+     * @return {@link Node}
+     */
+    private Node convertDocumentoNodeToLDNode(final DocumentNode childNode, final LDNode userObject) {
+
+        Node node = new Node(childNode, userObject);
+
+        if (node.isExecutable() && node.canBeImplemented()) {
+            node.setIcon(Icons.EXE_DIFF);
+
+            // TODO node.isUsingCurrentVersion() not implemented
+            //} else if(node.isExecutable() && isUsingCurrentVersion()) {
+            //    node.setIcon(Icons.EXE_WORKING);
+
+        } else if (!node.isExecutable()) {
+            node.setIcon(Icons.NOT_EXECUTABLE);
+        }
+
+        return node;
+    }
+
+    /**
+     * This recursive method adds a node into the repository tree.<br>
+     * Only the executable nodes or nodes with children will be painted.
+     *
+     * @param children   {@link java.util.List}
+     * @param parentNode {@link DefaultMutableTreeNode} Parent node of children nodes indicated in the first parameter.
+     * @see DocumentNode
+     */
+    private void paintDocumentNode(java.util.List<DocumentNode> children, DefaultMutableTreeNode parentNode) {
+
+        children.stream().filter(child -> child.isExecutable() || child.hasChildren()).forEach(child -> {
+
+            Node ldNode = convertDocumentoNodeToLDNode(child, (LDNode) parentNode.getUserObject());
+            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(ldNode);
+            parentNode.add(childNode);
+
+            if (child.hasChildren()) {
+                paintDocumentNode(child.getChildren(), childNode);
+            }
+        });
+    }
+
+    /**
      * Validates the LivingDoc user and password configured in IntelliJ to connect with LivingDoc repository.
      *
      * @param ldProject  {@link LDProject}
@@ -219,4 +261,5 @@ public class RepositoryViewController implements ToolWindowFactory {
 
         return result;
     }
+
 }

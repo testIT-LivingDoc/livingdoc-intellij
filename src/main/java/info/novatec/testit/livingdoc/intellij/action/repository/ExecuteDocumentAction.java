@@ -12,7 +12,6 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
-
 import info.novatec.testit.livingdoc.intellij.domain.*;
 import info.novatec.testit.livingdoc.intellij.run.LivingDocConfigurationType;
 import info.novatec.testit.livingdoc.intellij.run.RemoteRunConfiguration;
@@ -22,7 +21,6 @@ import info.novatec.testit.livingdoc.runner.Main;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import org.apache.commons.lang3.ArrayUtils;
 
-import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -102,8 +100,6 @@ public class ExecuteDocumentAction extends AnAction {
                 executor = DefaultRunExecutor.getRunExecutorInstance();
             }
 
-            SwingUtilities.invokeLater(()->repositoryViewUI.resetStatusLine());
-
             ProgramRunnerUtil.executeConfiguration(ldProject.getIdeaProject(), runnerAndConfigurationSettings, executor);
         }
     }
@@ -135,7 +131,7 @@ public class ExecuteDocumentAction extends AnAction {
         }
     }
 
-    private void fillRunConfiguration(RemoteRunConfiguration runConfiguration, Node node, final LDProject ldProject) {
+    private void fillRunConfiguration(RemoteRunConfiguration runConfiguration, final Node node, final LDProject ldProject) {
 
         RepositoryNode repositoryNode = RepositoryViewController.getRepositoryNode(node);
         Repository repository = repositoryNode.getRepository();

@@ -8,12 +8,8 @@ import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.treeStructure.SimpleTree;
-import info.novatec.testit.livingdoc.intellij.domain.LDNode;
-import info.novatec.testit.livingdoc.intellij.domain.Node;
 import info.novatec.testit.livingdoc.intellij.domain.RootNode;
 import info.novatec.testit.livingdoc.intellij.ui.renderer.LDTreeCellRenderer;
-import info.novatec.testit.livingdoc.intellij.util.Icons;
-import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -61,11 +57,6 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         resetStatusLine();
     }
 
-    public void resetStatusLine() {
-        statusLine.setStatusColor(ColorProgressBar.GREEN);
-        statusLine.setFraction(0d);
-    }
-
     public void reloadTree() {
         treeModel.reload();
     }
@@ -86,34 +77,8 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         return tree;
     }
 
-    public TestStatusLine getStatusLine(){
+    public TestStatusLine getStatusLine() {
         return statusLine;
-    }
-
-    public void paintDocumentNode(java.util.List<DocumentNode> children, DefaultMutableTreeNode parentNode) {
-
-        for (DocumentNode child : children) {
-
-            Node node = new Node(child, (LDNode) parentNode.getUserObject());
-
-            if (node.isExecutable() && node.canBeImplemented()) {
-                node.setIcon(Icons.EXE_DIFF);
-
-                // TODO node.isUsingCurrentVersion() not implemented
-                //} else if(node.isExecutable() && isUsingCurrentVersion()) {
-                //    node.setIcon(Icons.EXE_WORKING);
-
-            } else if (!node.isExecutable()) {
-                node.setIcon(Icons.NOT_EXECUTABLE);
-            }
-
-            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(node);
-            parentNode.add(childNode);
-
-            if (child.hasChildren()) {
-                paintDocumentNode(child.getChildren(), childNode);
-            }
-        }
     }
 
     private void createActionToolBar() {
@@ -138,13 +103,21 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
 
         treeModel = new DefaultTreeModel(rootNode, true);
         tree.setModel(treeModel);
+
         mainContent.add(tree, BorderLayout.CENTER);
     }
 
     private void createStatusLine() {
 
         statusLine = new TestStatusLine();
-        statusLine.setText("");
+        statusLine.setPreferredSize(false);
+        resetStatusLine();
         mainContent.add(statusLine, BorderLayout.NORTH);
+    }
+
+    private void resetStatusLine() {
+        statusLine.setText("");
+        statusLine.setStatusColor(ColorProgressBar.GREEN);
+        statusLine.setFraction(0d);
     }
 }

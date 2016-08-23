@@ -45,6 +45,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
     private String user;
     private String pass;
+
     private TestStatusLine statusLine;
 
 
@@ -52,6 +53,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
         super(name, project, factory);
     }
 
+    @NotNull
     @Override
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
 
@@ -152,19 +154,15 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
         this.workingVersion = workingVersion;
     }
 
-    public String getRepositoryName() {
-        return repositoryName;
-    }
-
     public void setRepositoryName(final String repositoryName) {
         this.repositoryName = repositoryName;
     }
 
-    public void setStatusLine(TestStatusLine statusLine) {
-        this.statusLine = statusLine;
-    }
-
     public TestStatusLine getStatusLine() {
         return statusLine;
+    }
+
+    public void setStatusLine(TestStatusLine statusLine) {
+        this.statusLine = statusLine;
     }
 }
