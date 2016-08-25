@@ -4,6 +4,7 @@ import com.intellij.execution.ExecutionException;
 import com.intellij.execution.configurations.JavaCommandLineState;
 import com.intellij.execution.configurations.JavaParameters;
 import com.intellij.execution.process.OSProcessHandler;
+import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.openapi.diagnostic.Logger;
@@ -86,10 +87,16 @@ public class LivingDocRunProfileState extends JavaCommandLineState {
         return specificationFile.getAbsolutePath();
     }
 
+    /**
+     * {@link LivingDocProcessListener#startNotified(ProcessEvent)} is the listener method for <code>osProcessHandler.startNotify()</code>
+     *
+     * @param osProcessHandler Process handler to its input and output streams.
+     * @see LivingDocProcessListener
+     */
     private void configureOSProcessHandler(@NotNull final OSProcessHandler osProcessHandler) {
 
-        osProcessHandler.startNotify(); //  start capturing the process output
         osProcessHandler.addProcessListener(new LivingDocProcessListener(runConfiguration));
+        osProcessHandler.startNotify(); //  start capturing the process output
     }
 
     private void buildSpecificationFile(@NotNull final File specificationFile) throws ExecutionException {

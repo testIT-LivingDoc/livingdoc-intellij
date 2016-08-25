@@ -36,6 +36,16 @@ public class LivingDocProcessListener extends ProcessAdapter {
     private final RemoteRunConfiguration runConfiguration;
     private final LivingDocFilesManager livingDocFilesManager;
 
+    private int totalErrors = 0;
+    private int failuresCount = 0;
+    private int finishedTestsCount = 0;
+    private int ignoreTestsCount = 0;
+    private long startTime;
+    private long endTime;
+
+    private boolean hasError = false;
+
+
     public LivingDocProcessListener(final RemoteRunConfiguration runConfiguration) {
 
         this.runConfiguration = runConfiguration;
@@ -45,13 +55,27 @@ public class LivingDocProcessListener extends ProcessAdapter {
     }
 
     @Override
+    public void startNotified(ProcessEvent event) {
+
+        startTime = System.currentTimeMillis();
+
+        SwingUtilities.invokeLater(() -> {
+
+            runConfiguration.getStatusLine().setText(I18nSupport.getValue("run.execution.running.label"));
+            runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.GREEN);
+            runConfiguration.getStatusLine().setFraction(0d);
+        });
+    }
+
+    @Override
     public void processTerminated(ProcessEvent processEvent) {
+
+        endTime = System.currentTimeMillis();
 
         if (processEvent.getExitCode() == 0) {
 
             try {
                 Specification specification = buildSpecificationReport();
-
                 updateStatusLine(specification);
 
                 File resultFile = loadResultFile(specification);
@@ -59,26 +83,32 @@ public class LivingDocProcessListener extends ProcessAdapter {
                 createOrUpdateIntellijResource(resultFile);
 
             } catch (IOException | SAXException e) {
-                LOG.error(e.getMessage());
+                LOG.error(e);
             }
         }
     }
 
+    // TODO Set the node icon depending on the execution result. Use LivingDoc Icon like in the eclipse plugin.
     private void updateStatusLine(Specification specification) {
 
-        boolean hasError = false;
         for (Execution execution : specification.getExecutions()) {
-            if(execution.hasException() || execution.hasFailed()) {
+            if (!hasError && (execution.hasException() || execution.hasFailed())) {
                 hasError = true;
             }
+
+            totalErrors = totalErrors + execution.getErrors();
+            failuresCount = failuresCount + execution.getFailures();
+            finishedTestsCount = finishedTestsCount + execution.getSuccess();
+            ignoreTestsCount = ignoreTestsCount + execution.getIgnored();
         }
 
-        final boolean finalHasError = hasError;
-
-        SwingUtilities.invokeLater(()-> {
-            if(finalHasError) {
+        SwingUtilities.invokeLater(() -> {
+            if (hasError) {
                 runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
             }
+
+            runConfiguration.getStatusLine().formatTestMessage(finishedTestsCount + totalErrors + failuresCount,
+                    finishedTestsCount, failuresCount, ignoreTestsCount, endTime - startTime, endTime);
             runConfiguration.getStatusLine().setFraction(1d);
         });
 
