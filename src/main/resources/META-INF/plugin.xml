@@ -1,11 +1,11 @@
 <idea-plugin version="2">
     <id>info.novatec.testit.livingdoc.intellij</id>
-    <name>Testit LivingDoc Intellij IDEA Plugin</name>
+    <name>testIT LivingDoc Intellij IDEA Plugin</name>
     <version>1.0</version>
     <vendor email="livingdoc@novatec-gmbh.de" url="http://www.novatec-gmbh.de/en/">NovaTec Solutions GmbH</vendor>
 
     <description><![CDATA[
-
+IntelliJ IDEA Plugin for LivingDoc. LivingDoc is a powerful Open Source tool that supports the implementation of collaboration driven methods like Behavior Driven Developmentor Specification By Example. Due to its smart integration into Atlassian Confluence it is one of the best tools to evolve a livingdocumentation system, especially if you are already using Atlassian Confluence as your Knowledge Management System. This featureis what sets LivingDoc apart from its competitors. Some of those, while very developer friendly, are not really accepted by experts, likeBusiness Analysts, Experts or Testers, without a strong technical background. Even the reporting features provided by those competitortools or their extensions/plugins do not measure up to LivingDoc.
     ]]></description>
 
     <change-notes><![CDATA[
