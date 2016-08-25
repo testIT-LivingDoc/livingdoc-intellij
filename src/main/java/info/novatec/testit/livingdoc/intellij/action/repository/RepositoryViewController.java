@@ -44,16 +44,16 @@ public class RepositoryViewController implements ToolWindowFactory {
     private LDProject ldProject;
 
     /**
-     * Recursive method to find the node's repository through node's parent.
+     * Recursive method to find the specificationNode's repository through specificationNode's parent.
      *
-     * @param node {@link Node} Livingdoc specification node
+     * @param specificationNode {@link SpecificationNode} Livingdoc specification specificationNode
      * @return @{@link RepositoryNode}
      */
-    public static RepositoryNode getRepositoryNode(final Node node) {
-        if (node.getParent() instanceof RepositoryNode) {
-            return (RepositoryNode) node.getParent();
+    public static RepositoryNode getRepositoryNode(final SpecificationNode specificationNode) {
+        if (specificationNode.getParent() instanceof RepositoryNode) {
+            return (RepositoryNode) specificationNode.getParent();
         } else {
-            return getRepositoryNode((Node) node.getParent());
+            return getRepositoryNode((SpecificationNode) specificationNode.getParent());
         }
     }
 
@@ -83,11 +83,13 @@ public class RepositoryViewController implements ToolWindowFactory {
 
     private void configureActions() {
 
-        createRefreshRepositoryAction();
-        repositoryViewUI.getActionGroup().addSeparator();
         createExecuteDocumentAction();
         repositoryViewUI.getActionGroup().addSeparator();
+        createVersionSwitcherAction();
+        repositoryViewUI.getActionGroup().addSeparator();
         createOpenDocumentAction();
+        repositoryViewUI.getActionGroup().addSeparator();
+        createRefreshRepositoryAction();
 
         repositoryViewUI.getActionToolBar().updateActionsImmediately();
 
@@ -101,6 +103,15 @@ public class RepositoryViewController implements ToolWindowFactory {
                 actionPopupMenu.getComponent().show(comp, x, y);
             }
         });
+    }
+
+    private void createVersionSwitcherAction() {
+        SwitchVersionAction implementedVersionAction = new SwitchVersionAction(repositoryViewUI.getRepositoryTree(), false);
+        repositoryViewUI.getActionGroup().add(implementedVersionAction);
+
+        // Current version
+        SwitchVersionAction workingsVersionAction = new SwitchVersionAction(repositoryViewUI.getRepositoryTree(), true);
+        repositoryViewUI.getActionGroup().add(workingsVersionAction);
     }
 
     private void createOpenDocumentAction() {
@@ -200,24 +211,13 @@ public class RepositoryViewController implements ToolWindowFactory {
     /**
      * @param childNode  {@link DocumentNode}
      * @param userObject {@link LDNode}
-     * @return {@link Node}
+     * @return {@link SpecificationNode}
      */
-    private Node convertDocumentoNodeToLDNode(final DocumentNode childNode, final LDNode userObject) {
+    private SpecificationNode convertDocumentoNodeToLDNode(final DocumentNode childNode, final LDNode userObject) {
 
-        Node node = new Node(childNode, userObject);
-
-        if (node.isExecutable() && node.canBeImplemented()) {
-            node.setIcon(Icons.EXE_DIFF);
-
-            // TODO node.isUsingCurrentVersion() not implemented
-            //} else if(node.isExecutable() && isUsingCurrentVersion()) {
-            //    node.setIcon(Icons.EXE_WORKING);
-
-        } else if (!node.isExecutable()) {
-            node.setIcon(Icons.NOT_EXECUTABLE);
-        }
-
-        return node;
+        SpecificationNode specificationNode = new SpecificationNode(childNode, userObject);
+        specificationNode.setIcon(RepositoryViewUtils.getNodeIcon(specificationNode));
+        return specificationNode;
     }
 
     /**
@@ -230,9 +230,9 @@ public class RepositoryViewController implements ToolWindowFactory {
      */
     private void paintDocumentNode(java.util.List<DocumentNode> children, DefaultMutableTreeNode parentNode) {
 
-        children.stream().filter(child -> child.isExecutable() || child.hasChildren()).forEach(child -> {
+        children.stream().filter(child -> child.isExecutable() || (!child.isExecutable() && child.hasChildren())).forEach(child -> {
 
-            Node ldNode = convertDocumentoNodeToLDNode(child, (LDNode) parentNode.getUserObject());
+            SpecificationNode ldNode = convertDocumentoNodeToLDNode(child, (LDNode) parentNode.getUserObject());
             DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(ldNode);
             parentNode.add(childNode);
 
