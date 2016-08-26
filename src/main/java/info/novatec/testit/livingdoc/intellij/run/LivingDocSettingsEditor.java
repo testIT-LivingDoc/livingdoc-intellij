@@ -71,7 +71,7 @@ public class LivingDocSettingsEditor extends SettingsEditor<RemoteRunConfigurati
         repositoryURLField.getComponent().setText(remoteRunConfiguration.getRepositoryURL());
         repositoryClassField.getComponent().setText(remoteRunConfiguration.getRepositoryClass());
         specificationsField.getComponent().setText(remoteRunConfiguration.getSpecificationName());
-        workingVersionCheckBox.getComponent().setSelected(remoteRunConfiguration.isWorkingVersion());
+        workingVersionCheckBox.getComponent().setSelected(remoteRunConfiguration.isCurrentVersion());
     }
 
     @Override
@@ -88,7 +88,7 @@ public class LivingDocSettingsEditor extends SettingsEditor<RemoteRunConfigurati
         remoteRunConfiguration.setRepositoryURL(repositoryURLField.getText());
         remoteRunConfiguration.setRepositoryClass(repositoryClassField.getText());
         remoteRunConfiguration.setSpecificationName(specificationsField.getText());
-        remoteRunConfiguration.setWorkingVersion(workingVersionCheckBox.getComponent().isSelected());
+        remoteRunConfiguration.setCurrentVersion(workingVersionCheckBox.getComponent().isSelected());
     }
 
     @NotNull

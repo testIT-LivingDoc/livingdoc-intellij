@@ -41,7 +41,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     private String repositoryName;
     private String specificationName;
 
-    private boolean workingVersion;
+    private boolean currentVersion;
 
     private String user;
     private String pass;
@@ -146,12 +146,12 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
         this.pass = pass;
     }
 
-    public boolean isWorkingVersion() {
-        return workingVersion;
+    public boolean isCurrentVersion() {
+        return currentVersion;
     }
 
-    public void setWorkingVersion(final boolean workingVersion) {
-        this.workingVersion = workingVersion;
+    public void setCurrentVersion(final boolean currentVersion) {
+        this.currentVersion = currentVersion;
     }
 
     public void setRepositoryName(final String repositoryName) {

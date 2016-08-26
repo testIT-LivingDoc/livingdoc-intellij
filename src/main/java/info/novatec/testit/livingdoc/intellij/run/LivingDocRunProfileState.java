@@ -106,11 +106,10 @@ public class LivingDocRunProfileState extends JavaCommandLineState {
         DocumentRepository documentRepository = runConfiguration.getRepository().asDocumentRepository(
                 classLoader, runConfiguration.getUser(), runConfiguration.getPass());
 
-        String location = runConfiguration.getSpecificationName();
+        String location = runConfiguration.getSpecificationName() + (runConfiguration.isCurrentVersion() ? "?implemented=false" : "");
 
         try (PrintWriter printWriter = new PrintWriter(specificationFile)) {
 
-            //TODO Add if it is using a current version: runConfiguration.getSpecificationName();  + ( usingCurrentVersion ? "?implemented=false" : "" );
             Document document = documentRepository.loadDocument(location);
             if (document != null) {
                 document.print(printWriter);

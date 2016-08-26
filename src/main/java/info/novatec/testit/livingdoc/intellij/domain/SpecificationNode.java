@@ -11,7 +11,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  *
  * @see LDNode
  */
-public class Node extends LDNode {
+public class SpecificationNode extends LDNode {
 
     private static final long serialVersionUID = -8016091757391516275L;
 
@@ -20,13 +20,14 @@ public class Node extends LDNode {
     private boolean canBeImplemented;
     private boolean usingCurrentVersion;
 
-    public Node(DocumentNode node, LDNode parentNode) {
+    public SpecificationNode(DocumentNode node, LDNode parentNode) {
 
         super(node.getTitle(), Icons.EXECUTABLE, LDNodeType.SPECIFICATION);
 
         this.parent = parentNode;
         this.executable = node.isExecutable();
-        this.canBeImplemented = node.canBeImplemented();
+        this.canBeImplemented = node.canBeImplemented() && node.isExecutable();
+        this.usingCurrentVersion = false;
     }
 
     @Override
@@ -44,24 +45,12 @@ public class Node extends LDNode {
         return canBeImplemented;
     }
 
-    public void setCanBeImplemented(boolean canBeImplemented) {
-        this.canBeImplemented = canBeImplemented;
-    }
-
     public boolean isExecutable() {
         return executable;
     }
 
-    public void setExecutable(boolean executable) {
-        this.executable = executable;
-    }
-
     public LDNode getParent() {
         return parent;
-    }
-
-    public void setParent(LDNode parent) {
-        this.parent = parent;
     }
 
     public boolean isUsingCurrentVersion() {

@@ -19,8 +19,8 @@ import info.novatec.testit.livingdoc.intellij.ui.RepositoryViewUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.runner.Main;
 import info.novatec.testit.livingdoc.server.domain.Repository;
-import org.apache.commons.lang3.ArrayUtils;
 
+import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 /**
@@ -36,6 +36,8 @@ public class ExecuteDocumentAction extends AnAction {
     private boolean debugMode = false;
 
     /**
+     * Creates the action with its text, description and icon.
+     *
      * @param repositoryViewUI {@link RepositoryViewUI} User interface fot Repository View.
      * @param isDebugMode      Kind of execution: <ul>
      *                         <li>true to activate debug mode</li>
@@ -48,21 +50,27 @@ public class ExecuteDocumentAction extends AnAction {
         this.repositoryViewUI = repositoryViewUI;
         this.debugMode = isDebugMode;
 
-        Presentation presentation = getTemplatePresentation();
+        String text;
+        Icon icon;
+
         if (debugMode) {
-            presentation.setText(I18nSupport.getValue("repository.view.action.debug.tooltip"));
-            presentation.setDescription(I18nSupport.getValue("repository.view.action.debug.tooltip"));
-            presentation.setIcon(AllIcons.Actions.StartDebugger);
+            text = I18nSupport.getValue("repository.view.action.debug.tooltip");
+            icon = AllIcons.Actions.StartDebugger;
+
         } else {
-            presentation.setText(I18nSupport.getValue("repository.view.action.execute.tooltip"));
-            presentation.setDescription(I18nSupport.getValue("repository.view.action.execute.tooltip"));
-            presentation.setIcon(AllIcons.Actions.Execute);
+            text = I18nSupport.getValue("repository.view.action.execute.tooltip");
+            icon = AllIcons.Actions.Execute;
         }
+
+        Presentation presentation = getTemplatePresentation();
+        presentation.setText(text);
+        presentation.setDescription(text);
+        presentation.setIcon(icon);
     }
 
     /**
      * Action handler. Only specification nodes will be executed.<br>
-     * NOTE: Basic functionality with single selection, desired multiple selection. TODO
+     * TODO NOTE: Basic functionality with single selection, desired multiple selection.
      *
      * @param actionEvent Carries information on the invocation place
      */
@@ -75,7 +83,7 @@ public class ExecuteDocumentAction extends AnAction {
 
         if (((LDNode) userObject).getType() == LDNodeType.SPECIFICATION) {
 
-            Node node = (Node) userObject;
+            SpecificationNode specificationNode = (SpecificationNode) userObject;
 
             LDProject ldProject = new LDProject(actionEvent.getProject());
 
@@ -84,13 +92,13 @@ public class ExecuteDocumentAction extends AnAction {
 
             RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                     runManager.getConfigurationTemplate(livingDocConfigurationType.getConfigurationFactories()[0]);
-            runnerAndConfigurationSettings.setName(node.getName());
+            runnerAndConfigurationSettings.setName(specificationNode.getName());
             runnerAndConfigurationSettings.setTemporary(false);
             runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(false);
 
             RemoteRunConfiguration runConfiguration =
                     (RemoteRunConfiguration) runnerAndConfigurationSettings.getConfiguration();
-            fillRunConfiguration(runConfiguration, node, ldProject);
+            fillRunConfiguration(runConfiguration, specificationNode, ldProject);
 
             Executor executor;
             if (debugMode) {
@@ -114,33 +122,21 @@ public class ExecuteDocumentAction extends AnAction {
 
         super.update(actionEvent);
 
-        Presentation presentation = actionEvent.getPresentation();
-
         DefaultMutableTreeNode[] selectedNodes = repositoryViewUI.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
-        if (ArrayUtils.isEmpty(selectedNodes)) {
-            presentation.setEnabled(false);
-            return;
-        }
 
-        Object userObject = selectedNodes[0].getUserObject();
-        try {
-            Node node = (Node) userObject;
-            presentation.setEnabled(node.getType() == LDNodeType.SPECIFICATION && node.isExecutable());
-        } catch (ClassCastException cce) {
-            presentation.setEnabled(false);
-        }
+        RepositoryViewUtils.setEnabledForExecutableNode(selectedNodes, actionEvent.getPresentation());
     }
 
-    private void fillRunConfiguration(RemoteRunConfiguration runConfiguration, final Node node, final LDProject ldProject) {
+    private void fillRunConfiguration(RemoteRunConfiguration runConfiguration, final SpecificationNode specificationNode, final LDProject ldProject) {
 
-        RepositoryNode repositoryNode = RepositoryViewController.getRepositoryNode(node);
+        RepositoryNode repositoryNode = RepositoryViewController.getRepositoryNode(specificationNode);
         Repository repository = repositoryNode.getRepository();
 
         runConfiguration.setRepositoryUID(repository.getUid());
         runConfiguration.setRepositoryURL(repository.getBaseTestUrl());
-        runConfiguration.setSpecificationName(node.getName());
+        runConfiguration.setSpecificationName(specificationNode.getName());
         runConfiguration.setRepositoryClass(repository.getType().getClassName());
-        runConfiguration.setWorkingVersion(node.isUsingCurrentVersion());
+        runConfiguration.setCurrentVersion(specificationNode.isUsingCurrentVersion());
         runConfiguration.setUser(ldProject.getUser());
         runConfiguration.setPass(ldProject.getPass());
         runConfiguration.setRepositoryName(repository.getName());
