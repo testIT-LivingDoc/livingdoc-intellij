@@ -84,10 +84,10 @@ public class LivingDocSettingsEditor extends SettingsEditor<RemoteRunConfigurati
 
         remoteRunConfiguration.MAIN_CLASS_NAME = myMainClass.getComponent().getText();
 
-        remoteRunConfiguration.setRepositoryUID(repositoryUIDField.getText());
-        remoteRunConfiguration.setRepositoryURL(repositoryURLField.getText());
-        remoteRunConfiguration.setRepositoryClass(repositoryClassField.getText());
-        remoteRunConfiguration.setSpecificationName(specificationsField.getText());
+        remoteRunConfiguration.setRepositoryUID(repositoryUIDField.getComponent().getText());
+        remoteRunConfiguration.setRepositoryURL(repositoryURLField.getComponent().getText());
+        remoteRunConfiguration.setRepositoryClass(repositoryClassField.getComponent().getText());
+        remoteRunConfiguration.setSpecificationName(specificationsField.getComponent().getText());
         remoteRunConfiguration.setCurrentVersion(workingVersionCheckBox.getComponent().isSelected());
     }
 

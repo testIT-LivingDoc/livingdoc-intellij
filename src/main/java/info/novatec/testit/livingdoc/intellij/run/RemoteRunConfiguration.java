@@ -53,7 +53,6 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
         super(name, project, factory);
     }
 
-    @NotNull
     @Override
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
 

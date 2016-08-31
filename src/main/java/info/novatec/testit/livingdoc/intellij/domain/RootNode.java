@@ -5,6 +5,7 @@ import com.intellij.icons.AllIcons;
 /**
  * Root node for repository view tree. <br>
  * Usually this node will be the java project.
+ *
  * @see LDNode
  */
 public class RootNode extends LDNode {

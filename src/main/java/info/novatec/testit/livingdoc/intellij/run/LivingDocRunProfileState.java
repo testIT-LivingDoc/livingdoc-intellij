@@ -31,12 +31,12 @@ public class LivingDocRunProfileState extends JavaCommandLineState {
     private final RemoteRunConfiguration runConfiguration;
     private final LivingDocFilesManager livingDocFileManager;
 
-    LivingDocRunProfileState(@NotNull ExecutionEnvironment env) {
+    LivingDocRunProfileState(@NotNull ExecutionEnvironment executionEnvironment) {
 
-        super(env);
+        super(executionEnvironment);
 
-        this.runConfiguration = (RemoteRunConfiguration) getEnvironment().getRunnerAndConfigurationSettings().getConfiguration();
-        this.livingDocFileManager = new LivingDocFilesManager(runConfiguration.getRepositoryUID(), runConfiguration.getSpecificationName());
+        this.runConfiguration = (RemoteRunConfiguration) executionEnvironment.getRunnerAndConfigurationSettings().getConfiguration();
+        this.livingDocFileManager = new LivingDocFilesManager(runConfiguration);
     }
 
     @Override

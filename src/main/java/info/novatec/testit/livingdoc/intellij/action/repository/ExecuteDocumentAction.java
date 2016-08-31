@@ -10,6 +10,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
 import info.novatec.testit.livingdoc.intellij.domain.*;
@@ -31,6 +32,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @see RemoteRunConfiguration
  */
 public class ExecuteDocumentAction extends AnAction {
+
+    private static final Logger LOG = Logger.getInstance(ExecuteDocumentAction.class);
 
     private final RepositoryViewUI repositoryViewUI;
     private boolean debugMode = false;
@@ -94,7 +97,12 @@ public class ExecuteDocumentAction extends AnAction {
                     runManager.getConfigurationTemplate(livingDocConfigurationType.getConfigurationFactories()[0]);
             runnerAndConfigurationSettings.setName(specificationNode.getName());
             runnerAndConfigurationSettings.setTemporary(false);
+
+            // True to active the "Run" ToolWindow
             runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(false);
+
+            // True to show the "run configuration UI" before launching LivingDoc
+            runnerAndConfigurationSettings.setEditBeforeRun(true);
 
             RemoteRunConfiguration runConfiguration =
                     (RemoteRunConfiguration) runnerAndConfigurationSettings.getConfiguration();
@@ -141,8 +149,11 @@ public class ExecuteDocumentAction extends AnAction {
         runConfiguration.setPass(ldProject.getPass());
         runConfiguration.setRepositoryName(repository.getName());
 
+        // TODO INIT Review ********************************************************************************************
+        // Modify this coden when the project configuration is i the project structure window.
         Module[] modules = ModuleManager.getInstance(ldProject.getIdeaProject()).getModules();
         runConfiguration.setModule(modules[0]);
+        // TODO END Review *********************************************************************************************
 
         runConfiguration.MAIN_CLASS_NAME = Main.class.getName();
 

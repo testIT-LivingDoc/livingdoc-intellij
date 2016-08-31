@@ -7,6 +7,7 @@ apply plugin: 'java'
 
 intellij {
     pluginName 'livingdoc-intellij-plugin'
+    updateSinceUntilBuild false
 }
 
 group 'info.novatec.testit'

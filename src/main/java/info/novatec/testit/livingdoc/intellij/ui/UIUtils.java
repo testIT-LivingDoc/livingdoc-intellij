@@ -10,6 +10,7 @@ public class UIUtils {
     private UIUtils() {
         // Utility class.
     }
+
     /**
      * Inserts a empty {@link JBLabel} in a {@link JPanel} with {@link GridBagLayout}
      *
