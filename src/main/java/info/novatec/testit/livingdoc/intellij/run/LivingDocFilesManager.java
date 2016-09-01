@@ -18,7 +18,7 @@ import java.io.IOException;
  */
 public class LivingDocFilesManager {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.run.LivingDocFilesManager");
+    private static final Logger LOG = Logger.getInstance(LivingDocFilesManager.class);
 
     private static final String HTML = ".html";
     private static final String XML = ".xml";

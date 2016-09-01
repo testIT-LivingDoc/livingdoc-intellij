@@ -27,7 +27,7 @@ import java.io.IOException;
  */
 public class LivingDocProcessListener extends ProcessAdapter {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.run.LivingDocProcessListener");
+    private static final Logger LOG = Logger.getInstance(LivingDocProcessListener.class);
 
     private final RemoteRunConfiguration runConfiguration;
     private final LivingDocFilesManager livingDocFilesManager;

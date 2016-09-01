@@ -26,7 +26,7 @@ import java.io.PrintWriter;
  */
 public class LivingDocRunProfileState extends JavaCommandLineState {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.run.LivingDocRunProfileState");
+    private static final Logger LOG = Logger.getInstance(LivingDocRunProfileState.class);
 
     private final RemoteRunConfiguration runConfiguration;
     private final LivingDocFilesManager livingDocFileManager;

@@ -38,7 +38,7 @@ import java.util.Set;
  */
 public class RepositoryViewController implements ToolWindowFactory {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.action.repository.RepositoryViewController");
+    private static final Logger LOG = Logger.getInstance(RepositoryViewController.class);
 
     private RepositoryViewUI repositoryViewUI;
     private LDProject ldProject;

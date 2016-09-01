@@ -18,7 +18,7 @@ import java.awt.event.ActionListener;
  */
 public class TestConnectionActionListener implements ActionListener {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.ui.listener.TestConnectionActionListener");
+    private static final Logger LOG = Logger.getInstance(TestConnectionActionListener.class);
 
     private final JBTextField urlTextField;
     private final JBTextField handlerTextField;
