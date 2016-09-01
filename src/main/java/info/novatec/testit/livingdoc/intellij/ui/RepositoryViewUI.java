@@ -41,6 +41,7 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         super(false);
 
         mainContent = new JBPanel(new BorderLayout());
+        mainContent.setAutoscrolls(true);
         setContent(mainContent);
 
         this.rootNode = new DefaultMutableTreeNode(rootTreeNode);
