@@ -7,6 +7,7 @@ import java.io.Serializable;
 
 /**
  * Parent class for the nodes of the repository view tree
+ *
  * @see LDNodeType
  */
 public class LDNode implements Serializable {

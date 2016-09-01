@@ -1,7 +1,5 @@
-package info.novatec.testit.livingdoc.intellij.util;
+package info.novatec.testit.livingdoc.intellij.ui;
 
-
-import info.novatec.testit.livingdoc.intellij.ui.UIUtils;
 import org.junit.Assert;
 import org.junit.Test;
 

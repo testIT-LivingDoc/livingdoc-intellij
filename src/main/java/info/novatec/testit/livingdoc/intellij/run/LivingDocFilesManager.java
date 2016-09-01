@@ -1,6 +1,10 @@
 package info.novatec.testit.livingdoc.intellij.run;
 
+import com.intellij.openapi.application.Application;
+import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.util.PathUtil;
 import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
 import org.jetbrains.annotations.NotNull;
 
@@ -14,29 +18,21 @@ import java.io.IOException;
  */
 public class LivingDocFilesManager {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.run.LivingDocFilesManager");
+    private static final Logger LOG = Logger.getInstance(LivingDocFilesManager.class);
 
     private static final String HTML = ".html";
     private static final String XML = ".xml";
     private static final String SEPARATOR = "_";
-    private final String systemTmpDir;
 
-    private final String repositoryUID;
-    private final String specificationName;
+    private final RemoteRunConfiguration runConfiguration;
 
     /**
-     * The parameters are used to build the file names.
-     *
-     * @param repositoryUID     Unique identifier for LivingDoc repository
-     * @param specificationName LivingDoc specification name
+     * @param runConfiguration {@link RemoteRunConfiguration}
      */
-    public LivingDocFilesManager(@NotNull final String repositoryUID, @NotNull final String specificationName) {
-
-        this.repositoryUID = repositoryUID;
-        this.specificationName = specificationName;
-
-        this.systemTmpDir = System.getProperty("java.io.tmpdir");
+    public LivingDocFilesManager(@NotNull final RemoteRunConfiguration runConfiguration) {
+        this.runConfiguration = runConfiguration;
     }
+
 
     /**
      * Return the temporal <b>specification</b> file.<br>
@@ -76,18 +72,46 @@ public class LivingDocFilesManager {
 
     private File createFile(final String fileType, final String extension) throws IOException {
 
-        File file = new File(systemTmpDir, buildFileName(fileType, extension));
+        File file = new File(getLivingDocDir(), buildFileName(fileType, extension));
 
         if (!file.exists() && !file.createNewFile()) {
-            LOG.debug("The file " + fileType + " has not been created");
+            LOG.error("The file " + fileType + " has not been created");
         }
 
         return file;
     }
 
+    private String getLivingDocDir() throws IOException {
+
+        VirtualFile moduleDir = runConfiguration.getConfigurationModule().getModule().getModuleFile().getParent();
+
+        String folderName = PluginProperties.getValue("livingdoc.dir.project");
+        final VirtualFile[] livingDocDir = {moduleDir.findChild(folderName)};
+
+        if (livingDocDir[0] == null) {
+            Application application = ApplicationManager.getApplication();
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        livingDocDir[0] = moduleDir.createChildDirectory(this, folderName);
+                    } catch (IOException ioe) {
+                        LOG.error(ioe.getMessage());
+                    }
+                }
+            };
+            if (application.isDispatchThread()) {
+                application.runWriteAction(runnable);
+            } else {
+                application.invokeLater(() -> application.runWriteAction(runnable));
+            }
+        }
+        return PathUtil.toSystemDependentName(livingDocDir[0].getPath());
+    }
+
     private String buildFileName(final String fileType, final String extension) {
-        String prefix = repositoryUID.replaceAll("\\\\", SEPARATOR).replaceAll("/", SEPARATOR).replaceAll("-", SEPARATOR);
-        String altName = specificationName.replaceAll("\\\\", SEPARATOR).replaceAll("/", SEPARATOR).replaceAll("\"", "''");
+        String prefix = runConfiguration.getRepositoryUID().replaceAll("\\\\", SEPARATOR).replaceAll("/", SEPARATOR).replaceAll("-", SEPARATOR);
+        String altName = runConfiguration.getSpecificationName().replaceAll("\\\\", SEPARATOR).replaceAll("/", SEPARATOR).replaceAll("\"", "''");
         return String.format("%s_%s_%s%s", prefix, altName, fileType, extension);
     }
 }

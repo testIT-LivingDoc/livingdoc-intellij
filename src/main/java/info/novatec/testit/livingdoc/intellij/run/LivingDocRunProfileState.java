@@ -26,17 +26,17 @@ import java.io.PrintWriter;
  */
 public class LivingDocRunProfileState extends JavaCommandLineState {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.run.LivingDocRunProfileState");
+    private static final Logger LOG = Logger.getInstance(LivingDocRunProfileState.class);
 
     private final RemoteRunConfiguration runConfiguration;
     private final LivingDocFilesManager livingDocFileManager;
 
-    LivingDocRunProfileState(@NotNull ExecutionEnvironment env) {
+    LivingDocRunProfileState(@NotNull ExecutionEnvironment executionEnvironment) {
 
-        super(env);
+        super(executionEnvironment);
 
-        this.runConfiguration = (RemoteRunConfiguration) getEnvironment().getRunnerAndConfigurationSettings().getConfiguration();
-        this.livingDocFileManager = new LivingDocFilesManager(runConfiguration.getRepositoryUID(), runConfiguration.getSpecificationName());
+        this.runConfiguration = (RemoteRunConfiguration) executionEnvironment.getRunnerAndConfigurationSettings().getConfiguration();
+        this.livingDocFileManager = new LivingDocFilesManager(runConfiguration);
     }
 
     @Override
@@ -56,9 +56,20 @@ public class LivingDocRunProfileState extends JavaCommandLineState {
 
         addLivingDocProgramParameterList(javaParameters);
 
-        configureOSProcessHandler(javaParameters.createOSProcessHandler());
-
         return javaParameters;
+    }
+
+    /**
+     * {@link LivingDocProcessListener#startNotified(ProcessEvent)} is the listener method for <code>osProcessHandler.startNotify()</code>
+     */
+    @NotNull
+    @Override
+    protected OSProcessHandler startProcess() throws ExecutionException {
+
+        OSProcessHandler osProcessHandler =  super.startProcess();
+        osProcessHandler.addProcessListener(new LivingDocProcessListener(runConfiguration));
+        osProcessHandler.startNotify(); //  start capturing the process output
+        return osProcessHandler;
     }
 
     private void addLivingDocProgramParameterList(final JavaParameters javaParameters) throws ExecutionException {
@@ -85,18 +96,6 @@ public class LivingDocRunProfileState extends JavaCommandLineState {
         buildSpecificationFile(specificationFile);
 
         return specificationFile.getAbsolutePath();
-    }
-
-    /**
-     * {@link LivingDocProcessListener#startNotified(ProcessEvent)} is the listener method for <code>osProcessHandler.startNotify()</code>
-     *
-     * @param osProcessHandler Process handler to its input and output streams.
-     * @see LivingDocProcessListener
-     */
-    private void configureOSProcessHandler(@NotNull final OSProcessHandler osProcessHandler) {
-
-        osProcessHandler.addProcessListener(new LivingDocProcessListener(runConfiguration));
-        osProcessHandler.startNotify(); //  start capturing the process output
     }
 
     private void buildSpecificationFile(@NotNull final File specificationFile) throws ExecutionException {

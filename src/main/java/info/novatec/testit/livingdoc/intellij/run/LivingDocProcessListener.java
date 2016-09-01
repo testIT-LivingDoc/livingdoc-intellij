@@ -5,23 +5,19 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.ide.browsers.BrowserLauncher;
 import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.ide.browsers.WebBrowserManager;
-import com.intellij.openapi.application.Application;
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.util.ColorProgressBar;
-import com.intellij.openapi.vfs.VirtualFile;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
-import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
 import info.novatec.testit.livingdoc.report.XmlReport;
 import info.novatec.testit.livingdoc.server.domain.Execution;
 import info.novatec.testit.livingdoc.server.domain.Specification;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 
 
 /**
@@ -31,7 +27,7 @@ import java.io.*;
  */
 public class LivingDocProcessListener extends ProcessAdapter {
 
-    private static final Logger LOG = Logger.getInstance("#info.novatec.testit.livingdoc.intellij.run.LivingDocProcessListener");
+    private static final Logger LOG = Logger.getInstance(LivingDocProcessListener.class);
 
     private final RemoteRunConfiguration runConfiguration;
     private final LivingDocFilesManager livingDocFilesManager;
@@ -49,9 +45,7 @@ public class LivingDocProcessListener extends ProcessAdapter {
     public LivingDocProcessListener(final RemoteRunConfiguration runConfiguration) {
 
         this.runConfiguration = runConfiguration;
-
-        this.livingDocFilesManager = new LivingDocFilesManager(runConfiguration.getRepositoryUID(),
-                runConfiguration.getSpecificationName());
+        this.livingDocFilesManager = new LivingDocFilesManager(this.runConfiguration);
     }
 
     @Override
@@ -80,7 +74,9 @@ public class LivingDocProcessListener extends ProcessAdapter {
 
                 File resultFile = loadResultFile(specification);
 
-                createOrUpdateIntellijResource(resultFile);
+                BrowserLauncher browser = new BrowserLauncherImpl();
+                browser.browse(resultFile.getPath(), WebBrowserManager.getInstance().getFirstActiveBrowser(),
+                        runConfiguration.getProject());
 
             } catch (IOException | SAXException e) {
                 LOG.error(e);
@@ -128,47 +124,6 @@ public class LivingDocProcessListener extends ProcessAdapter {
         specification.addExecution(execution);
 
         return specification;
-    }
-
-    private void createOrUpdateIntellijResource(@NotNull final File resultFile) {
-
-        Application application = ApplicationManager.getApplication();
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                VirtualFile projectDir = runConfiguration.getProject().getBaseDir();
-                String folderName = PluginProperties.getValue("livingdoc.dir.project");
-                try {
-                    VirtualFile ldDir = projectDir.findChild(folderName);
-                    if (ldDir == null) {
-                        ldDir = projectDir.createChildDirectory(this, folderName);
-                    }
-
-                    VirtualFile ldFile = ldDir.findChild(resultFile.getName());
-                    if (ldFile == null) {
-                        ldFile = ldDir.createChildData(this, resultFile.getName());
-                    }
-
-                    InputStream inputStream = new FileInputStream(resultFile);
-                    ldFile.setBinaryContent(IOUtils.toByteArray(inputStream));
-                    inputStream.close();
-
-                    BrowserLauncher browser = new BrowserLauncherImpl();
-                    browser.browse(ldFile.getUrl(), WebBrowserManager.getInstance().getFirstActiveBrowser(),
-                            runConfiguration.getProject());
-
-                } catch (IOException ioe) {
-                    LOG.error(ioe.getMessage());
-                }
-            }
-        };
-
-        if (application.isDispatchThread()) {
-            application.runWriteAction(runnable);
-
-        } else {
-            application.invokeLater(() -> application.runWriteAction(runnable));
-        }
     }
 
     private File loadResultFile(final Specification specification) throws IOException {
