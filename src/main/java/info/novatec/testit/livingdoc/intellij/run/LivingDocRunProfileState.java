@@ -116,9 +116,8 @@ public class LivingDocRunProfileState extends JavaCommandLineState {
                 LOG.error(I18nSupport.getValue("run.execution.error.documentnull"));
             }
         } catch (Exception e) {
-            LOG.error(e.getMessage());
+            LOG.error(e);
             throw new ExecutionException(e);
         }
     }
-
 }

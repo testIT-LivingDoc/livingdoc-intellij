@@ -3,7 +3,10 @@ package info.novatec.testit.livingdoc.intellij.run;
 import com.intellij.openapi.application.Application;
 import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.diagnostic.Logger;
+import com.intellij.openapi.module.Module;
+import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
 import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +16,6 @@ import java.io.IOException;
 
 /**
  * To create the files used in LivingDoc execution.<br>
- * The temporal files are created in the path indicated for the system property: <code>java.io.tmpdir</code><br>
  * NOTE: File names are configured in <b>config.properties</b>
  */
 public class LivingDocFilesManager {
@@ -75,18 +77,27 @@ public class LivingDocFilesManager {
         File file = new File(getLivingDocDir(), buildFileName(fileType, extension));
 
         if (!file.exists() && !file.createNewFile()) {
-            LOG.error("The file " + fileType + " has not been created");
+            LOG.error("The file " + fileType + " has not been created.");
         }
 
         return file;
     }
 
-    private String getLivingDocDir() throws IOException {
+    /**
+     * Returns the parent folder path for the created files.<br>
+     * If it does not exist, it is created only once under the select module.
+     * @return String
+     */
+    private String getLivingDocDir() {
 
-        VirtualFile moduleDir = runConfiguration.getConfigurationModule().getModule().getModuleFile().getParent();
+        Module selectedModule = runConfiguration.getConfigurationModule().getModule();
+        String[] contentRootUrls = ModuleRootManager.getInstance(selectedModule).getContentRootUrls();
+
+        // TODO Review contentRootUrls[0]
+        VirtualFile parentDir = VirtualFileManager.getInstance().findFileByUrl(contentRootUrls[0]);
 
         String folderName = PluginProperties.getValue("livingdoc.dir.project");
-        final VirtualFile[] livingDocDir = {moduleDir.findChild(folderName)};
+        final VirtualFile[] livingDocDir = {parentDir.findChild(folderName)};
 
         if (livingDocDir[0] == null) {
             Application application = ApplicationManager.getApplication();
@@ -94,7 +105,9 @@ public class LivingDocFilesManager {
                 @Override
                 public void run() {
                     try {
-                        livingDocDir[0] = moduleDir.createChildDirectory(this, folderName);
+                        livingDocDir[0] = parentDir.createChildDirectory(this, folderName);
+                        LOG.info("Folder created: " + livingDocDir[0].getPath());
+
                     } catch (IOException ioe) {
                         LOG.error(ioe.getMessage());
                     }
