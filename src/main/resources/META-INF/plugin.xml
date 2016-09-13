@@ -39,5 +39,4 @@
             <implementation-class>info.novatec.testit.livingdoc.intellij.PluginRegistration</implementation-class>
         </component>
     </application-components>
-
 </idea-plugin>
