@@ -41,7 +41,7 @@ public class UIUtils {
     public static IdeaTitledBorder createTitledBorder(@NotNull final String title) {
         return IdeBorderFactory.createTitledBorder(title, true,
                 new Insets(IdeBorderFactory.TITLED_BORDER_TOP_INSET,
-                        0,
+                        5,
                         IdeBorderFactory.TITLED_BORDER_BOTTOM_INSET,
                         IdeBorderFactory.TITLED_BORDER_RIGHT_INSET));
     }
