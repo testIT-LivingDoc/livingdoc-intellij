@@ -4,7 +4,7 @@ import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.ui.DialogWrapper;
-import info.novatec.testit.livingdoc.intellij.ui.ServerConfigurationUI;
+import info.novatec.testit.livingdoc.intellij.gui.ServerConfigurationUI;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.util.Icons;
 import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
@@ -16,9 +16,9 @@ import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
  * - The XML-RPC handler<br>
  * It is mandatory press OK button to save the server configuration.<br>
  * Accessed from File > Other Settings > Livingdoc
- * TODO Better to locate in File > Settings > Tools
  *
  * @see ServerConfigurationUI
+ * @deprecated
  */
 public class ServerConfigurationAction extends AnAction {
 

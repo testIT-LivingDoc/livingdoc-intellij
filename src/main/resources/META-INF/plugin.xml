@@ -25,10 +25,16 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Repository View"
                     anchor="bottom"
-                    factoryClass="info.novatec.testit.livingdoc.intellij.action.repository.RepositoryViewController"
+                    factoryClass="info.novatec.testit.livingdoc.intellij.gui.toolwindows.ToolWindowLivingDoc"
                     icon="/icons/livingdoc_16.gif"
                     canCloseContents="true"/>
-        <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.LivingDocConfigurationType"/>
+        <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.ConfigurationTypeLivingDoc"/>
+
+        <moduleService id="LivingDoc.Module.Service.Settings"
+                       serviceImplementation="info.novatec.testit.livingdoc.intellij.gui.settings.ModuleSettings"/>
+        <moduleConfigurable id="LivingDoc.Module.Configurable.Settings"
+                            displayName="LivingDoc"
+                            provider="info.novatec.testit.livingdoc.intellij.gui.settings.ModuleConfigurableProvider"/>
     </extensions>
 
     <actions>

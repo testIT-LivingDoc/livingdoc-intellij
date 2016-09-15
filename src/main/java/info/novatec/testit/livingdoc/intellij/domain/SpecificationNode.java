@@ -9,22 +9,18 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  * It's the user object for {@link javax.swing.tree.DefaultMutableTreeNode}
  * Built from {@link info.novatec.testit.livingdoc.server.domain.DocumentNode}
  *
- * @see LDNode
+ * @see Node
  */
-public class SpecificationNode extends LDNode {
+public class SpecificationNode extends Node {
 
-    private static final long serialVersionUID = -8016091757391516275L;
-
-    private LDNode parent;
-    private boolean executable;
-    private boolean canBeImplemented;
+    private final boolean executable;
+    private final boolean canBeImplemented;
     private boolean usingCurrentVersion;
 
-    public SpecificationNode(DocumentNode node, LDNode parentNode) {
+    public SpecificationNode(DocumentNode node, Node parentNode) {
 
-        super(node.getTitle(), Icons.EXECUTABLE, LDNodeType.SPECIFICATION);
+        super(node.getTitle(), Icons.EXECUTABLE, NodeType.SPECIFICATION, parentNode);
 
-        this.parent = parentNode;
         this.executable = node.isExecutable();
         this.canBeImplemented = node.canBeImplemented() && node.isExecutable();
         this.usingCurrentVersion = false;
@@ -33,8 +29,6 @@ public class SpecificationNode extends LDNode {
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append(super.toString())
-                .append("parent", parent)
                 .append("executable", executable)
                 .append("canBeImplemented", canBeImplemented)
                 .append("usingCurrentVersion", usingCurrentVersion)
@@ -47,10 +41,6 @@ public class SpecificationNode extends LDNode {
 
     public boolean isExecutable() {
         return executable;
-    }
-
-    public LDNode getParent() {
-        return parent;
     }
 
     public boolean isUsingCurrentVersion() {

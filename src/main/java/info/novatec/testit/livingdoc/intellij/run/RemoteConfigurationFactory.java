@@ -20,8 +20,9 @@ public class RemoteConfigurationFactory extends ConfigurationFactory {
         super(type);
     }
 
+    @NotNull
     @Override
-    public RunConfiguration createTemplateConfiguration(Project project) {
+    public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
         return new RemoteRunConfiguration(project, this, getType().getDisplayName());
     }
 }

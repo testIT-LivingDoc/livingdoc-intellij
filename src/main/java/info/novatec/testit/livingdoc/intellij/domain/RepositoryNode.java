@@ -1,26 +1,23 @@
 package info.novatec.testit.livingdoc.intellij.domain;
 
-import info.novatec.testit.livingdoc.intellij.util.Icons;
+import com.intellij.icons.AllIcons;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 /**
  * @see Repository
  */
-public class RepositoryNode extends LDNode {
-
-    private static final long serialVersionUID = -5251788072170319409L;
+public class RepositoryNode extends Node {
 
     private Repository repository;
 
-    public RepositoryNode(final String name) {
-        super(name, Icons.REPOSITORY, LDNodeType.REPOSITORY);
+    public RepositoryNode(final String name, final Node moduleNode) {
+        super(name, AllIcons.Nodes.PpLibFolder, NodeType.REPOSITORY, moduleNode);
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append(super.toString())
                 .append("repository", repository)
                 .toString();
     }
