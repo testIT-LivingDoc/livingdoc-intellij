@@ -7,6 +7,7 @@ import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import info.novatec.testit.livingdoc.intellij.domain.RootNode;
 import info.novatec.testit.livingdoc.intellij.ui.renderer.LDTreeCellRenderer;
@@ -105,7 +106,8 @@ public class RepositoryViewUI extends SimpleToolWindowPanel {
         treeModel = new DefaultTreeModel(rootNode, true);
         tree.setModel(treeModel);
 
-        mainContent.add(tree, BorderLayout.CENTER);
+        JBScrollPane scrollPane = new JBScrollPane(tree);
+        mainContent.add(scrollPane, BorderLayout.CENTER);
     }
 
     private void createStatusLine() {
