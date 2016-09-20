@@ -31,10 +31,10 @@
         <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.ConfigurationTypeLivingDoc"/>
 
         <moduleService id="LivingDoc.Module.Service.Settings"
-                       serviceImplementation="info.novatec.testit.livingdoc.intellij.gui.settings.ModuleSettings"/>
+                       serviceImplementation="info.novatec.testit.livingdoc.intellij.core.ModuleSettings"/>
         <moduleConfigurable id="LivingDoc.Module.Configurable.Settings"
                             displayName="LivingDoc"
-                            provider="info.novatec.testit.livingdoc.intellij.gui.settings.ModuleConfigurableProvider"/>
+                            provider="info.novatec.testit.livingdoc.intellij.core.ModuleConfigurableProvider"/>
     </extensions>
 
     <actions>

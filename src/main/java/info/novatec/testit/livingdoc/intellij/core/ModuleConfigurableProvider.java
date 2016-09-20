@@ -1,8 +1,9 @@
-package info.novatec.testit.livingdoc.intellij.gui.settings;
+package info.novatec.testit.livingdoc.intellij.core;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurableProvider;
+import info.novatec.testit.livingdoc.intellij.gui.settings.ModuleConfigurableImpl;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 

@@ -10,9 +10,10 @@ import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import info.novatec.testit.livingdoc.document.Document;
-import info.novatec.testit.livingdoc.intellij.gui.settings.ModuleSettings;
+import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.repository.DocumentRepository;
+import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -53,9 +54,6 @@ public class RunProfileStateLivingDoc extends JavaCommandLineState {
 
         javaParameters.setMainClass(runConfiguration.MAIN_CLASS_NAME);
 
-        // Generate XML report (defaults to plain)
-        javaParameters.getProgramParametersList().add("--xml");
-
         addLivingDocProgramParameterList(javaParameters);
 
         return javaParameters;
@@ -76,6 +74,11 @@ public class RunProfileStateLivingDoc extends JavaCommandLineState {
 
     private void addLivingDocProgramParameterList(final JavaParameters javaParameters) throws ExecutionException {
 
+        javaParameters.getProgramParametersList().add(getFixtureFactoryClass());
+
+        // Generate XML report (defaults to plain)
+        javaParameters.getProgramParametersList().add("--xml");
+
         try {
             javaParameters.getProgramParametersList().add(getSpecificationInputPath());
             javaParameters.getProgramParametersList().add(getReportOutputPath());
@@ -84,6 +87,30 @@ public class RunProfileStateLivingDoc extends JavaCommandLineState {
             LOG.error(e);
             throw new ExecutionException(e);
         }
+    }
+
+    /**
+     * <p>To override the default System Under Development class (used for fixture classes instanciation).<br>
+     * The library with the specified class should be in the same directory as the runner. </p>
+     * <br>
+     * <code>-f CLASS;ARGS Use CLASS as the system under development and instantiate it with ARGS</code>
+     *
+     * @return Command line parameters
+     */
+    private String getFixtureFactoryClass() {
+
+        String result = "";
+
+        ModuleSettings moduleSettings = ModuleSettings.getInstance(runConfiguration.getConfigurationModule().getModule());
+
+        if (StringUtils.isNotBlank(moduleSettings.getSudClassName())) {
+            result = "-f " + moduleSettings.getSudClassName();
+
+            if (StringUtils.isNotBlank(moduleSettings.getSudArgs())) {
+                result = result + ";" + moduleSettings.getSudArgs();
+            }
+        }
+        return result;
     }
 
     private String getReportOutputPath() throws IOException {

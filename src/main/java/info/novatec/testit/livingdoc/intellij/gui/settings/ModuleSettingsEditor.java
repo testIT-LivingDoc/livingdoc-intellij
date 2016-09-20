@@ -1,18 +1,20 @@
 package info.novatec.testit.livingdoc.intellij.gui.settings;
 
+import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
-import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
-import com.intellij.openapi.ui.Messages;
 import com.intellij.ui.components.JBCheckBox;
+import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
+import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
 import info.novatec.testit.livingdoc.intellij.gui.UIUtils;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.*;
@@ -26,34 +28,37 @@ import java.util.Set;
  */
 public class ModuleSettingsEditor extends JPanel {
 
-    private final static Logger LOG = Logger.getInstance(ModuleSettings.class);
+    private static final Logger LOG = Logger.getInstance(ModuleSettings.class);
 
-    private final Project project;
     private final ModuleSettings moduleSettings;
 
     private JPanel myWholePanel;
     private JPanel centerPanel;
+    private JPanel southPanel;
+    private JPanel mainPanel;
 
     private JBCheckBox livingDocEnabledCheck;
-    private ComboBox projectCombo;
-    private ComboBox sudCombo;
+    private ComboBox<String> projectCombo;
+    private ComboBox<String> sudCombo;
     private JBTextField userField;
     private JBPasswordField passField;
+    private JBTextField classField;
+    private JBTextField argsField;
+    private JBLabel errorLabel;
 
 
     public ModuleSettingsEditor(final Module module) {
 
         super(new BorderLayout());
+        add(myWholePanel, BorderLayout.CENTER);
+        errorLabel.setForeground(Color.RED);
 
-        this.project = module.getProject();
-        this.moduleSettings = ModuleSettings.getInstance(module);
+        moduleSettings = ModuleSettings.getInstance(module);
 
-        centerPanel.setBorder(UIUtils.createTitledBorder(I18nSupport.getValue("identify.project.title")));
+        centerPanel.setBorder(UIUtils.createTitledBorder(I18nSupport.getValue("module.settings.title")));
+        southPanel.setBorder(UIUtils.createTitledBorder(I18nSupport.getValue("module.settings.sud.title")));
 
-        livingDocEnabledCheck.addActionListener(actionEvent -> enableOrDisablePanel());
         projectCombo.addActionListener(actionEvent -> loadSud());
-
-        this.add(myWholePanel, BorderLayout.CENTER);
     }
 
     public void apply() {
@@ -62,46 +67,63 @@ public class ModuleSettingsEditor extends JPanel {
         moduleSettings.setSud((String) sudCombo.getSelectedItem());
         moduleSettings.setUser(userField.getText());
         moduleSettings.setPassword(String.valueOf(passField.getPassword()));
+        moduleSettings.setSudClassName(classField.getText());
+        moduleSettings.setSudArgs(argsField.getText());
     }
 
     public boolean isModified() {
+
+        enableOrDisablePanel();
+
         return moduleSettings.isLivingDocEnabled() != livingDocEnabledCheck.isSelected()
                 || !StringUtils.equals(moduleSettings.getProject(), (String) projectCombo.getSelectedItem())
                 || !StringUtils.equals(moduleSettings.getSud(), (String) sudCombo.getSelectedItem())
-                || !StringUtils.equals(moduleSettings.getUser(), userField.getText())
-                || !StringUtils.equals(moduleSettings.getPassword(), String.valueOf(passField.getPassword()));
+                || isModifiedCredentials()
+                || isModifiedFactory();
     }
 
     public void reset() {
 
         boolean isLivingDocEnabled = moduleSettings.isLivingDocEnabled();
         livingDocEnabledCheck.setSelected(isLivingDocEnabled);
-        enableOrDisablePanel();
 
-        if (isLivingDocEnabled) {
-            loadProjects();
-        }
+        loadProjects();
+
         userField.setText(moduleSettings.getUser());
         passField.setText(moduleSettings.getPassword());
+        classField.setText(moduleSettings.getSudClassName());
+        argsField.setText(moduleSettings.getSudArgs());
+    }
+
+    private boolean isModifiedCredentials() {
+        return !StringUtils.equals(moduleSettings.getUser(), userField.getText())
+                || !StringUtils.equals(moduleSettings.getPassword(), String.valueOf(passField.getPassword()));
+    }
+
+    private boolean isModifiedFactory() {
+        return !StringUtils.equals(moduleSettings.getSudClassName(), String.valueOf(classField.getText()))
+                || !StringUtils.equals(moduleSettings.getSudArgs(), String.valueOf(argsField.getText()));
     }
 
     private void loadProjects() {
+
         PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient();
+
         try {
             Set<info.novatec.testit.livingdoc.server.domain.Project> projects = service.getAllProjects();
-            for (info.novatec.testit.livingdoc.server.domain.Project project : projects) {
-                projectCombo.addItem(project.getName());
+            for (info.novatec.testit.livingdoc.server.domain.Project prj : projects) {
+                projectCombo.addItem(prj.getName());
             }
             if (StringUtils.isNotBlank(moduleSettings.getProject())) {
                 projectCombo.setSelectedItem(moduleSettings.getProject());
+
             } else {
                 projectCombo.setSelectedIndex(0);
             }
         } catch (LivingDocServerException ldse) {
-            // TODO label with the error:
-            Messages.showErrorDialog(project, I18nSupport.getValue("identify.project.error.loading.project.desc"),
-                    I18nSupport.getValue("identify.project.error.loading.project"));
-            LOG.error(ldse);
+            errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.project"));
+            errorLabel.setIcon(AllIcons.General.Error);
+            LOG.warn(ldse);
         }
     }
 
@@ -127,24 +149,22 @@ public class ModuleSettingsEditor extends JPanel {
                 sudCombo.setSelectedIndex(0);
             }
         } catch (LivingDocServerException ldse) {
-            Messages.showErrorDialog(ldse.getMessage(), I18nSupport.getValue("identify.project.error.loading.systems"));
-            LOG.error(ldse);
+            errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.systems"));
+            errorLabel.setIcon(AllIcons.General.Error);
+            LOG.warn(ldse);
         }
     }
 
     private void enableOrDisablePanel() {
+
         boolean isEnable = livingDocEnabledCheck.isSelected();
-        centerPanel.setEnabled(isEnable);
-        for (Component component : centerPanel.getComponents()) {
+
+        mainPanel.setEnabled(isEnable);
+
+        Component[] components = centerPanel.getComponents();
+        components = ArrayUtils.addAll(components, southPanel.getComponents());
+        for (Component component : components) {
             component.setEnabled(isEnable);
-            if (component instanceof JTextField) {
-                ((JTextField) component).setText("");
-            } else if (component instanceof ComboBox) {
-                ((ComboBox) component).setSelectedIndex(-1);
-            }
-        }
-        if (isEnable) {
-            loadProjects();
         }
     }
 }
