@@ -14,8 +14,8 @@ import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.ui.PopupHandler;
 import com.intellij.ui.content.Content;
 import com.intellij.ui.content.ContentFactory;
-import info.novatec.testit.livingdoc.intellij.domain.*;
 import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
+import info.novatec.testit.livingdoc.intellij.domain.*;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.ExecuteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.OpenRemoteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.SwitchVersionAction;
@@ -140,7 +140,7 @@ public class ToolWindowLivingDoc implements ToolWindowFactory {
 
     private void loadRepositories() {
 
-        PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient();
+        PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
 
         for (Module module : ModuleManager.getInstance(project).getModules()) {
 

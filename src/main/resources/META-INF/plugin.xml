@@ -35,6 +35,12 @@
         <moduleConfigurable id="LivingDoc.Module.Configurable.Settings"
                             displayName="LivingDoc"
                             provider="info.novatec.testit.livingdoc.intellij.core.ModuleConfigurableProvider"/>
+
+        <projectService id="LivingDoc.Project.Service.Settings"
+                        serviceImplementation="info.novatec.testit.livingdoc.intellij.core.ProjectSettings"/>
+        <projectConfigurable provider="info.novatec.testit.livingdoc.intellij.gui.settings.ProjectConfigurableProvider"
+                             groupId="tools" displayName="LivingDoc"/>
+
     </extensions>
 
     <actions>

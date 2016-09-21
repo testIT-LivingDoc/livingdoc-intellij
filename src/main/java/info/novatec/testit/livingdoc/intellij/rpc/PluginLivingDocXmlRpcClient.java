@@ -20,9 +20,9 @@ public class PluginLivingDocXmlRpcClient extends LivingDocXmlRpcClient {
 
     private static final String IDENTIFIER = "WORKSPACE";
 
-    public PluginLivingDocXmlRpcClient() {
+    public PluginLivingDocXmlRpcClient(@NotNull final com.intellij.openapi.project.Project project) {
 
-        super(new ServerPropertiesManagerImpl());
+        super(new ServerPropertiesManagerImpl(project));
     }
 
     public Set<Project> getAllProjects() throws LivingDocServerException {

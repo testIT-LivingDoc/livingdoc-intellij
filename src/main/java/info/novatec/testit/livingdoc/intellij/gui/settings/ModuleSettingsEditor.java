@@ -3,6 +3,7 @@ package info.novatec.testit.livingdoc.intellij.gui.settings;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
@@ -31,6 +32,7 @@ public class ModuleSettingsEditor extends JPanel {
     private static final Logger LOG = Logger.getInstance(ModuleSettings.class);
 
     private final ModuleSettings moduleSettings;
+    private final Project project;
 
     private JPanel myWholePanel;
     private JPanel centerPanel;
@@ -53,6 +55,7 @@ public class ModuleSettingsEditor extends JPanel {
         add(myWholePanel, BorderLayout.CENTER);
         errorLabel.setForeground(Color.RED);
 
+        project = module.getProject();
         moduleSettings = ModuleSettings.getInstance(module);
 
         centerPanel.setBorder(UIUtils.createTitledBorder(I18nSupport.getValue("module.settings.title")));
@@ -107,7 +110,7 @@ public class ModuleSettingsEditor extends JPanel {
 
     private void loadProjects() {
 
-        PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient();
+        PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
 
         try {
             Set<info.novatec.testit.livingdoc.server.domain.Project> projects = service.getAllProjects();
@@ -121,9 +124,9 @@ public class ModuleSettingsEditor extends JPanel {
                 projectCombo.setSelectedIndex(0);
             }
         } catch (LivingDocServerException ldse) {
+            LOG.warn(ldse);
             errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.project"));
             errorLabel.setIcon(AllIcons.General.Error);
-            LOG.warn(ldse);
         }
     }
 
@@ -137,7 +140,7 @@ public class ModuleSettingsEditor extends JPanel {
         }
 
         try {
-            PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient();
+            PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
             Set<SystemUnderTest> systems = service.getSystemUnderTestsOfProject(selectedProject);
             for (SystemUnderTest system : systems) {
                 sudCombo.addItem(system.getName());
@@ -149,9 +152,9 @@ public class ModuleSettingsEditor extends JPanel {
                 sudCombo.setSelectedIndex(0);
             }
         } catch (LivingDocServerException ldse) {
+            LOG.warn(ldse);
             errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.systems"));
             errorLabel.setIcon(AllIcons.General.Error);
-            LOG.warn(ldse);
         }
     }
 
