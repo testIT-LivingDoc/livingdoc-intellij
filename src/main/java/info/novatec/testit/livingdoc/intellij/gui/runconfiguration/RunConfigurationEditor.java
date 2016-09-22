@@ -1,4 +1,4 @@
-package info.novatec.testit.livingdoc.intellij.gui;
+package info.novatec.testit.livingdoc.intellij.gui.runconfiguration;
 
 import com.intellij.application.options.ModulesComboBox;
 import com.intellij.execution.configurations.ConfigurationUtil;

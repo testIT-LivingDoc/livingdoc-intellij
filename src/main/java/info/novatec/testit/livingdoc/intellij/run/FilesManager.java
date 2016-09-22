@@ -8,7 +8,7 @@ import com.intellij.openapi.roots.ModuleRootManager;
 import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.vfs.VirtualFileManager;
 import com.intellij.util.PathUtil;
-import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
+import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -94,7 +94,6 @@ class FilesManager {
         assert selectedModule != null;
         String[] contentRootUrls = ModuleRootManager.getInstance(selectedModule).getContentRootUrls();
 
-        // TODO Review contentRootUrls[0]
         VirtualFile parentDir = VirtualFileManager.getInstance().findFileByUrl(contentRootUrls[0]);
 
         String folderName = PluginProperties.getValue("livingdoc.dir.project");
@@ -111,7 +110,7 @@ class FilesManager {
                         LOG.info("Folder created: " + livingDocDir[0].getPath());
 
                     } catch (IOException ioe) {
-                        LOG.error(ioe.getMessage());
+                        LOG.error(ioe);
                     }
                 }
             };

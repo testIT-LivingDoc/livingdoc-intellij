@@ -1,11 +1,11 @@
-package info.novatec.testit.livingdoc.intellij.run;
+package info.novatec.testit.livingdoc.intellij.core;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationTypeBase;
 import com.intellij.execution.configurations.ConfigurationTypeUtil;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
-import info.novatec.testit.livingdoc.intellij.util.Icons;
-import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.common.Icons;
+import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
 
 /**
  * Implementation of the run configuration type for LivingDoc.<br>

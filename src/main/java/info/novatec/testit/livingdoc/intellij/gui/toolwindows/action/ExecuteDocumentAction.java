@@ -11,12 +11,12 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.core.ConfigurationTypeLivingDoc;
 import info.novatec.testit.livingdoc.intellij.domain.*;
-import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUI;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
-import info.novatec.testit.livingdoc.intellij.run.ConfigurationTypeLivingDoc;
+import info.novatec.testit.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
 import info.novatec.testit.livingdoc.intellij.run.RemoteRunConfiguration;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.runner.Main;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import org.apache.commons.lang3.StringUtils;
@@ -33,33 +33,33 @@ import javax.swing.tree.DefaultMutableTreeNode;
  */
 public class ExecuteDocumentAction extends AnAction {
 
-    private final RepositoryViewUI repositoryViewUI;
+    private final ToolWindowPanel toolWindowPanel;
     private boolean debugMode = false;
 
     /**
      * Creates the action with its text, description and icon.
      *
-     * @param repositoryViewUI {@link RepositoryViewUI} User interface fot Repository View.
-     * @param isDebugMode      Kind of execution: <ul>
-     *                         <li>true to activate debug mode</li>
-     *                         <li>false otherwise. In this case, you will see the run configuration user interface.</li></ul>
+     * @param toolWindowPanel {@link ToolWindowPanel} User interface fot Repository View.
+     * @param isDebugMode     Kind of execution: <ul>
+     *                        <li>true to activate debug mode</li>
+     *                        <li>false otherwise. In this case, you will see the run configuration user interface.</li></ul>
      */
-    public ExecuteDocumentAction(final RepositoryViewUI repositoryViewUI, final boolean isDebugMode) {
+    public ExecuteDocumentAction(final ToolWindowPanel toolWindowPanel, final boolean isDebugMode) {
 
         super();
 
-        this.repositoryViewUI = repositoryViewUI;
+        this.toolWindowPanel = toolWindowPanel;
         this.debugMode = isDebugMode;
 
         String text;
         Icon icon;
 
         if (debugMode) {
-            text = I18nSupport.getValue("repository.view.action.debug.tooltip");
+            text = I18nSupport.getValue("toolwindows.action.debug.tooltip");
             icon = AllIcons.Actions.StartDebugger;
 
         } else {
-            text = I18nSupport.getValue("repository.view.action.execute.tooltip");
+            text = I18nSupport.getValue("toolwindows.action.execute.tooltip");
             icon = AllIcons.Actions.Execute;
         }
 
@@ -78,7 +78,7 @@ public class ExecuteDocumentAction extends AnAction {
     @Override
     public void actionPerformed(AnActionEvent actionEvent) {
 
-        DefaultMutableTreeNode[] nodes = repositoryViewUI.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
+        DefaultMutableTreeNode[] nodes = toolWindowPanel.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
 
         Object userObject = nodes[0].getUserObject();
 
@@ -129,7 +129,7 @@ public class ExecuteDocumentAction extends AnAction {
 
         super.update(actionEvent);
 
-        DefaultMutableTreeNode[] selectedNodes = repositoryViewUI.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
+        DefaultMutableTreeNode[] selectedNodes = toolWindowPanel.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
 
         RepositoryViewUtils.setEnabledForExecutableNode(selectedNodes, actionEvent.getPresentation());
     }
@@ -152,6 +152,6 @@ public class ExecuteDocumentAction extends AnAction {
 
         runConfiguration.MAIN_CLASS_NAME = Main.class.getName();
 
-        runConfiguration.setStatusLine(repositoryViewUI.getStatusLine());
+        runConfiguration.setStatusLine(toolWindowPanel.getStatusLine());
     }
 }

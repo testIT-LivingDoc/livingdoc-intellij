@@ -9,14 +9,14 @@ import org.jetbrains.annotations.Nullable;
 
 /**
  * Provider class for module configurable extension defined in <b>plugin.xml</b> with
- * <code>id="LivingDoc.Module.Configurable.Settings"</code>.<br>
+ * <code>id="LivingDoc.Module.Configurable"</code>.<br>
  * (File > Project Structure > Modules)
  *
  * @see ConfigurableProvider
+ * @see ModuleConfigurableImpl
  */
 public class ModuleConfigurableProvider extends ConfigurableProvider {
 
-    @NotNull
     private final Module module;
 
     public ModuleConfigurableProvider(@NotNull final Module module) {

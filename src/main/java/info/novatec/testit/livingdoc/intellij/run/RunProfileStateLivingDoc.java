@@ -10,8 +10,8 @@ import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import info.novatec.testit.livingdoc.document.Document;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.repository.DocumentRepository;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -19,6 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Command line initialization and environment configuration:<br>
@@ -27,7 +28,7 @@ import java.io.PrintWriter;
  * @see JavaCommandLineState
  * @see RemoteRunConfiguration
  */
-public class RunProfileStateLivingDoc extends JavaCommandLineState {
+class RunProfileStateLivingDoc extends JavaCommandLineState {
 
     private static final Logger LOG = Logger.getInstance(RunProfileStateLivingDoc.class);
 
@@ -62,7 +63,6 @@ public class RunProfileStateLivingDoc extends JavaCommandLineState {
     /**
      * {@link ProcessListenerLivingDoc#startNotified(ProcessEvent)} is the listener method for <code>osProcessHandler.startNotify()</code>
      */
-    @NotNull
     @Override
     protected OSProcessHandler startProcess() throws ExecutionException {
 
@@ -72,9 +72,23 @@ public class RunProfileStateLivingDoc extends JavaCommandLineState {
         return osProcessHandler;
     }
 
+    /**
+     * <p>To override the default System Under Development class (used for fixture classes instanciation).<br>
+     * The library with the specified class should be in the same directory as the runner. </p>
+     * <br>
+     * <code>-f CLASS;ARGS Use CLASS as the system under development and instantiate it with ARGS</code>
+     */
     private void addLivingDocProgramParameterList(final JavaParameters javaParameters) throws ExecutionException {
 
-        javaParameters.getProgramParametersList().add(getFixtureFactoryClass());
+        ModuleSettings moduleSettings = ModuleSettings.getInstance(runConfiguration.getConfigurationModule().getModule());
+        if (StringUtils.isNotBlank(moduleSettings.getSudClassName())) {
+            String programParameter = "-f " + moduleSettings.getSudClassName();
+
+            if (StringUtils.isNotBlank(moduleSettings.getSudArgs())) {
+                programParameter = programParameter + ";" + moduleSettings.getSudArgs();
+            }
+            javaParameters.getProgramParametersList().add(programParameter);
+        }
 
         // Generate XML report (defaults to plain)
         javaParameters.getProgramParametersList().add("--xml");
@@ -89,35 +103,13 @@ public class RunProfileStateLivingDoc extends JavaCommandLineState {
         }
     }
 
-    /**
-     * <p>To override the default System Under Development class (used for fixture classes instanciation).<br>
-     * The library with the specified class should be in the same directory as the runner. </p>
-     * <br>
-     * <code>-f CLASS;ARGS Use CLASS as the system under development and instantiate it with ARGS</code>
-     *
-     * @return Command line parameters
-     */
-    private String getFixtureFactoryClass() {
-
-        String result = "";
-
-        ModuleSettings moduleSettings = ModuleSettings.getInstance(runConfiguration.getConfigurationModule().getModule());
-
-        if (StringUtils.isNotBlank(moduleSettings.getSudClassName())) {
-            result = "-f " + moduleSettings.getSudClassName();
-
-            if (StringUtils.isNotBlank(moduleSettings.getSudArgs())) {
-                result = result + ";" + moduleSettings.getSudArgs();
-            }
-        }
-        return result;
-    }
-
+    @NotNull
     private String getReportOutputPath() throws IOException {
         File reportFile = livingDocFileManager.createReportFile();
         return reportFile.getAbsolutePath();
     }
 
+    @NotNull
     private String getSpecificationInputPath() throws IOException, ExecutionException {
 
         File specificationFile = livingDocFileManager.createSpecificationFile();
@@ -140,13 +132,13 @@ public class RunProfileStateLivingDoc extends JavaCommandLineState {
 
         String location = runConfiguration.getSpecificationName() + (runConfiguration.isCurrentVersion() ? "?implemented=false" : "");
 
-        try (PrintWriter printWriter = new PrintWriter(specificationFile)) {
+        try (PrintWriter printWriter = new PrintWriter(specificationFile, String.valueOf(StandardCharsets.UTF_8))) {
 
             Document document = documentRepository.loadDocument(location);
             if (document != null) {
                 document.print(printWriter);
             } else {
-                LOG.error(I18nSupport.getValue("run.execution.error.documentnull"));
+                LOG.error(I18nSupport.getValue("run.execution.error.document.null"));
             }
         } catch (Exception e) {
             LOG.error(e);

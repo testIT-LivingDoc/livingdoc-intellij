@@ -1,123 +1,180 @@
 package info.novatec.testit.livingdoc.intellij.gui.toolwindows;
 
+import com.intellij.execution.testframework.ui.TestStatusLine;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.ActionManager;
-import com.intellij.openapi.actionSystem.ActionPopupMenu;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleManager;
+import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.PopupHandler;
-import com.intellij.ui.content.Content;
-import com.intellij.ui.content.ContentFactory;
+import com.intellij.ui.components.JBPanel;
+import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.treeStructure.SimpleTree;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
 import info.novatec.testit.livingdoc.intellij.domain.*;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.ExecuteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.OpenRemoteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.SwitchVersionAction;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
-import info.novatec.testit.livingdoc.intellij.util.Icons;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.util.Set;
 
+
 /**
- * Factory class for tool window configured in plugin.xml with id="Repository View".
- * The LivingDoc project configuration must be correct.
- * This class is a controller fot {@link RepositoryViewUI} view.
+ * User interface for LivingDoc Repository View.<br>
  *
- * @see ToolWindowFactory
+ * @see SimpleToolWindowPanel
  */
-public class ToolWindowLivingDoc implements ToolWindowFactory {
+public class ToolWindowPanel extends SimpleToolWindowPanel {
 
-    private static final Logger LOG = Logger.getInstance(ToolWindowLivingDoc.class);
+    private static final Logger LOG = Logger.getInstance(ToolWindowPanel.class);
 
-    private RepositoryViewUI repositoryViewUI;
-
-    private Project project;
+    private final transient Project project;
 
 
-    @Override
-    public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
+    private final JBPanel mainContent;
+    private final DefaultMutableTreeNode rootNode;
+    private DefaultTreeModel treeModel;
+    private transient ActionToolbar toolBar;
+    private transient DefaultActionGroup actionGroup;
+    private SimpleTree tree;
+    private TestStatusLine statusLine;
+
+
+    public ToolWindowPanel(Project project) {
+        super(false);
 
         this.project = project;
 
-        loadView();
+        mainContent = new JBPanel(new BorderLayout());
+        mainContent.setAutoscrolls(true);
+        setContent(mainContent);
 
-        ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
-        Content content = contentFactory.createContent(repositoryViewUI, project.getName(), false);
-        content.setIcon(Icons.LIVINGDOC);
-        content.putUserData(ToolWindow.SHOW_CONTENT_ICON, Boolean.TRUE);
-        content.setCloseable(true);
-        toolWindow.getContentManager().addContent(content);
-    }
+        this.rootNode = new DefaultMutableTreeNode(getDefaultRootNode());
 
-    private void loadView() {
-
-        repositoryViewUI = new RepositoryViewUI(getDefaultRootNode());
+        createRepositoryTree();
+        createActionToolBar();
+        createStatusLine();
 
         configureActions();
 
         loadRepositories();
     }
 
+    public SimpleTree getRepositoryTree() {
+        return tree;
+    }
+
+    public TestStatusLine getStatusLine() {
+        return statusLine;
+    }
+
+    private void createActionToolBar() {
+
+        ActionManager actionManager = ActionManager.getInstance();
+        actionGroup = new DefaultActionGroup(null, true);
+
+        toolBar = actionManager.createActionToolbar("LivingDoc.RepositoryViewToolbar", actionGroup, false);
+        toolBar.adjustTheSameSize(true);
+        toolBar.setTargetComponent(tree);
+        setToolbar(toolBar.getComponent());
+    }
+
+    private void createRepositoryTree() {
+
+        tree = new SimpleTree();
+        tree.setCellRenderer(new LDTreeCellRenderer());
+        tree.setRootVisible(true);
+
+        // Basic functionality with single selection, desired multiple selection.
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+
+        treeModel = new DefaultTreeModel(rootNode, true);
+        tree.setModel(treeModel);
+
+        JBScrollPane scrollPane = new JBScrollPane(tree);
+        mainContent.add(scrollPane, BorderLayout.CENTER);
+    }
+
+    private void createStatusLine() {
+
+        statusLine = new TestStatusLine();
+        statusLine.setPreferredSize(false);
+        resetStatusLine();
+        mainContent.add(statusLine, BorderLayout.NORTH);
+    }
+
+    private void resetStatusLine() {
+        statusLine.setText("");
+        statusLine.setStatusColor(ColorProgressBar.GREEN);
+        statusLine.setFraction(0d);
+    }
+
+    private void resetTree(Node newRootNode) {
+        rootNode.removeAllChildren();
+        rootNode.setUserObject(newRootNode);
+
+        resetStatusLine();
+    }
+
     private void configureActions() {
 
         createExecuteDocumentAction();
-        repositoryViewUI.getActionGroup().addSeparator();
+        actionGroup.addSeparator();
         createVersionSwitcherAction();
-        repositoryViewUI.getActionGroup().addSeparator();
+        actionGroup.addSeparator();
         createOpenDocumentAction();
-        repositoryViewUI.getActionGroup().addSeparator();
+        actionGroup.addSeparator();
         createRefreshRepositoryAction();
 
-        repositoryViewUI.getActionToolBar().updateActionsImmediately();
+        toolBar.updateActionsImmediately();
 
         // Context menu with the plugin actions.
-        repositoryViewUI.getRepositoryTree().addMouseListener(new PopupHandler() {
+        getRepositoryTree().addMouseListener(new PopupHandler() {
 
             @Override
             public void invokePopup(final Component comp, final int x, final int y) {
 
-                ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("LivingDoc.RepositoryViewToolbar", repositoryViewUI.getActionGroup());
+                ActionPopupMenu actionPopupMenu = ActionManager.getInstance().createActionPopupMenu("LivingDoc.RepositoryViewToolbar", actionGroup);
                 actionPopupMenu.getComponent().show(comp, x, y);
             }
         });
     }
 
     private void createVersionSwitcherAction() {
-        SwitchVersionAction implementedVersionAction = new SwitchVersionAction(repositoryViewUI.getRepositoryTree(), false);
-        repositoryViewUI.getActionGroup().add(implementedVersionAction);
+        SwitchVersionAction implementedVersionAction = new SwitchVersionAction(tree, false);
+        actionGroup.add(implementedVersionAction);
 
         // Current version
-        SwitchVersionAction workingsVersionAction = new SwitchVersionAction(repositoryViewUI.getRepositoryTree(), true);
-        repositoryViewUI.getActionGroup().add(workingsVersionAction);
+        SwitchVersionAction workingsVersionAction = new SwitchVersionAction(tree, true);
+        actionGroup.add(workingsVersionAction);
     }
 
     private void createOpenDocumentAction() {
-        OpenRemoteDocumentAction openRemoteDocumentAction = new OpenRemoteDocumentAction(repositoryViewUI.getRepositoryTree());
-        repositoryViewUI.getActionGroup().add(openRemoteDocumentAction);
+        OpenRemoteDocumentAction openRemoteDocumentAction = new OpenRemoteDocumentAction(tree);
+        actionGroup.add(openRemoteDocumentAction);
     }
 
     private void createExecuteDocumentAction() {
-        ExecuteDocumentAction executeDocumentAction = new ExecuteDocumentAction(repositoryViewUI, false);
-        repositoryViewUI.getActionGroup().add(executeDocumentAction);
+        ExecuteDocumentAction executeDocumentAction = new ExecuteDocumentAction(this, false);
+        actionGroup.add(executeDocumentAction);
 
         // With debug mode
-        ExecuteDocumentAction debugDocumentAction = new ExecuteDocumentAction(repositoryViewUI, true);
-        repositoryViewUI.getActionGroup().add(debugDocumentAction);
+        ExecuteDocumentAction debugDocumentAction = new ExecuteDocumentAction(this, true);
+        actionGroup.add(debugDocumentAction);
     }
 
     private void createRefreshRepositoryAction() {
@@ -127,15 +184,15 @@ public class ToolWindowLivingDoc implements ToolWindowFactory {
             @Override
             public void actionPerformed(AnActionEvent anActionEvent) {
 
-                repositoryViewUI.resetTree(getDefaultRootNode());
+                resetTree(getDefaultRootNode());
 
                 loadRepositories();
             }
         };
         anAction.getTemplatePresentation().setIcon(AllIcons.Actions.Refresh);
-        anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("repository.view.action.refresh.tooltip"));
-        anAction.getTemplatePresentation().setText(I18nSupport.getValue("repository.view.action.refresh.tooltip"));
-        repositoryViewUI.getActionGroup().add(anAction);
+        anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("toolwindows.action.refresh.tooltip"));
+        anAction.getTemplatePresentation().setText(I18nSupport.getValue("toolwindows.action.refresh.tooltip"));
+        actionGroup.add(anAction);
     }
 
     private void loadRepositories() {
@@ -151,7 +208,7 @@ public class ToolWindowLivingDoc implements ToolWindowFactory {
                         module.getName() + " [" + moduleSettings.getSud() + "]",
                         module.getName());
                 DefaultMutableTreeNode moduleTreeNode = new DefaultMutableTreeNode(moduleNode);
-                repositoryViewUI.getRootNode().add(moduleTreeNode);
+                rootNode.add(moduleTreeNode);
 
                 SystemUnderTest systemUnderTest = SystemUnderTest.newInstance(moduleSettings.getSud());
                 systemUnderTest.setProject(info.novatec.testit.livingdoc.server.domain.Project.newInstance(moduleSettings.getProject()));
@@ -173,17 +230,17 @@ public class ToolWindowLivingDoc implements ToolWindowFactory {
                             paintDocumentNode(documentNode.getChildren(), childNode);
 
                         } else {
-                            moduleTreeNode.add(new DefaultMutableTreeNode(getErrorNode(I18nSupport.getValue("repository.view.error.credentials"))));
+                            moduleTreeNode.add(new DefaultMutableTreeNode(getErrorNode(I18nSupport.getValue("toolwindows.error.credentials"))));
                         }
                     }
                 } catch (LivingDocServerException ldse) {
                     LOG.error(ldse);
-                    repositoryViewUI.resetTree(getErrorNode(I18nSupport.getValue("repository.view.error.loading.repositories")
+                    resetTree(getErrorNode(I18nSupport.getValue("toolwindows.error.loading.repositories")
                             + ldse.getMessage()));
                 }
             }
         }
-        repositoryViewUI.reloadTree();
+        treeModel.reload();
     }
 
     private Node getErrorNode(final String descError) {
@@ -200,7 +257,7 @@ public class ToolWindowLivingDoc implements ToolWindowFactory {
      * @param userObject {@link Node}
      * @return {@link SpecificationNode}
      */
-    private SpecificationNode convertDocumentoNodeToLDNode(final DocumentNode childNode, final Node userObject) {
+    private SpecificationNode convertDocumentNodeToLDNode(final DocumentNode childNode, final Node userObject) {
 
         SpecificationNode specificationNode = new SpecificationNode(childNode, userObject);
         specificationNode.setIcon(RepositoryViewUtils.getNodeIcon(specificationNode));
@@ -219,7 +276,7 @@ public class ToolWindowLivingDoc implements ToolWindowFactory {
 
         children.stream().filter(child -> child.isExecutable() || (!child.isExecutable() && child.hasChildren())).forEach(child -> {
 
-            SpecificationNode ldNode = convertDocumentoNodeToLDNode(child, (Node) parentNode.getUserObject());
+            SpecificationNode ldNode = convertDocumentNodeToLDNode(child, (Node) parentNode.getUserObject());
             DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(ldNode);
             parentNode.add(childNode);
 
@@ -246,5 +303,4 @@ public class ToolWindowLivingDoc implements ToolWindowFactory {
         }
         return result;
     }
-
 }

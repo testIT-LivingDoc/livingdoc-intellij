@@ -25,21 +25,24 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Repository View"
                     anchor="bottom"
-                    factoryClass="info.novatec.testit.livingdoc.intellij.gui.toolwindows.ToolWindowLivingDoc"
+                    factoryClass="info.novatec.testit.livingdoc.intellij.core.ToolWindowFactoryImpl"
                     icon="/icons/livingdoc_16.gif"
                     canCloseContents="true"/>
-        <configurationType implementation="info.novatec.testit.livingdoc.intellij.run.ConfigurationTypeLivingDoc"/>
+
+        <configurationType implementation="info.novatec.testit.livingdoc.intellij.core.ConfigurationTypeLivingDoc"/>
 
         <moduleService id="LivingDoc.Module.Service.Settings"
                        serviceImplementation="info.novatec.testit.livingdoc.intellij.core.ModuleSettings"/>
-        <moduleConfigurable id="LivingDoc.Module.Configurable.Settings"
+        <moduleConfigurable id="LivingDoc.Module.Configurable"
                             displayName="LivingDoc"
                             provider="info.novatec.testit.livingdoc.intellij.core.ModuleConfigurableProvider"/>
 
         <projectService id="LivingDoc.Project.Service.Settings"
                         serviceImplementation="info.novatec.testit.livingdoc.intellij.core.ProjectSettings"/>
-        <projectConfigurable provider="info.novatec.testit.livingdoc.intellij.gui.settings.ProjectConfigurableProvider"
-                             groupId="tools" displayName="LivingDoc"/>
+        <projectConfigurable id="LivingDoc.Project.Configurable"
+                             displayName="LivingDoc"
+                             provider="info.novatec.testit.livingdoc.intellij.core.ProjectConfigurableProvider"
+                             groupId="tools"/>
 
     </extensions>
 

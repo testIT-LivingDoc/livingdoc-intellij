@@ -1,4 +1,4 @@
-package info.novatec.testit.livingdoc.intellij.util;
+package info.novatec.testit.livingdoc.intellij.common;
 
 import org.jetbrains.annotations.NonNls;
 import org.jetbrains.annotations.PropertyKey;

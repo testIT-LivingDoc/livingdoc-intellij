@@ -7,7 +7,7 @@ import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.ide.browsers.WebBrowserManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.util.ColorProgressBar;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.report.XmlReport;
 import info.novatec.testit.livingdoc.server.domain.Execution;
 import info.novatec.testit.livingdoc.server.domain.Specification;
@@ -15,9 +15,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.xml.sax.SAXException;
 
 import javax.swing.*;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 
 /**
@@ -25,7 +24,7 @@ import java.io.IOException;
  *
  * @see ProcessAdapter
  */
-public class ProcessListenerLivingDoc extends ProcessAdapter {
+class ProcessListenerLivingDoc extends ProcessAdapter {
 
     private static final Logger LOG = Logger.getInstance(ProcessListenerLivingDoc.class);
 
@@ -84,7 +83,7 @@ public class ProcessListenerLivingDoc extends ProcessAdapter {
         }
     }
 
-    // TODO Set the node icon depending on the execution result. Use LivingDoc Icon like in the eclipse plugin.
+    // TODO Change the node icon depending on the execution result. Use LivingDoc Icon like in the eclipse plugin.
     private void updateStatusLine(Specification specification) {
 
         for (Execution execution : specification.getExecutions()) {
@@ -133,9 +132,9 @@ public class ProcessListenerLivingDoc extends ProcessAdapter {
         Execution execution = specification.getExecutions().iterator().next();
         String content = execution.hasException() ? execution.getExecutionErrorId() : execution.getResults();
         if (StringUtils.isEmpty(content)) {
-            content = I18nSupport.getValue("run.execution.error.noresponse");
+            content = I18nSupport.getValue("run.execution.error.no.response");
         }
-        try (FileWriter fileWriter = new FileWriter(resultFile)) {
+        try (Writer fileWriter = new OutputStreamWriter(new FileOutputStream(resultFile), StandardCharsets.UTF_8)) {
             fileWriter.write(content);
         }
 

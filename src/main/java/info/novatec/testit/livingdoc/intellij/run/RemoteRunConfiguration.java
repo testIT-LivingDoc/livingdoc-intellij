@@ -14,8 +14,8 @@ import com.intellij.execution.testframework.ui.TestStatusLine;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.project.Project;
-import info.novatec.testit.livingdoc.intellij.gui.RunConfigurationEditor;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.gui.runconfiguration.RunConfigurationEditor;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.domain.RepositoryType;
 import org.apache.commons.lang3.StringUtils;
@@ -47,11 +47,10 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     private TestStatusLine statusLine;
 
 
-    RemoteRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, final String name) {
+    public RemoteRunConfiguration(final Project project, final ConfigurationFactory factory, final String name) {
         super(name, project, factory);
     }
 
-    @NotNull
     @Override
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
 
@@ -65,16 +64,16 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     public void checkConfiguration() throws RuntimeConfigurationException {
 
         if (StringUtils.isBlank(repositoryUID)) {
-            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.repositoryuid.error"));
+            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.error.repository.uid"));
         }
         if (StringUtils.isBlank(repositoryURL)) {
-            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.repositoryurl.error"));
+            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.error.repository.url"));
         }
         if (StringUtils.isBlank(specificationName)) {
-            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.specificationName.error"));
+            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.error.specification"));
         }
         if (StringUtils.isBlank(repositoryClass)) {
-            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.repositoryclass.error"));
+            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.error.repository.class"));
         }
 
         super.checkConfiguration();

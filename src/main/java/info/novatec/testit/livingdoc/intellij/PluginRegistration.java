@@ -1,7 +1,7 @@
 package info.novatec.testit.livingdoc.intellij;
 
 import com.intellij.openapi.components.ApplicationComponent;
-import info.novatec.testit.livingdoc.intellij.util.PluginProperties;
+import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -10,9 +10,6 @@ import org.jetbrains.annotations.NotNull;
  * the plugin.xml file, {@link #initComponent()} method is called on IDEA start-up.
  */
 public class PluginRegistration implements ApplicationComponent {
-
-    private static final String IDE_FILE_SETTINGS_MENU = "FileOtherSettingsGroup";
-
 
     @Override
     public void initComponent() {

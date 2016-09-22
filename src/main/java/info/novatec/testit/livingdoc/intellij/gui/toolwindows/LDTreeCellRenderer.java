@@ -1,8 +1,7 @@
-package info.novatec.testit.livingdoc.intellij.gui.renderer;
+package info.novatec.testit.livingdoc.intellij.gui.toolwindows;
 
 import info.novatec.testit.livingdoc.intellij.domain.Node;
 import info.novatec.testit.livingdoc.intellij.domain.NodeType;
-import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUI;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -10,7 +9,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.*;
 
 /**
- * Custom tree cell renderer for {@link RepositoryViewUI}.
+ * Custom tree cell renderer for {@link ToolWindowPanel}.
  * It uses the {@link Node} properties to render.
  *
  * @see DefaultTreeCellRenderer

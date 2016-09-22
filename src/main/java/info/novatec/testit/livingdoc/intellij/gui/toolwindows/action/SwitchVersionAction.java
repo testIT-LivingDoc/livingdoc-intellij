@@ -5,11 +5,11 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.ui.treeStructure.SimpleTree;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.domain.Node;
 import info.novatec.testit.livingdoc.intellij.domain.NodeType;
 import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -43,11 +43,11 @@ public class SwitchVersionAction extends AnAction {
         Icon icon;
 
         if (toCurrentVersion) {
-            text = I18nSupport.getValue("repository.view.action.switch.working.tooltip");
+            text = I18nSupport.getValue("toolwindows.action.working.tooltip");
             icon = AllIcons.Actions.NewFolder;
 
         } else {
-            text = I18nSupport.getValue("repository.view.action.switch.implemented.tooltip");
+            text = I18nSupport.getValue("toolwindows.action.implemented.tooltip");
             icon = AllIcons.Actions.Module;
         }
         Presentation presentation = getTemplatePresentation();

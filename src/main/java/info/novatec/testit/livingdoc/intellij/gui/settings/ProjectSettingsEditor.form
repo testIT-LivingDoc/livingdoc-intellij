@@ -25,7 +25,7 @@
             </constraints>
             <properties>
               <requestFocusEnabled value="false"/>
-              <text resource-bundle="properties/locale" key="server.configuration.info"/>
+              <text resource-bundle="properties/locale" key="global.settings.info"/>
             </properties>
           </component>
           <component id="34b48" class="com.intellij.ui.components.JBLabel">
@@ -33,7 +33,7 @@
               <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="properties/locale" key="server.configuration.info.1"/>
+              <text resource-bundle="properties/locale" key="global.settings.info.1"/>
             </properties>
           </component>
           <component id="575d6" class="com.intellij.ui.components.JBLabel">
@@ -41,7 +41,7 @@
               <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="properties/locale" key="server.configuration.info.2"/>
+              <text resource-bundle="properties/locale" key="global.settings.info.2"/>
             </properties>
           </component>
           <component id="ca24e" class="com.intellij.ui.components.JBLabel">
@@ -49,7 +49,7 @@
               <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="properties/locale" key="server.configuration.field.handler.label"/>
+              <text resource-bundle="properties/locale" key="global.settings.field.handler"/>
             </properties>
           </component>
           <component id="28c54" class="com.intellij.ui.components.JBTextField" binding="urlTextField">
@@ -69,7 +69,7 @@
               <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
-              <text resource-bundle="properties/locale" key="server.configuration.field.url.label"/>
+              <text resource-bundle="properties/locale" key="global.settings.field.url"/>
             </properties>
           </component>
           <component id="aa9f0" class="javax.swing.JButton" binding="testButton">
@@ -78,7 +78,7 @@
             </constraints>
             <properties>
               <enabled value="false"/>
-              <text resource-bundle="properties/locale" key="server.configuration.button.test.label"/>
+              <text resource-bundle="properties/locale" key="global.settings.button.test"/>
             </properties>
           </component>
           <component id="357c9" class="com.intellij.ui.components.JBTextField" binding="handlerTextField">

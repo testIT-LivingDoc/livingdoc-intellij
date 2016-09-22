@@ -11,7 +11,7 @@ import org.jetbrains.annotations.NotNull;
  *
  * @see ServerPropertiesManager
  */
-public class ServerPropertiesManagerImpl implements ServerPropertiesManager {
+class ServerPropertiesManagerImpl implements ServerPropertiesManager {
 
     private final ProjectSettings projectSettings;
 

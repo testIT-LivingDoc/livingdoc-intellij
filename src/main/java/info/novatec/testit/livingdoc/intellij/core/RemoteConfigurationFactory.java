@@ -1,9 +1,10 @@
-package info.novatec.testit.livingdoc.intellij.run;
+package info.novatec.testit.livingdoc.intellij.core;
 
 import com.intellij.execution.configurations.ConfigurationFactory;
 import com.intellij.execution.configurations.ConfigurationType;
 import com.intellij.execution.configurations.RunConfiguration;
 import com.intellij.openapi.project.Project;
+import info.novatec.testit.livingdoc.intellij.run.RemoteRunConfiguration;
 import org.jetbrains.annotations.NotNull;
 
 /**
@@ -14,13 +15,12 @@ import org.jetbrains.annotations.NotNull;
  * @see ConfigurationFactory
  * @see RemoteRunConfiguration
  */
-public class RemoteConfigurationFactory extends ConfigurationFactory {
+class RemoteConfigurationFactory extends ConfigurationFactory {
 
-    RemoteConfigurationFactory(@NotNull ConfigurationType type) {
+    public RemoteConfigurationFactory(@NotNull ConfigurationType type) {
         super(type);
     }
 
-    @NotNull
     @Override
     public RunConfiguration createTemplateConfiguration(@NotNull Project project) {
         return new RemoteRunConfiguration(project, this, getType().getDisplayName());

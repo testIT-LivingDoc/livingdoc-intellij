@@ -29,7 +29,7 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
     @Nullable
     @Override
     public ProjectSettings getState() {
-        return null;
+        return this;
     }
 
     @Override
@@ -41,7 +41,7 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
         return urlServer;
     }
 
-    public void setUrlServer(String urlServer) {
+    public void setUrlServer(final String urlServer) {
         this.urlServer = urlServer;
     }
 
@@ -49,7 +49,7 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
         return handler;
     }
 
-    public void setHandler(String handler) {
+    public void setHandler(final String handler) {
         this.handler = handler;
     }
 }

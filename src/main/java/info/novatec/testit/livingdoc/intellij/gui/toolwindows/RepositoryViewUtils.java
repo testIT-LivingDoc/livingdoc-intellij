@@ -2,8 +2,8 @@ package info.novatec.testit.livingdoc.intellij.gui.toolwindows;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.Presentation;
+import info.novatec.testit.livingdoc.intellij.common.Icons;
 import info.novatec.testit.livingdoc.intellij.domain.*;
-import info.novatec.testit.livingdoc.intellij.util.Icons;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.swing.*;
@@ -103,14 +103,16 @@ public class RepositoryViewUtils {
         boolean enabled = presentation.isEnabled();
 
         if (enabled) {
-            try {
-                SpecificationNode specificationNode = (SpecificationNode) selectedNodes[0].getUserObject();
+
+            Object userObject = selectedNodes[0].getUserObject();
+            if (userObject instanceof SpecificationNode) {
+                SpecificationNode specificationNode = (SpecificationNode) userObject;
                 enabled = specificationNode.canBeImplemented()
                         && (specificationNode.isUsingCurrentVersion() ^ toCurrentVersion);
-
-            } catch (ClassCastException cce) {
+            } else {
                 enabled = false;
             }
+
             presentation.setEnabled(enabled);
         }
     }
@@ -136,11 +138,13 @@ public class RepositoryViewUtils {
         boolean enabled = ((Node) userObject).getType() == NodeType.SPECIFICATION;
 
         if (enabled && executableCondition) {
-            try {
+
+            if (userObject instanceof SpecificationNode) {
+
                 SpecificationNode specificationNode = (SpecificationNode) userObject;
                 enabled = specificationNode.isExecutable();
 
-            } catch (ClassCastException cce) {
+            } else {
                 enabled = false;
             }
         }

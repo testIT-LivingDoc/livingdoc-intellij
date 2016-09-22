@@ -1,4 +1,4 @@
-package info.novatec.testit.livingdoc.intellij.util;
+package info.novatec.testit.livingdoc.intellij.common;
 
 import com.intellij.openapi.diagnostic.Logger;
 

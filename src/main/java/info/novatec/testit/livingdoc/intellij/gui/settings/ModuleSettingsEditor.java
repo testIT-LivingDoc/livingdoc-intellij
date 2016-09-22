@@ -2,21 +2,21 @@ package info.novatec.testit.livingdoc.intellij.gui.settings;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
-import info.novatec.testit.livingdoc.intellij.gui.UIUtils;
+import info.novatec.testit.livingdoc.intellij.gui.GuiUtils;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.*;
@@ -27,12 +27,9 @@ import java.util.Set;
  *
  * @see ModuleSettings
  */
-public class ModuleSettingsEditor extends JPanel {
+public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
 
     private static final Logger LOG = Logger.getInstance(ModuleSettings.class);
-
-    private final ModuleSettings moduleSettings;
-    private final Project project;
 
     private JPanel myWholePanel;
     private JPanel centerPanel;
@@ -49,22 +46,19 @@ public class ModuleSettingsEditor extends JPanel {
     private JBLabel errorLabel;
 
 
-    public ModuleSettingsEditor(final Module module) {
+    public ModuleSettingsEditor(@NotNull final Project project) {
 
-        super(new BorderLayout());
+        super(project);
         add(myWholePanel, BorderLayout.CENTER);
+
         errorLabel.setForeground(Color.RED);
 
-        project = module.getProject();
-        moduleSettings = ModuleSettings.getInstance(module);
-
-        centerPanel.setBorder(UIUtils.createTitledBorder(I18nSupport.getValue("module.settings.title")));
-        southPanel.setBorder(UIUtils.createTitledBorder(I18nSupport.getValue("module.settings.sud.title")));
-
-        projectCombo.addActionListener(actionEvent -> loadSud());
+        centerPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("module.settings.title")));
+        southPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("module.settings.sud.title")));
     }
 
-    public void apply() {
+    @Override
+    public void apply(@NotNull final ModuleSettings moduleSettings) {
         moduleSettings.setLivingDocEnabled(livingDocEnabledCheck.isSelected());
         moduleSettings.setProject((String) projectCombo.getSelectedItem());
         moduleSettings.setSud((String) sudCombo.getSelectedItem());
@@ -74,23 +68,33 @@ public class ModuleSettingsEditor extends JPanel {
         moduleSettings.setSudArgs(argsField.getText());
     }
 
-    public boolean isModified() {
+    @Override
+    public boolean isModified(@NotNull final ModuleSettings moduleSettings) {
 
         enableOrDisablePanel();
+
+        boolean isModifiedCredentials = !StringUtils.equals(moduleSettings.getUser(), userField.getText())
+                || !StringUtils.equals(moduleSettings.getPassword(), String.valueOf(passField.getPassword()));
+
+        boolean isModifiedFactory = !StringUtils.equals(moduleSettings.getSudClassName(), String.valueOf(classField.getText()))
+                || !StringUtils.equals(moduleSettings.getSudArgs(), String.valueOf(argsField.getText()));
 
         return moduleSettings.isLivingDocEnabled() != livingDocEnabledCheck.isSelected()
                 || !StringUtils.equals(moduleSettings.getProject(), (String) projectCombo.getSelectedItem())
                 || !StringUtils.equals(moduleSettings.getSud(), (String) sudCombo.getSelectedItem())
-                || isModifiedCredentials()
-                || isModifiedFactory();
+                || isModifiedCredentials
+                || isModifiedFactory;
     }
 
-    public void reset() {
+    @Override
+    public void reset(@NotNull final ModuleSettings moduleSettings) {
 
         boolean isLivingDocEnabled = moduleSettings.isLivingDocEnabled();
         livingDocEnabledCheck.setSelected(isLivingDocEnabled);
 
-        loadProjects();
+        projectCombo.addActionListener(actionEvent -> loadSud(moduleSettings.getSud()));
+
+        loadProjects(moduleSettings.getProject());
 
         userField.setText(moduleSettings.getUser());
         passField.setText(moduleSettings.getPassword());
@@ -98,17 +102,7 @@ public class ModuleSettingsEditor extends JPanel {
         argsField.setText(moduleSettings.getSudArgs());
     }
 
-    private boolean isModifiedCredentials() {
-        return !StringUtils.equals(moduleSettings.getUser(), userField.getText())
-                || !StringUtils.equals(moduleSettings.getPassword(), String.valueOf(passField.getPassword()));
-    }
-
-    private boolean isModifiedFactory() {
-        return !StringUtils.equals(moduleSettings.getSudClassName(), String.valueOf(classField.getText()))
-                || !StringUtils.equals(moduleSettings.getSudArgs(), String.valueOf(argsField.getText()));
-    }
-
-    private void loadProjects() {
+    private void loadProjects(final String selectedProject) {
 
         PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
 
@@ -117,8 +111,8 @@ public class ModuleSettingsEditor extends JPanel {
             for (info.novatec.testit.livingdoc.server.domain.Project prj : projects) {
                 projectCombo.addItem(prj.getName());
             }
-            if (StringUtils.isNotBlank(moduleSettings.getProject())) {
-                projectCombo.setSelectedItem(moduleSettings.getProject());
+            if (StringUtils.isNotBlank(selectedProject)) {
+                projectCombo.setSelectedItem(selectedProject);
 
             } else {
                 projectCombo.setSelectedIndex(0);
@@ -130,7 +124,7 @@ public class ModuleSettingsEditor extends JPanel {
         }
     }
 
-    private void loadSud() {
+    private void loadSud(final String selectedSud) {
 
         sudCombo.removeAllItems();
 
@@ -145,8 +139,8 @@ public class ModuleSettingsEditor extends JPanel {
             for (SystemUnderTest system : systems) {
                 sudCombo.addItem(system.getName());
             }
-            if (StringUtils.isNotBlank(moduleSettings.getSud())) {
-                sudCombo.setSelectedItem(moduleSettings.getSud());
+            if (StringUtils.isNotBlank(selectedSud)) {
+                sudCombo.setSelectedItem(selectedSud);
 
             } else {
                 sudCombo.setSelectedIndex(0);

@@ -6,12 +6,12 @@ import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.treeStructure.SimpleTree;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.domain.Node;
 import info.novatec.testit.livingdoc.intellij.domain.NodeType;
 import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
 import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
 import info.novatec.testit.livingdoc.server.domain.Specification;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -34,8 +34,8 @@ public class OpenRemoteDocumentAction extends AnAction {
      */
     public OpenRemoteDocumentAction(final SimpleTree tree) {
 
-        super(I18nSupport.getValue("repository.view.action.open.tooltip"),
-                I18nSupport.getValue("repository.view.action.open.tooltip"),
+        super(I18nSupport.getValue("toolwindows.action.open.tooltip"),
+                I18nSupport.getValue("toolwindows.action.open.tooltip"),
                 AllIcons.Javaee.WebModule);
 
         this.repositoryTree = tree;

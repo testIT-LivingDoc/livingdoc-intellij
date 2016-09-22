@@ -1,6 +1,6 @@
 package info.novatec.testit.livingdoc.intellij.domain;
 
-import info.novatec.testit.livingdoc.intellij.util.Icons;
+import info.novatec.testit.livingdoc.intellij.common.Icons;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
