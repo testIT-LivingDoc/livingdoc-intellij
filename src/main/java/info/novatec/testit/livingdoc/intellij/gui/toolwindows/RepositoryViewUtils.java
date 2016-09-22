@@ -27,6 +27,10 @@ public class RepositoryViewUtils {
         }
     }
 
+    public static Node getErrorNode(final String descError) {
+        return new Node(descError, Icons.ERROR, NodeType.ERROR, null);
+    }
+
     /**
      * Recursive method to find the specificationNode's repository through specificationNode's parent.
      *

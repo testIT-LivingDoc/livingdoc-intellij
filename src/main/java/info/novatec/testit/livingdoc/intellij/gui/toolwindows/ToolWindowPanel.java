@@ -19,6 +19,7 @@ import info.novatec.testit.livingdoc.intellij.domain.*;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.ExecuteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.OpenRemoteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.SwitchVersionAction;
+import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.TagImplementedAction;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
@@ -43,7 +44,6 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     private static final Logger LOG = Logger.getInstance(ToolWindowPanel.class);
 
     private final transient Project project;
-
 
     private final JBPanel mainContent;
     private final DefaultMutableTreeNode rootNode;
@@ -155,26 +155,26 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     }
 
     private void createVersionSwitcherAction() {
-        SwitchVersionAction implementedVersionAction = new SwitchVersionAction(tree, false);
-        actionGroup.add(implementedVersionAction);
+        // Implemented version.
+        actionGroup.add(new SwitchVersionAction(tree, false));
 
-        // Current version
-        SwitchVersionAction workingsVersionAction = new SwitchVersionAction(tree, true);
-        actionGroup.add(workingsVersionAction);
+        // Current (working) version
+        actionGroup.add(new SwitchVersionAction(tree, true));
+
+        actionGroup.add(new TagImplementedAction(tree));
     }
 
     private void createOpenDocumentAction() {
-        OpenRemoteDocumentAction openRemoteDocumentAction = new OpenRemoteDocumentAction(tree);
-        actionGroup.add(openRemoteDocumentAction);
+
+        actionGroup.add(new OpenRemoteDocumentAction(tree));
     }
 
     private void createExecuteDocumentAction() {
-        ExecuteDocumentAction executeDocumentAction = new ExecuteDocumentAction(this, false);
-        actionGroup.add(executeDocumentAction);
+
+        actionGroup.add(new ExecuteDocumentAction(this, false));
 
         // With debug mode
-        ExecuteDocumentAction debugDocumentAction = new ExecuteDocumentAction(this, true);
-        actionGroup.add(debugDocumentAction);
+        actionGroup.add(new ExecuteDocumentAction(this, true));
     }
 
     private void createRefreshRepositoryAction() {
@@ -230,21 +230,17 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
                             paintDocumentNode(documentNode.getChildren(), childNode);
 
                         } else {
-                            moduleTreeNode.add(new DefaultMutableTreeNode(getErrorNode(I18nSupport.getValue("toolwindows.error.credentials"))));
+                            moduleTreeNode.add(new DefaultMutableTreeNode(RepositoryViewUtils.getErrorNode(I18nSupport.getValue("toolwindows.error.credentials"))));
                         }
                     }
                 } catch (LivingDocServerException ldse) {
                     LOG.error(ldse);
-                    resetTree(getErrorNode(I18nSupport.getValue("toolwindows.error.loading.repositories")
+                    resetTree(RepositoryViewUtils.getErrorNode(I18nSupport.getValue("toolwindows.error.loading.repositories")
                             + ldse.getMessage()));
                 }
             }
         }
         treeModel.reload();
-    }
-
-    private Node getErrorNode(final String descError) {
-        return new Node(descError, AllIcons.Nodes.ErrorIntroduction, NodeType.ERROR, null);
     }
 
     private Node getDefaultRootNode() {

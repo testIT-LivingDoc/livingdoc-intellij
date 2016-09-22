@@ -84,7 +84,6 @@ public class OpenRemoteDocumentAction extends AnAction {
         super.update(actionEvent);
 
         DefaultMutableTreeNode[] selectedNodes = repositoryTree.getSelectedNodes(DefaultMutableTreeNode.class, null);
-
         RepositoryViewUtils.setEnabledForSpecificationNode(selectedNodes, actionEvent.getPresentation());
     }
 }

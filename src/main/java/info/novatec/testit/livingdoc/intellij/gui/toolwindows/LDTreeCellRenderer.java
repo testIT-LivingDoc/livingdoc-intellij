@@ -1,7 +1,6 @@
 package info.novatec.testit.livingdoc.intellij.gui.toolwindows;
 
 import info.novatec.testit.livingdoc.intellij.domain.Node;
-import info.novatec.testit.livingdoc.intellij.domain.NodeType;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -30,10 +29,6 @@ public class LDTreeCellRenderer extends DefaultTreeCellRenderer {
 
             setText(node.getName());
             setIcon(node.getIcon());
-
-            if (node.getType() == NodeType.ERROR) {
-                setForeground(Color.RED);
-            }
         }
         return component;
     }

@@ -13,10 +13,9 @@ import java.io.Serializable;
 public class Node implements Serializable {
 
     private static final long serialVersionUID = 4522875652776261867L;
-
-    private final String name;
     private final NodeType type;
     private final Node parent;
+    private String name;
     private Icon icon;
 
     public Node(final String nodeName, final Icon nodeIcon, final NodeType nodeType, final Node parent) {
@@ -38,6 +37,10 @@ public class Node implements Serializable {
 
     public String getName() {
         return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
     }
 
     public Icon getIcon() {

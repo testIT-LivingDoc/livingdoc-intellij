@@ -14,7 +14,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class SpecificationNode extends Node {
 
     private final boolean executable;
-    private final boolean canBeImplemented;
+    private boolean canBeImplemented;
     private boolean usingCurrentVersion;
 
     public SpecificationNode(DocumentNode node, Node parentNode) {
@@ -37,6 +37,10 @@ public class SpecificationNode extends Node {
 
     public boolean canBeImplemented() {
         return canBeImplemented;
+    }
+
+    public void setCanBeImplemented(final boolean canBeImplemented) {
+        this.canBeImplemented = canBeImplemented;
     }
 
     public boolean isExecutable() {
