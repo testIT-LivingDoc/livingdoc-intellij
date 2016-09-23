@@ -13,7 +13,7 @@ import java.awt.*;
  *
  * @see DefaultTreeCellRenderer
  */
-public class LDTreeCellRenderer extends DefaultTreeCellRenderer {
+public class TreeCellRendererLivingDoc extends DefaultTreeCellRenderer {
 
     private static final long serialVersionUID = 8133945553515022452L;
 

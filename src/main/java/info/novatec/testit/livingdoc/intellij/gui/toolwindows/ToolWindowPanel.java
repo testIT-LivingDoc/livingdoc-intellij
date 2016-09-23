@@ -31,7 +31,8 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.Set;
+import java.util.*;
+import java.util.List;
 
 
 /**
@@ -96,7 +97,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     private void createRepositoryTree() {
 
         tree = new SimpleTree();
-        tree.setCellRenderer(new LDTreeCellRenderer());
+        tree.setCellRenderer(new TreeCellRendererLivingDoc());
         tree.setRootVisible(true);
 
         // Basic functionality with single selection, desired multiple selection.
@@ -165,7 +166,6 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     }
 
     private void createOpenDocumentAction() {
-
         actionGroup.add(new OpenRemoteDocumentAction(tree));
     }
 
@@ -280,6 +280,18 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
                 paintDocumentNode(child.getChildren(), childNode);
             }
         });
+        sortChildren(parentNode);
+    }
+
+    private void sortChildren(DefaultMutableTreeNode node) {
+
+        List<DefaultMutableTreeNode> childrenList = Collections.list(node.children());
+
+        Collections.sort(childrenList, (o1,o2) ->
+                ((Node) o1.getUserObject()).getName().compareToIgnoreCase(((Node) o2.getUserObject()).getName()));
+
+        node.removeAllChildren();
+        childrenList.forEach(node::add);
     }
 
     /**
