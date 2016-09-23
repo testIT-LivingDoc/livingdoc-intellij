@@ -7,6 +7,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.UIUtil;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
 import info.novatec.testit.livingdoc.intellij.core.ProjectSettings;
 import info.novatec.testit.livingdoc.intellij.gui.GuiUtils;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
@@ -50,8 +51,11 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
 
     @Override
     public void apply(@NotNull final ProjectSettings projectSettings) {
-        projectSettings.setHandler(handlerTextField.getText());
-        projectSettings.setUrlServer(urlTextField.getText());
+
+        projectSettings.setUrlServer(
+                StringUtils.defaultIfBlank(urlTextField.getText(), PluginProperties.getValue("livingdoc.url.default")));
+        projectSettings.setHandler(
+                StringUtils.defaultIfBlank(handlerTextField.getText(), PluginProperties.getValue("livingdoc.handler.default")));
     }
 
     @Override
