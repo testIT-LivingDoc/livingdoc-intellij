@@ -13,7 +13,9 @@ import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.core.ConfigurationTypeLivingDoc;
-import info.novatec.testit.livingdoc.intellij.domain.*;
+import info.novatec.testit.livingdoc.intellij.domain.ModuleNode;
+import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
+import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
 import info.novatec.testit.livingdoc.intellij.run.RemoteRunConfiguration;
@@ -79,43 +81,45 @@ public class ExecuteDocumentAction extends AnAction {
     public void actionPerformed(AnActionEvent actionEvent) {
 
         DefaultMutableTreeNode[] nodes = toolWindowPanel.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
+        Project project = actionEvent.getProject();
+        assert project != null;
 
-        Object userObject = nodes[0].getUserObject();
+        RunManager runManager = RunManager.getInstance(project);
+        ConfigurationTypeLivingDoc livingDocConfigurationType = ConfigurationTypeLivingDoc.getInstance();
 
-        if (((Node) userObject).getType() == NodeType.SPECIFICATION) {
+        for (DefaultMutableTreeNode selectedNode : nodes) {
 
-            SpecificationNode specificationNode = (SpecificationNode) userObject;
+            Object userObject = selectedNode.getUserObject();
 
-            Project project = actionEvent.getProject();
+            if (userObject instanceof SpecificationNode) {
 
-            assert project != null;
-            RunManager runManager = RunManager.getInstance(project);
-            ConfigurationTypeLivingDoc livingDocConfigurationType = ConfigurationTypeLivingDoc.getInstance();
+                SpecificationNode specificationNode = (SpecificationNode) userObject;
 
-            RunnerAndConfigurationSettings runnerAndConfigurationSettings =
-                    runManager.getConfigurationTemplate(livingDocConfigurationType.getConfigurationFactories()[0]);
-            runnerAndConfigurationSettings.setName(specificationNode.getName());
-            runnerAndConfigurationSettings.setTemporary(false);
+                RunnerAndConfigurationSettings runnerAndConfigurationSettings =
+                        runManager.getConfigurationTemplate(livingDocConfigurationType.getConfigurationFactories()[0]);
+                runnerAndConfigurationSettings.setName(specificationNode.getName());
+                runnerAndConfigurationSettings.setTemporary(false);
 
-            // True to active the "Run" ToolWindow
-            runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(false);
+                // True to active the "Run" ToolWindow
+                runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(false);
 
-            // True to show the "run configuration UI" before launching LivingDoc
-            runnerAndConfigurationSettings.setEditBeforeRun(true);
-
-            RemoteRunConfiguration runConfiguration =
-                    (RemoteRunConfiguration) runnerAndConfigurationSettings.getConfiguration();
-            fillRunConfiguration(runConfiguration, specificationNode);
-
-            Executor executor;
-            if (debugMode) {
+                // True to show the "run configuration UI" before launching LivingDoc
                 runnerAndConfigurationSettings.setEditBeforeRun(true);
-                executor = DefaultDebugExecutor.getDebugExecutorInstance();
-            } else {
-                executor = DefaultRunExecutor.getRunExecutorInstance();
-            }
 
-            ProgramRunnerUtil.executeConfiguration(project, runnerAndConfigurationSettings, executor);
+                RemoteRunConfiguration runConfiguration =
+                        (RemoteRunConfiguration) runnerAndConfigurationSettings.getConfiguration();
+                fillRunConfiguration(runConfiguration, specificationNode);
+
+                Executor executor;
+                if (debugMode) {
+                    runnerAndConfigurationSettings.setEditBeforeRun(true);
+                    executor = DefaultDebugExecutor.getDebugExecutorInstance();
+                } else {
+                    executor = DefaultRunExecutor.getRunExecutorInstance();
+                }
+
+                ProgramRunnerUtil.executeConfiguration(project, runnerAndConfigurationSettings, executor);
+            }
         }
     }
 
@@ -153,5 +157,6 @@ public class ExecuteDocumentAction extends AnAction {
         runConfiguration.MAIN_CLASS_NAME = Main.class.getName();
 
         runConfiguration.setStatusLine(toolWindowPanel.getStatusLine());
+        runConfiguration.setSelectedNode(specificationNode);
     }
 }

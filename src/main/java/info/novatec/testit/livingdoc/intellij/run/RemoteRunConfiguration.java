@@ -15,6 +15,7 @@ import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.project.Project;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import info.novatec.testit.livingdoc.intellij.gui.runconfiguration.RunConfigurationEditor;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.domain.RepositoryType;
@@ -45,6 +46,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     private boolean currentVersion;
 
     private TestStatusLine statusLine;
+    private SpecificationNode selectedNode;
 
 
     public RemoteRunConfiguration(final Project project, final ConfigurationFactory factory, final String name) {
@@ -145,5 +147,13 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
     public void setStatusLine(TestStatusLine statusLine) {
         this.statusLine = statusLine;
+    }
+
+    public SpecificationNode getSelectedNode() {
+        return this.getSelectedNode();
+    }
+
+    public void setSelectedNode(final SpecificationNode selectedNode) {
+        this.selectedNode = selectedNode;
     }
 }

@@ -2,18 +2,12 @@ plugins {
     id "org.jetbrains.intellij" version "0.1.10"
 }
 
+apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 apply plugin: 'java'
 
-intellij {
-    pluginName 'livingdoc-intellij-plugin'
-    updateSinceUntilBuild false
-}
-
 group 'info.novatec.testit'
 version '1.0.0-SNAPSHOT'
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -50,4 +44,12 @@ dependencies {
         // Exclude to resolve a conflict with jaxp implementation in runtime
         exclude group: 'xml-apis', module: 'xml-apis'
     }
+}
+
+intellij {
+    //version = 'IC-2016.2'
+    println "Building for IntelliJ version: ${version}"
+
+    pluginName 'livingdoc-intellij-plugin'
+    updateSinceUntilBuild false
 }

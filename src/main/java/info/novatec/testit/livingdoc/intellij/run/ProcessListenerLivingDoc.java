@@ -2,6 +2,7 @@ package info.novatec.testit.livingdoc.intellij.run;
 
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
+import com.intellij.icons.AllIcons;
 import com.intellij.ide.browsers.BrowserLauncher;
 import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.ide.browsers.WebBrowserManager;
@@ -57,6 +58,8 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
             runConfiguration.getStatusLine().setText(I18nSupport.getValue("run.execution.running.label"));
             runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.GREEN);
             runConfiguration.getStatusLine().setFraction(0d);
+
+            runConfiguration.getSelectedNode().setIcon(AllIcons.Process.Step_1);
         });
     }
 
