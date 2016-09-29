@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
 
-    compile('info.novatec.testit:livingdoc-client:1.1.2') {
+    compile('info.novatec.testit:livingdoc-client:1.1.3') {
         // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
         exclude group: 'org.slf4j', module: 'slf4j-api'
         // Exclude to resolve a conflict with jaxp implementation in runtime
@@ -23,14 +23,14 @@ dependencies {
         exclude group: 'org.apache.xmlrpc', module: 'xmlrpc-client'
     }
 
-    compile('info.novatec.testit:livingdoc-cli:1.1.2') {
+    compile('info.novatec.testit:livingdoc-cli:1.1.3') {
         // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
         exclude group: 'org.slf4j', module: 'slf4j-api'
 
         exclude group: 'info.novatec.testit', module: 'livingdoc-client'
     }
 
-    compile('info.novatec.testit:livingdoc-server:1.1.2') {
+    compile('info.novatec.testit:livingdoc-server:1.1.3') {
         // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
         exclude group: 'org.slf4j', module: 'slf4j-api'
 

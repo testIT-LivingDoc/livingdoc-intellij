@@ -150,7 +150,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     }
 
     public SpecificationNode getSelectedNode() {
-        return this.getSelectedNode();
+        return this.selectedNode;
     }
 
     public void setSelectedNode(final SpecificationNode selectedNode) {
