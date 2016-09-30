@@ -54,4 +54,5 @@
         println "Building for IntelliJ version: ${version}"
 
         pluginName 'livingdoc-intellij-plugin'
+        updateSinceUntilBuild false
     }
