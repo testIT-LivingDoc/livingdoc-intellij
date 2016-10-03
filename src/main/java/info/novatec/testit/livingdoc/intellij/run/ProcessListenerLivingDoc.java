@@ -2,13 +2,13 @@ package info.novatec.testit.livingdoc.intellij.run;
 
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
-import com.intellij.icons.AllIcons;
 import com.intellij.ide.browsers.BrowserLauncher;
 import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.ide.browsers.WebBrowserManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.util.ColorProgressBar;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
 import info.novatec.testit.livingdoc.report.XmlReport;
 import info.novatec.testit.livingdoc.server.domain.Execution;
 import info.novatec.testit.livingdoc.server.domain.Specification;
@@ -58,8 +58,6 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
             runConfiguration.getStatusLine().setText(I18nSupport.getValue("run.execution.running.label"));
             runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.GREEN);
             runConfiguration.getStatusLine().setFraction(0d);
-
-            runConfiguration.getSelectedNode().setIcon(AllIcons.Process.Step_1);
         });
     }
 
@@ -86,14 +84,13 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
         }
     }
 
-    // TODO Change the node icon depending on the execution result. Use LivingDoc Icon like in the eclipse plugin.
     private void updateStatusLine(Specification specification) {
 
         for (Execution execution : specification.getExecutions()) {
+
             if (!hasError && (execution.hasException() || execution.hasFailed())) {
                 hasError = true;
             }
-
             totalErrors = totalErrors + execution.getErrors();
             failuresCount = failuresCount + execution.getFailures();
             finishedTestsCount = finishedTestsCount + execution.getSuccess();
@@ -101,13 +98,15 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
         }
 
         SwingUtilities.invokeLater(() -> {
+
             if (hasError) {
                 runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
             }
-
             runConfiguration.getStatusLine().formatTestMessage(finishedTestsCount + totalErrors + failuresCount,
                     finishedTestsCount, failuresCount, ignoreTestsCount, endTime - startTime, endTime);
             runConfiguration.getStatusLine().setFraction(1d);
+
+            runConfiguration.getSelectedNode().setIcon(RepositoryViewUtils.getResultIcon(hasError, runConfiguration.getSelectedNode()));
         });
 
     }

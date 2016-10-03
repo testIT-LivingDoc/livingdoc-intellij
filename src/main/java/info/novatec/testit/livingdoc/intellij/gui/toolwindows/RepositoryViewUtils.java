@@ -46,6 +46,25 @@ public class RepositoryViewUtils {
     }
 
     /**
+     * Returns the corresponding node icon depending on the result of the execution
+     *
+     * @param hasError          True if the execution fails. False otherwise.
+     * @param specificationNode {@link SpecificationNode}
+     * @return {@link Icon}
+     */
+    public static Icon getResultIcon(final boolean hasError, final SpecificationNode specificationNode) {
+
+        Icon icon = hasError ? Icons.ERROR : Icons.SUCCESS;
+
+        if (specificationNode.isUsingCurrentVersion()) {
+            icon = hasError ? Icons.ERROR_WORKING : Icons.SUCCESS_WORKING;
+        } else if (specificationNode.canBeImplemented()) {
+            icon = hasError ? Icons.ERROR_DIFF : Icons.SUCCESS_DIFF;
+        }
+        return icon;
+    }
+
+    /**
      * Returns the corresponding node icon depending on certain conditions
      *
      * @param specificationNode {@link SpecificationNode}
