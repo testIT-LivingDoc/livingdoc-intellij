@@ -13,7 +13,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
  */
 public class SpecificationNode extends Node {
 
-    private final boolean executable;
+    private boolean executable;
     private boolean canBeImplemented;
     private boolean usingCurrentVersion;
 
@@ -45,6 +45,10 @@ public class SpecificationNode extends Node {
 
     public boolean isExecutable() {
         return executable;
+    }
+
+    public void setExecutable(boolean executable) {
+        this.executable = executable;
     }
 
     public boolean isUsingCurrentVersion() {
