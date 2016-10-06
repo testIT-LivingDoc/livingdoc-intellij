@@ -15,16 +15,16 @@ import org.junit.Test;
 
 public class RepositoryViewUtilsTest {
 
-    private boolean hasError = false;
+    private boolean hasError;
     private DocumentNode documentNode;
     private Node node;
     private SpecificationNode specificationNode;
+
 
     @Before
     public void setUp() {
         documentNode = new DocumentNode("tittle");
         specificationNode = new SpecificationNode(documentNode, node);
-
     }
 
     @Test
@@ -62,7 +62,6 @@ public class RepositoryViewUtilsTest {
         specificationNode.setUsingCurrentVersion(true);
 
         Assert.assertEquals(Icons.ERROR_WORKING, RepositoryViewUtils.getResultIcon(hasError, specificationNode));
-
     }
 
     @Test
@@ -72,7 +71,6 @@ public class RepositoryViewUtilsTest {
         specificationNode.setUsingCurrentVersion(true);
 
         Assert.assertEquals(Icons.SUCCESS_WORKING, RepositoryViewUtils.getResultIcon(hasError, specificationNode));
-
     }
 
     @Test
@@ -82,7 +80,6 @@ public class RepositoryViewUtilsTest {
         specificationNode.setCanBeImplemented(true);
 
         Assert.assertEquals(Icons.ERROR_DIFF, RepositoryViewUtils.getResultIcon(hasError, specificationNode));
-
     }
 
     @Test
@@ -120,5 +117,4 @@ public class RepositoryViewUtilsTest {
 
         Assert.assertEquals(AllIcons.Nodes.Folder, RepositoryViewUtils.getNodeIcon(specificationNode));
     }
-
 }
