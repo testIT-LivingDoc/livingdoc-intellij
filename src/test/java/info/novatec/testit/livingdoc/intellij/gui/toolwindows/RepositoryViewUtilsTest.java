@@ -11,34 +11,34 @@ import org.junit.Test;
 
 public class RepositoryViewUtilsTest {
 
-    private boolean hasError = false;
+    private boolean hasError;
     private DocumentNode documentNode;
     private Node node;
     private SpecificationNode specificationNode;
+
 
     @Before
     public void setUp() {
         documentNode = new DocumentNode("tittle");
         specificationNode = new SpecificationNode(documentNode, node);
-
     }
 
     @Test
-    public void getModuleNode(){
+    public void getModuleNode() {
 
         Node childNode;
         ModuleNode parentNode;
 
-        parentNode = new ModuleNode("grandpa","module");
-        childNode = new Node("child",Icons.ERROR, NodeType.ERROR, parentNode);
-        node = new Node("grandchild",Icons.ERROR, NodeType.ERROR, childNode);
+        parentNode = new ModuleNode("grandpa", "module");
+        childNode = new Node("child", Icons.ERROR, NodeType.ERROR, parentNode);
+        node = new Node("grandchild", Icons.ERROR, NodeType.ERROR, childNode);
 
         Assert.assertNotNull(RepositoryViewUtils.getModuleNode(node));
     }
 
 
     @Test
-    public void getRepositoryNode(){
+    public void getRepositoryNode() {
         RepositoryNode rn1;
 
         String repoNodeName = "repoNode";
@@ -52,37 +52,34 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getResultIconWorkingError(){
+    public void getResultIconWorkingError() {
 
         hasError = true;
         specificationNode.setUsingCurrentVersion(true);
 
         Assert.assertEquals(Icons.ERROR_WORKING, RepositoryViewUtils.getResultIcon(hasError, specificationNode));
-
     }
 
     @Test
-    public void getResultIconWorkingSuccess(){
+    public void getResultIconWorkingSuccess() {
 
         hasError = false;
         specificationNode.setUsingCurrentVersion(true);
 
         Assert.assertEquals(Icons.SUCCESS_WORKING, RepositoryViewUtils.getResultIcon(hasError, specificationNode));
-
     }
 
     @Test
-    public void getResultIconDiffError(){
+    public void getResultIconDiffError() {
 
         hasError = true;
         specificationNode.setCanBeImplemented(true);
 
         Assert.assertEquals(Icons.ERROR_DIFF, RepositoryViewUtils.getResultIcon(hasError, specificationNode));
-
     }
 
     @Test
-    public void getResultIconDiffSuccess(){
+    public void getResultIconDiffSuccess() {
 
         hasError = false;
         specificationNode.setCanBeImplemented(true);
@@ -92,7 +89,7 @@ public class RepositoryViewUtilsTest {
 
 
     @Test
-    public void getNodeIconExeWork(){
+    public void getNodeIconExeWork() {
 
         specificationNode.setExecutable(true);
         specificationNode.setUsingCurrentVersion(true);
@@ -101,7 +98,7 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getNodeIconExeDiff(){
+    public void getNodeIconExeDiff() {
 
         specificationNode.setExecutable(true);
         specificationNode.setCanBeImplemented(true);
@@ -110,11 +107,10 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getNodeIconFolder(){
+    public void getNodeIconFolder() {
 
         specificationNode.setExecutable(false);
 
         Assert.assertEquals(AllIcons.Nodes.Folder, RepositoryViewUtils.getNodeIcon(specificationNode));
     }
-
 }
