@@ -2,6 +2,7 @@ package info.novatec.testit.livingdoc.intellij.gui.toolwindows;
 
 
 import com.intellij.icons.AllIcons;
+import com.intellij.openapi.actionSystem.Presentation;
 import info.novatec.testit.livingdoc.intellij.common.Icons;
 import info.novatec.testit.livingdoc.intellij.common.NodeType;
 import info.novatec.testit.livingdoc.intellij.domain.ModuleNode;
@@ -13,6 +14,8 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import javax.swing.tree.DefaultMutableTreeNode;
+
 public class RepositoryViewUtilsTest {
 
     private boolean hasError;
@@ -23,7 +26,7 @@ public class RepositoryViewUtilsTest {
 
     @Before
     public void setUp() {
-        documentNode = new DocumentNode("tittle");
+        documentNode = new DocumentNode("title");
         specificationNode = new SpecificationNode(documentNode, node);
     }
 
@@ -40,6 +43,10 @@ public class RepositoryViewUtilsTest {
         Assert.assertNotNull(RepositoryViewUtils.getModuleNode(node));
     }
 
+    @Test
+    public void getErrorNode() {
+        Assert.assertNotNull(RepositoryViewUtils.getErrorNode("Error message"));
+    }
 
     @Test
     public void getRepositoryNode() {
@@ -117,4 +124,30 @@ public class RepositoryViewUtilsTest {
 
         Assert.assertEquals(AllIcons.Nodes.Folder, RepositoryViewUtils.getNodeIcon(specificationNode));
     }
+
+    @Test
+    public void setEnabledForNodeVersion() {
+        DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(specificationNode);
+
+        DefaultMutableTreeNode[] selectedNodes = new DefaultMutableTreeNode[]{defaultMutableTreeNode};
+        DefaultMutableTreeNode[] selectedNodesEmpty = new DefaultMutableTreeNode[]{};
+
+        Presentation presentation = new Presentation("Presentation text");
+        boolean toCurrentVersion = true;
+
+        presentation.setEnabled(true);
+        specificationNode.setExecutable(true);
+        specificationNode.setCanBeImplemented(true);
+
+        RepositoryViewUtils.setEnabledForNodeVersion(selectedNodes, presentation, toCurrentVersion);
+        Assert.assertTrue(presentation.isEnabled());
+
+        RepositoryViewUtils.setEnabledForNodeVersion(selectedNodesEmpty, presentation, toCurrentVersion);
+        Assert.assertFalse(presentation.isEnabled());
+
+        // Coverage another similar method without boolean parameter
+        RepositoryViewUtils.setEnabledForSpecificationNode(selectedNodes, presentation);
+        Assert.assertTrue(presentation.isEnabled());
+    }
+
 }
