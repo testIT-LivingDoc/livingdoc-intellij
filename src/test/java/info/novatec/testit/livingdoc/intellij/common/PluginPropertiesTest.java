@@ -1,10 +1,7 @@
 package info.novatec.testit.livingdoc.intellij.common;
 
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class PluginPropertiesTest {
 

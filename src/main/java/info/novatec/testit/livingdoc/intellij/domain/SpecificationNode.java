@@ -1,6 +1,7 @@
 package info.novatec.testit.livingdoc.intellij.domain;
 
 import info.novatec.testit.livingdoc.intellij.common.Icons;
+import info.novatec.testit.livingdoc.intellij.common.NodeType;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -17,7 +18,11 @@ public class SpecificationNode extends Node {
     private boolean canBeImplemented;
     private boolean usingCurrentVersion;
 
-    public SpecificationNode(DocumentNode node, Node parentNode) {
+    public SpecificationNode() {
+        super();
+    }
+
+    public SpecificationNode(final DocumentNode node, final Node parentNode) {
 
         super(node.getTitle(), Icons.EXECUTABLE, NodeType.SPECIFICATION, parentNode);
 
@@ -30,12 +35,12 @@ public class SpecificationNode extends Node {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("executable", executable)
-                .append("canBeImplemented", canBeImplemented)
+                .append("isCanBeImplemented", canBeImplemented)
                 .append("usingCurrentVersion", usingCurrentVersion)
                 .toString();
     }
 
-    public boolean canBeImplemented() {
+    public boolean isCanBeImplemented() {
         return canBeImplemented;
     }
 
@@ -47,7 +52,7 @@ public class SpecificationNode extends Node {
         return executable;
     }
 
-    public void setExecutable(boolean executable) {
+    public void setExecutable(final boolean executable) {
         this.executable = executable;
     }
 

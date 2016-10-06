@@ -2,7 +2,7 @@ package info.novatec.testit.livingdoc.intellij.gui.settings;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.project.Project;
-import info.novatec.testit.livingdoc.intellij.core.ProjectSettings;
+import info.novatec.testit.livingdoc.intellij.domain.ProjectSettings;
 
 /**
  * Controller for {@link ProjectSettingsEditor}

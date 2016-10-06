@@ -2,7 +2,7 @@ package info.novatec.testit.livingdoc.intellij.rpc;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
-import info.novatec.testit.livingdoc.intellij.core.ProjectSettings;
+import info.novatec.testit.livingdoc.intellij.domain.ProjectSettings;
 import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
 import org.jetbrains.annotations.NotNull;
 

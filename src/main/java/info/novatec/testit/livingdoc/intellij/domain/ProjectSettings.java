@@ -1,4 +1,4 @@
-package info.novatec.testit.livingdoc.intellij.core;
+package info.novatec.testit.livingdoc.intellij.domain;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.ServiceManager;
@@ -33,7 +33,7 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
     }
 
     @Override
-    public void loadState(ProjectSettings state) {
+    public void loadState(final ProjectSettings state) {
         XmlSerializerUtil.copyBean(state, this);
     }
 

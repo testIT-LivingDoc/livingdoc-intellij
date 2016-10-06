@@ -1,8 +1,6 @@
 package info.novatec.testit.livingdoc.intellij.common;
 
-import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import org.junit.Assert;
-import org.junit.Before;
 import org.junit.Test;
 
 public class I18nSupportTest {

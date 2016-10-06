@@ -1,4 +1,4 @@
-package info.novatec.testit.livingdoc.intellij.domain;
+package info.novatec.testit.livingdoc.intellij.common;
 
 /**
  * Kind of node in the repository view.<br>

@@ -1,5 +1,6 @@
 package info.novatec.testit.livingdoc.intellij.domain;
 
+import info.novatec.testit.livingdoc.intellij.common.NodeType;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
 import javax.swing.*;
@@ -13,10 +14,15 @@ import java.io.Serializable;
 public class Node implements Serializable {
 
     private static final long serialVersionUID = 4522875652776261867L;
-    private final NodeType type;
-    private final Node parent;
+    private NodeType type;
+    private Node parent;
     private String name;
     private Icon icon;
+
+    public Node() {
+        parent = null;
+        type = null;
+    }
 
     public Node(final String nodeName, final Icon nodeIcon, final NodeType nodeType, final Node parent) {
         this.name = nodeName;
@@ -55,7 +61,15 @@ public class Node implements Serializable {
         return type;
     }
 
+    public void setType(final NodeType type) {
+        this.type = type;
+    }
+
     public Node getParent() {
         return parent;
+    }
+
+    public void setParent(final Node parent) {
+        this.parent = parent;
     }
 }

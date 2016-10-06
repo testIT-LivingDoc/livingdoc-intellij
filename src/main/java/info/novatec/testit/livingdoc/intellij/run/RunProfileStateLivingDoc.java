@@ -11,7 +11,7 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
 import info.novatec.testit.livingdoc.document.Document;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
-import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
+import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
 import info.novatec.testit.livingdoc.repository.DocumentRepository;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;

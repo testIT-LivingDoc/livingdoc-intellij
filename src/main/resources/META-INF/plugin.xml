@@ -32,13 +32,13 @@
         <configurationType implementation="info.novatec.testit.livingdoc.intellij.core.ConfigurationTypeLivingDoc"/>
 
         <moduleService id="LivingDoc.Module.Service.Settings"
-                       serviceImplementation="info.novatec.testit.livingdoc.intellij.core.ModuleSettings"/>
+                       serviceImplementation="info.novatec.testit.livingdoc.intellij.domain.ModuleSettings"/>
         <moduleConfigurable id="LivingDoc.Module.Configurable"
                             displayName="LivingDoc"
                             provider="info.novatec.testit.livingdoc.intellij.core.ModuleConfigurableProvider"/>
 
         <projectService id="LivingDoc.Project.Service.Settings"
-                        serviceImplementation="info.novatec.testit.livingdoc.intellij.core.ProjectSettings"/>
+                        serviceImplementation="info.novatec.testit.livingdoc.intellij.domain.ProjectSettings"/>
         <projectConfigurable id="LivingDoc.Project.Configurable"
                              displayName="LivingDoc"
                              provider="info.novatec.testit.livingdoc.intellij.core.ProjectConfigurableProvider"

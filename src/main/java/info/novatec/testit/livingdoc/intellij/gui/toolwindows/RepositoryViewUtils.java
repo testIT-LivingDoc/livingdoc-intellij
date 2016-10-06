@@ -3,7 +3,11 @@ package info.novatec.testit.livingdoc.intellij.gui.toolwindows;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.Presentation;
 import info.novatec.testit.livingdoc.intellij.common.Icons;
-import info.novatec.testit.livingdoc.intellij.domain.*;
+import info.novatec.testit.livingdoc.intellij.common.NodeType;
+import info.novatec.testit.livingdoc.intellij.domain.ModuleNode;
+import info.novatec.testit.livingdoc.intellij.domain.Node;
+import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
+import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.swing.*;
@@ -58,7 +62,7 @@ public class RepositoryViewUtils {
 
         if (specificationNode.isUsingCurrentVersion()) {
             icon = hasError ? Icons.ERROR_WORKING : Icons.SUCCESS_WORKING;
-        } else if (specificationNode.canBeImplemented()) {
+        } else if (specificationNode.isCanBeImplemented()) {
             icon = hasError ? Icons.ERROR_DIFF : Icons.SUCCESS_DIFF;
         }
         return icon;
@@ -76,7 +80,7 @@ public class RepositoryViewUtils {
 
         if (specificationNode.isExecutable() && specificationNode.isUsingCurrentVersion()) {
             icon = Icons.EXE_WORKING;
-        } else if (specificationNode.isExecutable() && specificationNode.canBeImplemented()) {
+        } else if (specificationNode.isExecutable() && specificationNode.isCanBeImplemented()) {
             icon = Icons.EXE_DIFF;
 
         } else if (!specificationNode.isExecutable()) {
@@ -130,7 +134,7 @@ public class RepositoryViewUtils {
             Object userObject = selectedNodes[0].getUserObject();
             if (userObject instanceof SpecificationNode) {
                 SpecificationNode specificationNode = (SpecificationNode) userObject;
-                enabled = specificationNode.canBeImplemented()
+                enabled = specificationNode.isCanBeImplemented()
                         && (specificationNode.isUsingCurrentVersion() ^ toCurrentVersion);
             } else {
                 enabled = false;

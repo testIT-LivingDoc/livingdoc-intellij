@@ -8,7 +8,7 @@ import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.UIUtil;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
-import info.novatec.testit.livingdoc.intellij.core.ProjectSettings;
+import info.novatec.testit.livingdoc.intellij.domain.ProjectSettings;
 import info.novatec.testit.livingdoc.intellij.gui.GuiUtils;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;

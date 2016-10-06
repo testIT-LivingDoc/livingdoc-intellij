@@ -14,7 +14,7 @@ import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
-import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
+import info.novatec.testit.livingdoc.intellij.common.NodeType;
 import info.novatec.testit.livingdoc.intellij.domain.*;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.ExecuteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.OpenRemoteDocumentAction;
@@ -31,8 +31,9 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.*;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 
 /**
@@ -287,7 +288,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
 
         List<DefaultMutableTreeNode> childrenList = Collections.list(node.children());
 
-        Collections.sort(childrenList, (o1,o2) ->
+        Collections.sort(childrenList, (o1, o2) ->
                 ((Node) o1.getUserObject()).getName().compareToIgnoreCase(((Node) o2.getUserObject()).getName()));
 
         node.removeAllChildren();

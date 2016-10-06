@@ -3,7 +3,11 @@ package info.novatec.testit.livingdoc.intellij.gui.toolwindows;
 
 import com.intellij.icons.AllIcons;
 import info.novatec.testit.livingdoc.intellij.common.Icons;
-import info.novatec.testit.livingdoc.intellij.domain.*;
+import info.novatec.testit.livingdoc.intellij.common.NodeType;
+import info.novatec.testit.livingdoc.intellij.domain.ModuleNode;
+import info.novatec.testit.livingdoc.intellij.domain.Node;
+import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
+import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import org.junit.Assert;
 import org.junit.Before;
@@ -24,21 +28,21 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getModuleNode(){
+    public void getModuleNode() {
 
         Node childNode;
         ModuleNode parentNode;
 
-        parentNode = new ModuleNode("grandpa","module");
-        childNode = new Node("child",Icons.ERROR, NodeType.ERROR, parentNode);
-        node = new Node("grandchild",Icons.ERROR, NodeType.ERROR, childNode);
+        parentNode = new ModuleNode("grandpa", "module");
+        childNode = new Node("child", Icons.ERROR, NodeType.ERROR, parentNode);
+        node = new Node("grandchild", Icons.ERROR, NodeType.ERROR, childNode);
 
         Assert.assertNotNull(RepositoryViewUtils.getModuleNode(node));
     }
 
 
     @Test
-    public void getRepositoryNode(){
+    public void getRepositoryNode() {
         RepositoryNode rn1;
 
         String repoNodeName = "repoNode";
@@ -52,7 +56,7 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getResultIconWorkingError(){
+    public void getResultIconWorkingError() {
 
         hasError = true;
         specificationNode.setUsingCurrentVersion(true);
@@ -62,7 +66,7 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getResultIconWorkingSuccess(){
+    public void getResultIconWorkingSuccess() {
 
         hasError = false;
         specificationNode.setUsingCurrentVersion(true);
@@ -72,7 +76,7 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getResultIconDiffError(){
+    public void getResultIconDiffError() {
 
         hasError = true;
         specificationNode.setCanBeImplemented(true);
@@ -82,7 +86,7 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getResultIconDiffSuccess(){
+    public void getResultIconDiffSuccess() {
 
         hasError = false;
         specificationNode.setCanBeImplemented(true);
@@ -92,7 +96,7 @@ public class RepositoryViewUtilsTest {
 
 
     @Test
-    public void getNodeIconExeWork(){
+    public void getNodeIconExeWork() {
 
         specificationNode.setExecutable(true);
         specificationNode.setUsingCurrentVersion(true);
@@ -101,7 +105,7 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getNodeIconExeDiff(){
+    public void getNodeIconExeDiff() {
 
         specificationNode.setExecutable(true);
         specificationNode.setCanBeImplemented(true);
@@ -110,7 +114,7 @@ public class RepositoryViewUtilsTest {
     }
 
     @Test
-    public void getNodeIconFolder(){
+    public void getNodeIconFolder() {
 
         specificationNode.setExecutable(false);
 

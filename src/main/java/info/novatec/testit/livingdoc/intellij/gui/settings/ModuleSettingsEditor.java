@@ -9,7 +9,7 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
-import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
+import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
 import info.novatec.testit.livingdoc.intellij.gui.GuiUtils;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;

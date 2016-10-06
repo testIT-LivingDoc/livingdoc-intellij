@@ -1,4 +1,4 @@
-package info.novatec.testit.livingdoc.intellij.core;
+package info.novatec.testit.livingdoc.intellij.domain;
 
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
@@ -18,9 +18,12 @@ import java.io.Serializable;
  *
  * @see PersistentStateComponent
  */
+
+
 @State(name = "LivingDoc", storages = @Storage(StoragePathMacros.MODULE_FILE))
 public final class ModuleSettings implements PersistentStateComponent<ModuleSettings>, Serializable {
 
+    private static final long serialVersionUID = 813394555374572452L;
     private boolean livingDocEnabled;
     private String project;
     private String sud;
@@ -41,7 +44,7 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
     }
 
     @Override
-    public void loadState(ModuleSettings moduleSettings) {
+    public void loadState(final ModuleSettings moduleSettings) {
         XmlSerializerUtil.copyBean(moduleSettings, this);
     }
 
@@ -49,7 +52,7 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         return livingDocEnabled;
     }
 
-    public void setLivingDocEnabled(boolean livingDocEnabled) {
+    public void setLivingDocEnabled(final boolean livingDocEnabled) {
         this.livingDocEnabled = livingDocEnabled;
     }
 
@@ -57,7 +60,7 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         return project;
     }
 
-    public void setProject(String project) {
+    public void setProject(final String project) {
         this.project = project;
     }
 
@@ -65,7 +68,7 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         return sud;
     }
 
-    public void setSud(String sud) {
+    public void setSud(final String sud) {
         this.sud = sud;
     }
 
@@ -73,7 +76,7 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         return user;
     }
 
-    public void setUser(String user) {
+    public void setUser(final String user) {
         this.user = user;
     }
 
@@ -81,7 +84,7 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         return password;
     }
 
-    public void setPassword(String password) {
+    public void setPassword(final String password) {
         this.password = password;
     }
 
@@ -89,7 +92,7 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         return sudClassName;
     }
 
-    public void setSudClassName(String sudClassName) {
+    public void setSudClassName(final String sudClassName) {
         this.sudClassName = sudClassName;
     }
 
@@ -97,7 +100,7 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         return sudArgs;
     }
 
-    public void setSudArgs(String sudArgs) {
+    public void setSudArgs(final String sudArgs) {
         this.sudArgs = sudArgs;
     }
 }

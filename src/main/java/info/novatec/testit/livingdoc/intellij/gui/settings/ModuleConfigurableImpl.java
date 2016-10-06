@@ -2,7 +2,7 @@ package info.novatec.testit.livingdoc.intellij.gui.settings;
 
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.options.Configurable;
-import info.novatec.testit.livingdoc.intellij.core.ModuleSettings;
+import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
 import org.jetbrains.annotations.NotNull;
 
 /**

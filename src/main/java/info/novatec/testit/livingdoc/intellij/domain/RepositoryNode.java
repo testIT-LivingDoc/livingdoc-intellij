@@ -1,6 +1,7 @@
 package info.novatec.testit.livingdoc.intellij.domain;
 
 import com.intellij.icons.AllIcons;
+import info.novatec.testit.livingdoc.intellij.common.NodeType;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
@@ -10,6 +11,10 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 public class RepositoryNode extends Node {
 
     private Repository repository;
+
+    public RepositoryNode() {
+        super();
+    }
 
     public RepositoryNode(final String name, final Node moduleNode) {
         super(name, AllIcons.Nodes.PpLibFolder, NodeType.REPOSITORY, moduleNode);
@@ -26,7 +31,7 @@ public class RepositoryNode extends Node {
         return repository;
     }
 
-    public void setRepository(Repository repository) {
+    public void setRepository(final Repository repository) {
         this.repository = repository;
     }
 }
