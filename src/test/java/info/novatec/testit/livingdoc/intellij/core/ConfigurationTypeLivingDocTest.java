@@ -7,7 +7,9 @@ public class ConfigurationTypeLivingDocTest {
 
     @Test
     public void getInstance() {
+
         ConfigurationTypeLivingDoc configurationTypeLivingDoc = new ConfigurationTypeLivingDoc();
+
         Assert.assertNotNull(configurationTypeLivingDoc);
     }
 

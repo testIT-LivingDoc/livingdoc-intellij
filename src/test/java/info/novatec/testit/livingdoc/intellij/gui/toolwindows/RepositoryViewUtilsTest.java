@@ -50,6 +50,7 @@ public class RepositoryViewUtilsTest {
 
     @Test
     public void getRepositoryNode() {
+
         RepositoryNode rn1;
 
         String repoNodeName = "repoNode";
@@ -127,6 +128,7 @@ public class RepositoryViewUtilsTest {
 
     @Test
     public void setEnabledForNodeVersion() {
+
         DefaultMutableTreeNode defaultMutableTreeNode = new DefaultMutableTreeNode(specificationNode);
 
         DefaultMutableTreeNode[] selectedNodes = new DefaultMutableTreeNode[]{defaultMutableTreeNode};
@@ -149,5 +151,4 @@ public class RepositoryViewUtilsTest {
         RepositoryViewUtils.setEnabledForSpecificationNode(selectedNodes, presentation);
         Assert.assertTrue(presentation.isEnabled());
     }
-
 }
