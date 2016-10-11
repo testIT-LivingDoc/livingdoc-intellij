@@ -34,7 +34,6 @@ abstract class AbstractConfigurableImpl<V> implements Configurable {
     @Nullable
     @Override
     public String getHelpTopic() {
-        // TODO return the official doc url of LivingDoc
         return null;
     }
 
