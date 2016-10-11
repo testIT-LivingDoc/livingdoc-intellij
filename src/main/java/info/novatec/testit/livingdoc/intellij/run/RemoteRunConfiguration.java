@@ -14,7 +14,9 @@ import com.intellij.execution.testframework.ui.TestStatusLine;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.project.Project;
-import info.novatec.testit.livingdoc.intellij.util.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
+import info.novatec.testit.livingdoc.intellij.gui.runconfiguration.RunConfigurationEditor;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.domain.RepositoryType;
 import org.apache.commons.lang3.StringUtils;
@@ -26,7 +28,7 @@ import org.jetbrains.annotations.Nullable;
  * The {@link #getConfigurationEditor()} method returns the settings editor component (user interface) for the run
  * configuration settings (Displayed in multiple tabs if there's more than one):
  * <ul>
- * <li>{@link LivingDocSettingsEditor}</li>
+ * <li>{@link RunConfigurationEditor}</li>
  * <li>{@link LogConfigurationPanel}</li>
  * </ul>
  *
@@ -43,13 +45,11 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
     private boolean currentVersion;
 
-    private String user;
-    private String pass;
-
     private TestStatusLine statusLine;
+    private SpecificationNode selectedNode;
 
 
-    RemoteRunConfiguration(@NotNull Project project, @NotNull ConfigurationFactory factory, final String name) {
+    public RemoteRunConfiguration(final Project project, final ConfigurationFactory factory, final String name) {
         super(name, project, factory);
     }
 
@@ -57,7 +57,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
 
         SettingsEditorGroup<RemoteRunConfiguration> settingsEditorGroup = new SettingsEditorGroup<>();
-        settingsEditorGroup.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new LivingDocSettingsEditor(getProject()));
+        settingsEditorGroup.addEditor(ExecutionBundle.message("run.configuration.configuration.tab.title"), new RunConfigurationEditor(getProject()));
         settingsEditorGroup.addEditor(ExecutionBundle.message("logs.tab.title"), new LogConfigurationPanel<>());
         return settingsEditorGroup;
     }
@@ -66,16 +66,16 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     public void checkConfiguration() throws RuntimeConfigurationException {
 
         if (StringUtils.isBlank(repositoryUID)) {
-            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.repositoryuid.error"));
+            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.error.repository.uid"));
         }
         if (StringUtils.isBlank(repositoryURL)) {
-            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.repositoryurl.error"));
+            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.error.repository.url"));
         }
         if (StringUtils.isBlank(specificationName)) {
-            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.specificationName.error"));
+            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.error.specification"));
         }
         if (StringUtils.isBlank(repositoryClass)) {
-            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.main.field.repositoryclass.error"));
+            throw new RuntimeConfigurationException(I18nSupport.getValue("run.configuration.error.repository.class"));
         }
 
         super.checkConfiguration();
@@ -84,7 +84,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     @Nullable
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment) throws ExecutionException {
-        return new LivingDocRunProfileState(environment);
+        return new RunProfileStateLivingDoc(environment);
     }
 
     public Repository getRepository() {
@@ -129,22 +129,6 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
         this.repositoryClass = repositoryClass;
     }
 
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(final String user) {
-        this.user = user;
-    }
-
-    public String getPass() {
-        return pass;
-    }
-
-    public void setPass(final String pass) {
-        this.pass = pass;
-    }
-
     public boolean isCurrentVersion() {
         return currentVersion;
     }
@@ -163,5 +147,13 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
     public void setStatusLine(TestStatusLine statusLine) {
         this.statusLine = statusLine;
+    }
+
+    public SpecificationNode getSelectedNode() {
+        return this.selectedNode;
+    }
+
+    public void setSelectedNode(final SpecificationNode selectedNode) {
+        this.selectedNode = selectedNode;
     }
 }

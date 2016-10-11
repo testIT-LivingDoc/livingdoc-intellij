@@ -2,52 +2,39 @@ plugins {
     id "org.jetbrains.intellij" version "0.1.10"
 }
 
+apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 apply plugin: 'java'
 
-intellij {
-    pluginName 'livingdoc-intellij-plugin'
-    updateSinceUntilBuild false
-}
-
 group 'info.novatec.testit'
 version '1.0.0-SNAPSHOT'
-sourceCompatibility=1.8
-targetCompatibility=1.8
 
 repositories {
     mavenCentral()
+
+    // Uncomment to use SNAPSHOTS version
+    //maven { url 'https://oss.sonatype.org/content/repositories/snapshots'}
 }
 
 dependencies {
 
-    compile('info.novatec.testit:livingdoc-client:1.1.2') {
+    compile('info.novatec.testit:livingdoc-cli:'+ project.properties['testit.livingdoc.core.version']) {
         // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
         exclude group: 'org.slf4j', module: 'slf4j-api'
+
         // Exclude to resolve a conflict with jaxp implementation in runtime
-        exclude group: 'xmlrpc', module:'xmlrpc'
-        exclude group: 'org.apache.xmlrpc', module:'xmlrpc-client'
+        exclude group: 'xmlrpc', module: 'xmlrpc'
+        exclude group: 'org.apache.xmlrpc', module: 'xmlrpc-client'
     }
 
-    compile('info.novatec.testit:livingdoc-cli:1.1.2') {
-        // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
-        exclude group: 'org.slf4j', module: 'slf4j-api'
+    // This dependence is necessary for java reflection on the unit tests
+    testCompile group: 'commons-beanutils', name: 'commons-beanutils', version: '1.9.3'
+}
 
-        exclude group:'info.novatec.testit', module: 'livingdoc-client'
-    }
+intellij {
+    //version = 'IC-2016.2'
+    println "Building for IntelliJ version: ${version}"
 
-    compile('info.novatec.testit:livingdoc-server:1.1.2') {
-        // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-
-        exclude group:'info.novatec.testit', module: 'livingdoc-client'
-    }
-
-    // It's necessary to resolve a conflict with javax.transaction:jta:1.0.1B
-    compile('org.hibernate:hibernate-core:3.5.6-Final') {
-        // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
-        exclude group: 'org.slf4j', module: 'slf4j-api'
-        // Exclude to resolve a conflict with jaxp implementation in runtime
-        exclude group: 'xml-apis', module:'xml-apis'
-    }
+    pluginName 'livingdoc-intellij-plugin'
+    updateSinceUntilBuild false
 }
