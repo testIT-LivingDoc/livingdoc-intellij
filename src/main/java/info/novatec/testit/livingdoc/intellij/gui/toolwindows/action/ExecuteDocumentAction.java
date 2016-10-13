@@ -14,6 +14,7 @@ import com.intellij.openapi.project.Project;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.core.ConfigurationTypeLivingDoc;
 import info.novatec.testit.livingdoc.intellij.domain.ModuleNode;
+import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
 import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
 import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
@@ -158,5 +159,17 @@ public class ExecuteDocumentAction extends AnAction {
 
         runConfiguration.setStatusLine(toolWindowPanel.getStatusLine());
         runConfiguration.setSelectedNode(specificationNode);
+
+
+        ModuleSettings moduleSettings = ModuleSettings.getInstance(runConfiguration.getConfigurationModule().getModule());
+        String programParameter = "";
+        if (StringUtils.isNotBlank(moduleSettings.getSudClassName())) {
+            programParameter = "-f " + moduleSettings.getSudClassName();
+
+            if (StringUtils.isNotBlank(moduleSettings.getSudArgs())) {
+                programParameter = programParameter + ";" + moduleSettings.getSudArgs();
+            }
+        }
+        runConfiguration.setProgramParameters(programParameter);
     }
 }

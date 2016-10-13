@@ -12,7 +12,6 @@ import info.novatec.testit.livingdoc.intellij.domain.ProjectSettings;
 import info.novatec.testit.livingdoc.intellij.gui.GuiUtils;
 import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
-import info.novatec.testit.livingdoc.server.rpc.RpcClientService;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,13 +29,11 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
     private static final Logger LOG = Logger.getInstance(ProjectSettingsEditor.class);
 
     private JPanel myWholePanel;
-
-
     private JBTextField urlTextField;
-    private JBTextField handlerTextField;
-
     private JButton testButton;
     private JBLabel infoLabel;
+
+    private final String defaultServer;
 
 
     public ProjectSettingsEditor(@NotNull final Project project) {
@@ -47,15 +44,15 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
         setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("global.settings.title")));
 
         testButton.addActionListener(actionEvent -> testConnection());
+
+        defaultServer = PluginProperties.getValue("livingdoc.url.default");
     }
 
     @Override
     public void apply(@NotNull final ProjectSettings projectSettings) {
 
         projectSettings.setUrlServer(
-                StringUtils.defaultIfBlank(urlTextField.getText(), PluginProperties.getValue("livingdoc.url.default")));
-        projectSettings.setHandler(
-                StringUtils.defaultIfBlank(handlerTextField.getText(), PluginProperties.getValue("livingdoc.handler.default")));
+                StringUtils.defaultIfBlank(urlTextField.getText(), defaultServer));
     }
 
     @Override
@@ -63,29 +60,27 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
 
         enableOrDisableTestButton();
 
-        return !StringUtils.equals(StringUtils.defaultString(projectSettings.getHandler(), ""), handlerTextField.getText())
-                || !StringUtils.equals(StringUtils.defaultString(projectSettings.getUrlServer(), ""), urlTextField.getText());
+        return !StringUtils.equals(StringUtils.defaultString(projectSettings.getUrlServer(), ""), urlTextField.getText());
     }
 
     @Override
     public void reset(@NotNull final ProjectSettings projectSettings) {
-        urlTextField.setText(projectSettings.getUrlServer());
-        handlerTextField.setText(projectSettings.getHandler());
+        urlTextField.setText(StringUtils.defaultIfBlank(projectSettings.getUrlServer(), defaultServer));
         infoLabel.setText("");
         infoLabel.setIcon(null);
     }
 
     private void enableOrDisableTestButton() {
 
-        testButton.setEnabled(StringUtils.isNoneBlank(handlerTextField.getText(), urlTextField.getText()));
+        testButton.setEnabled(StringUtils.isNotBlank(urlTextField.getText()));
     }
 
     private void testConnection() {
 
-        RpcClientService service = new PluginLivingDocXmlRpcClient(project);
+        PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
 
         try {
-            boolean testOk = service.testConnection(urlTextField.getText(), handlerTextField.getText());
+            boolean testOk = service.testConnection(urlTextField.getText());
 
             infoLabel.setForeground(UIUtil.isUnderDarcula() ? Color.WHITE : Color.BLACK);
 

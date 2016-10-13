@@ -19,7 +19,6 @@ import org.jetbrains.annotations.Nullable;
 public final class ProjectSettings implements PersistentStateComponent<ProjectSettings> {
 
     private String urlServer;
-    private String handler;
 
     @NotNull
     public static ProjectSettings getInstance(@NotNull final Project project) {
@@ -43,13 +42,5 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
 
     public void setUrlServer(final String urlServer) {
         this.urlServer = urlServer;
-    }
-
-    public String getHandler() {
-        return handler;
-    }
-
-    public void setHandler(final String handler) {
-        this.handler = handler;
     }
 }

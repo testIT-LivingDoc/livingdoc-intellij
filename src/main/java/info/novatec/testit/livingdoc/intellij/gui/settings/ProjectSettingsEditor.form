@@ -11,7 +11,7 @@
     </properties>
     <border type="none"/>
     <children>
-      <grid id="8b7b6" layout-manager="GridLayoutManager" row-count="7" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
+      <grid id="8b7b6" layout-manager="GridLayoutManager" row-count="4" column-count="3" same-size-horizontally="false" same-size-vertically="false" hgap="-1" vgap="-1">
         <margin top="0" left="0" bottom="0" right="0"/>
         <constraints>
           <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
@@ -28,33 +28,9 @@
               <text resource-bundle="properties/locale" key="global.settings.info"/>
             </properties>
           </component>
-          <component id="34b48" class="com.intellij.ui.components.JBLabel">
-            <constraints>
-              <grid row="1" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="properties/locale" key="global.settings.info.1"/>
-            </properties>
-          </component>
-          <component id="575d6" class="com.intellij.ui.components.JBLabel">
-            <constraints>
-              <grid row="2" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="properties/locale" key="global.settings.info.2"/>
-            </properties>
-          </component>
-          <component id="ca24e" class="com.intellij.ui.components.JBLabel">
-            <constraints>
-              <grid row="4" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <text resource-bundle="properties/locale" key="global.settings.field.handler"/>
-            </properties>
-          </component>
           <component id="28c54" class="com.intellij.ui.components.JBTextField" binding="urlTextField">
             <constraints>
-              <grid row="3" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <name value="4854"/>
@@ -66,7 +42,7 @@
           </component>
           <component id="4e4ef" class="com.intellij.ui.components.JBLabel">
             <constraints>
-              <grid row="3" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="1" column="0" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text resource-bundle="properties/locale" key="global.settings.field.url"/>
@@ -74,33 +50,21 @@
           </component>
           <component id="aa9f0" class="javax.swing.JButton" binding="testButton">
             <constraints>
-              <grid row="5" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <enabled value="false"/>
               <text resource-bundle="properties/locale" key="global.settings.button.test"/>
             </properties>
           </component>
-          <component id="357c9" class="com.intellij.ui.components.JBTextField" binding="handlerTextField">
-            <constraints>
-              <grid row="4" column="1" row-span="1" col-span="2" vsize-policy="3" hsize-policy="3" anchor="0" fill="3" indent="0" use-parent-layout="false"/>
-            </constraints>
-            <properties>
-              <name value=""/>
-              <opaque value="false"/>
-              <text value=""/>
-              <toolTipText value=""/>
-              <visible value="true"/>
-            </properties>
-          </component>
           <hspacer id="ee0a8">
             <constraints>
-              <grid row="5" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+              <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="1" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
             </constraints>
           </hspacer>
           <component id="7ee13" class="com.intellij.ui.components.JBLabel" binding="infoLabel">
             <constraints>
-              <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="4" fill="2" indent="0" use-parent-layout="false"/>
+              <grid row="3" column="0" row-span="1" col-span="3" vsize-policy="3" hsize-policy="3" anchor="4" fill="2" indent="0" use-parent-layout="false"/>
             </constraints>
             <properties>
               <text value=""/>
