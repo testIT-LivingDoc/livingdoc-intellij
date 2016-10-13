@@ -2,6 +2,7 @@ package info.novatec.testit.livingdoc.intellij.rpc;
 
 import com.intellij.ide.util.PropertiesComponent;
 import com.intellij.openapi.project.Project;
+import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
 import info.novatec.testit.livingdoc.intellij.domain.ProjectSettings;
 import info.novatec.testit.livingdoc.server.ServerPropertiesManager;
 import org.jetbrains.annotations.NotNull;
@@ -14,9 +15,11 @@ import org.jetbrains.annotations.NotNull;
 class ServerPropertiesManagerImpl implements ServerPropertiesManager {
 
     private final ProjectSettings projectSettings;
+    private final String handler;
 
     public ServerPropertiesManagerImpl(@NotNull final Project project) {
         projectSettings = ProjectSettings.getInstance(project);
+        handler = PluginProperties.getValue("livingdoc.handler.default");
     }
 
     @Override
@@ -31,7 +34,7 @@ class ServerPropertiesManagerImpl implements ServerPropertiesManager {
                 break;
 
             case ServerPropertiesManager.HANDLER:
-                prop = projectSettings.getHandler();
+                prop = handler;
                 break;
 
             default:

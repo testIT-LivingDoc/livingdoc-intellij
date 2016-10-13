@@ -1,5 +1,6 @@
 package info.novatec.testit.livingdoc.intellij.rpc;
 
+import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import info.novatec.testit.livingdoc.server.domain.Project;
@@ -18,26 +19,35 @@ import java.util.Set;
  */
 public class PluginLivingDocXmlRpcClient extends LivingDocXmlRpcClient {
 
-    private static final String IDENTIFIER = "WORKSPACE";
+    private final String identifier;
+    private final String handler;
+
 
     public PluginLivingDocXmlRpcClient(@NotNull final com.intellij.openapi.project.Project project) {
 
         super(new ServerPropertiesManagerImpl(project));
+
+        this.handler = PluginProperties.getValue("livingdoc.handler.default");
+        this.identifier = PluginProperties.getValue("livingdoc.identifier.default");
+    }
+
+    public boolean testConnection(final String hostName) throws LivingDocServerException {
+        return super.testConnection(hostName, handler);
     }
 
     public Set<Project> getAllProjects() throws LivingDocServerException {
-        return super.getAllProjects(IDENTIFIER);
+        return super.getAllProjects(identifier);
     }
 
     public Set<SystemUnderTest> getSystemUnderTestsOfProject(@NotNull final String projectName) throws LivingDocServerException {
-        return super.getSystemUnderTestsOfProject(projectName, IDENTIFIER);
+        return super.getSystemUnderTestsOfProject(projectName, identifier);
     }
 
     public Set<Repository> getAllRepositoriesForSystemUnderTest(final SystemUnderTest systemUnderTest) throws LivingDocServerException {
-        return super.getAllRepositoriesForSystemUnderTest(systemUnderTest, IDENTIFIER);
+        return super.getAllRepositoriesForSystemUnderTest(systemUnderTest, identifier);
     }
 
     public DocumentNode getSpecificationHierarchy(final Repository repository, final SystemUnderTest systemUnderTest) throws LivingDocServerException {
-        return super.getSpecificationHierarchy(repository, systemUnderTest, IDENTIFIER);
+        return super.getSpecificationHierarchy(repository, systemUnderTest, identifier);
     }
 }
