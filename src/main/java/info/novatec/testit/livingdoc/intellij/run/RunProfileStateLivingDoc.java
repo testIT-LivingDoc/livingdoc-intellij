@@ -13,7 +13,6 @@ import info.novatec.testit.livingdoc.document.Document;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
 import info.novatec.testit.livingdoc.repository.DocumentRepository;
-import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -46,7 +45,7 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
     @Override
     protected JavaParameters createJavaParameters() throws ExecutionException {
 
-        final JavaParameters javaParameters = new JavaParameters();
+        final JavaParameters javaParameters = addLivingDocProgramParameterList();
 
         final int classPathType = JavaParameters.JDK_AND_CLASSES_AND_TESTS;
         final String jreHome = runConfiguration.ALTERNATIVE_JRE_PATH_ENABLED ? runConfiguration.ALTERNATIVE_JRE_PATH : null;
@@ -54,8 +53,6 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
         JavaParametersUtil.configureConfiguration(javaParameters, runConfiguration);
 
         javaParameters.setMainClass(runConfiguration.MAIN_CLASS_NAME);
-
-        addLivingDocProgramParameterList(javaParameters);
 
         return javaParameters;
     }
@@ -73,22 +70,14 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
     }
 
     /**
-     * <p>To override the default System Under Development class (used for fixture classes instanciation).<br>
+     * <p>To override the default System Under Development class (used for fixture classes instantiation).<br>
      * The library with the specified class should be in the same directory as the runner. </p>
      * <br>
      * <code>-f CLASS;ARGS Use CLASS as the system under development and instantiate it with ARGS</code>
      */
-    private void addLivingDocProgramParameterList(final JavaParameters javaParameters) throws ExecutionException {
+    private JavaParameters addLivingDocProgramParameterList() throws ExecutionException {
 
-        ModuleSettings moduleSettings = ModuleSettings.getInstance(runConfiguration.getConfigurationModule().getModule());
-        if (StringUtils.isNotBlank(moduleSettings.getSudClassName())) {
-            String programParameter = "-f " + moduleSettings.getSudClassName();
-
-            if (StringUtils.isNotBlank(moduleSettings.getSudArgs())) {
-                programParameter = programParameter + ";" + moduleSettings.getSudArgs();
-            }
-            javaParameters.getProgramParametersList().add(programParameter);
-        }
+        JavaParameters javaParameters = new JavaParameters();
 
         // Generate XML report (defaults to plain)
         javaParameters.getProgramParametersList().add("--xml");
@@ -101,6 +90,7 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
             LOG.error(e);
             throw new ExecutionException(e);
         }
+        return javaParameters;
     }
 
     @NotNull
