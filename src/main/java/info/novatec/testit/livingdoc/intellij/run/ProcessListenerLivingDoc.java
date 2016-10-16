@@ -7,6 +7,8 @@ import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.ide.browsers.WebBrowserManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.util.ColorProgressBar;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
 import info.novatec.testit.livingdoc.report.XmlReport;
@@ -67,7 +69,6 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
         endTime = System.currentTimeMillis();
 
         if (processEvent.getExitCode() == 0) {
-
             try {
                 Specification specification = buildSpecificationReport();
                 updateStatusLine(specification);
@@ -81,6 +82,10 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
             } catch (IOException | SAXException e) {
                 LOG.error(e);
             }
+        } else {
+            runConfiguration.getStatusLine().setText(I18nSupport.getValue("run.execution.error.process"));
+            runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
+            runConfiguration.getStatusLine().setFraction(100d);
         }
     }
 
@@ -101,6 +106,10 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
 
             if (hasError) {
                 runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
+
+            } else {
+                ToolWindow toolWindow = ToolWindowManager.getInstance(runConfiguration.getProject()).getToolWindow("Repository View");
+                toolWindow.activate(null);
             }
             runConfiguration.getStatusLine().formatTestMessage(finishedTestsCount + totalErrors + failuresCount,
                     finishedTestsCount, failuresCount, ignoreTestsCount, endTime - startTime, endTime);
@@ -108,7 +117,6 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
 
             runConfiguration.getSelectedNode().setIcon(RepositoryViewUtils.getResultIcon(hasError, runConfiguration.getSelectedNode()));
         });
-
     }
 
     private Specification buildSpecificationReport() throws IOException, SAXException {
