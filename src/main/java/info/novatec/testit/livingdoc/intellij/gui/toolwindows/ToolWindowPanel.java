@@ -25,7 +25,6 @@ import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
-import org.apache.commons.lang3.StringUtils;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -220,19 +219,13 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
                     for (Repository repository : repositories) {
 
                         RepositoryNode repositoryNode;
+                        repositoryNode = new RepositoryNode(repository.getProject().getName(), moduleNode);
+                        repositoryNode.setRepository(repository);
+                        DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
+                        moduleTreeNode.add(childNode);
 
-                        if (validateCredentials(repository, moduleSettings)) {
-                            repositoryNode = new RepositoryNode(repository.getProject().getName(), moduleNode);
-                            repositoryNode.setRepository(repository);
-                            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
-                            moduleTreeNode.add(childNode);
-
-                            DocumentNode documentNode = service.getSpecificationHierarchy(repository, systemUnderTest);
-                            paintDocumentNode(documentNode.getChildren(), childNode);
-
-                        } else {
-                            moduleTreeNode.add(new DefaultMutableTreeNode(RepositoryViewUtils.getErrorNode(I18nSupport.getValue("toolwindows.error.credentials"))));
-                        }
+                        DocumentNode documentNode = service.getSpecificationHierarchy(repository, systemUnderTest);
+                        paintDocumentNode(documentNode.getChildren(), childNode);
                     }
                 } catch (LivingDocServerException ldse) {
                     LOG.error(ldse);
@@ -293,23 +286,5 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
 
         node.removeAllChildren();
         childrenList.forEach(node::add);
-    }
-
-    /**
-     * Validates the LivingDoc user and password configured in IntelliJ to connect with LivingDoc repository.
-     *
-     * @param repository {@link Repository}
-     * @return True if the credentials are valid. Otherwise, false.
-     */
-    private boolean validateCredentials(final Repository repository, final ModuleSettings moduleSettings) {
-
-        boolean result = true;
-
-        if (!StringUtils.equals(moduleSettings.getUser(), repository.getUsername())
-                || !StringUtils.equals(moduleSettings.getPassword(), repository.getPassword())) {
-
-            result = false;
-        }
-        return result;
     }
 }
