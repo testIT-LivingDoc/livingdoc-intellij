@@ -9,6 +9,7 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.module.Module;
+import com.intellij.openapi.progress.util.ColorProgressBar;
 import info.novatec.testit.livingdoc.document.Document;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
@@ -131,6 +132,10 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
                 LOG.error(I18nSupport.getValue("run.execution.error.document.null"));
             }
         } catch (Exception e) {
+            runConfiguration.getStatusLine().setText(e.getMessage());
+            runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
+            runConfiguration.getStatusLine().setFraction(100d);
+
             LOG.error(e);
             throw new ExecutionException(e);
         }

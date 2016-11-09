@@ -160,6 +160,8 @@ public class ExecuteDocumentAction extends AnAction {
         runConfiguration.setStatusLine(toolWindowPanel.getStatusLine());
         runConfiguration.setSelectedNode(specificationNode);
 
+        runConfiguration.setShowConsoleOnStdOut(true);
+        runConfiguration.setShowConsoleOnStdErr(true);
 
         ModuleSettings moduleSettings = ModuleSettings.getInstance(runConfiguration.getConfigurationModule().getModule());
         String programParameter = "";

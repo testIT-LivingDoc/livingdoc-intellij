@@ -1,5 +1,8 @@
 package info.novatec.testit.livingdoc.intellij.domain;
 
+import com.intellij.credentialStore.CredentialAttributes;
+import com.intellij.credentialStore.Credentials;
+import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -7,6 +10,7 @@ import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleServiceManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -15,25 +19,29 @@ import java.io.Serializable;
 /**
  * Service implementation for module service extension defined in <b>plugin.xml</b> with
  * <code>id="LivingDoc.Module.Service.Settings"</code>
+ * <br/><br/>
+ * Passwords are stored in encrypted form using
+ * <a href="https://github.com/JetBrains/intellij-community/blob/master/platform/credential-store/readme.md">
+ * IntelliJ Platform Credentials Store API</a>
  *
  * @see PersistentStateComponent
  */
-
-
 @State(name = "LivingDoc", storages = @Storage(StoragePathMacros.MODULE_FILE))
 public final class ModuleSettings implements PersistentStateComponent<ModuleSettings>, Serializable {
 
     private static final long serialVersionUID = 813394555374572452L;
+
+    private static final String LIVINGDOC_SERVICE_NAME = "IntelliJ Platform LivingDoc ";
+
     private boolean livingDocEnabled;
     private String project;
     private String sud;
     private String user;
-    private String password;
     private String sudClassName;
     private String sudArgs;
 
-
     public static ModuleSettings getInstance(@NotNull final Module module) {
+
         return ModuleServiceManager.getService(module, ModuleSettings.class);
     }
 
@@ -80,14 +88,6 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         this.user = user;
     }
 
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(final String password) {
-        this.password = password;
-    }
-
     public String getSudClassName() {
         return sudClassName;
     }
@@ -102,5 +102,32 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
 
     public void setSudArgs(final String sudArgs) {
         this.sudArgs = sudArgs;
+    }
+
+    public String getPassword() {
+
+        if (StringUtils.isBlank(user)) {
+            return null;
+        }
+
+        CredentialAttributes credentialAttributes = new CredentialAttributes(LIVINGDOC_SERVICE_NAME + this.hashCode());
+
+        PasswordSafe passwordSafe = PasswordSafe.getInstance();
+        Credentials credentials = passwordSafe.get(credentialAttributes);
+
+        return credentials != null ? credentials.getPasswordAsString() : "";
+    }
+
+    public void setPassword(final String password) {
+
+        if (StringUtils.isBlank(user)) {
+            return;
+        }
+
+        CredentialAttributes credentialAttributes = new CredentialAttributes(LIVINGDOC_SERVICE_NAME + this.hashCode());
+        Credentials credentials = new Credentials(user, password);
+
+        PasswordSafe passwordSafe = PasswordSafe.getInstance();
+        passwordSafe.set(credentialAttributes, credentials);
     }
 }
