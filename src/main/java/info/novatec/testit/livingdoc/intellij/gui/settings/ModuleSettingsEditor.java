@@ -6,7 +6,6 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
-import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
@@ -39,8 +38,6 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
     private JBCheckBox livingDocEnabledCheck;
     private ComboBox<String> projectCombo;
     private ComboBox<String> sudCombo;
-    private JBTextField userField;
-    private JBPasswordField passField;
     private JBTextField classField;
     private JBTextField argsField;
     private JBLabel errorLabel;
@@ -62,8 +59,6 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
         moduleSettings.setLivingDocEnabled(livingDocEnabledCheck.isSelected());
         moduleSettings.setProject((String) projectCombo.getSelectedItem());
         moduleSettings.setSud((String) sudCombo.getSelectedItem());
-        moduleSettings.setUser(userField.getText());
-        moduleSettings.setPassword(String.valueOf(passField.getPassword()));
         moduleSettings.setSudClassName(classField.getText());
         moduleSettings.setSudArgs(argsField.getText());
     }
@@ -73,16 +68,12 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
 
         enableOrDisablePanel();
 
-        boolean isModifiedCredentials = !StringUtils.equals(moduleSettings.getUser(), userField.getText())
-                || !StringUtils.equals(moduleSettings.getPassword(), String.valueOf(passField.getPassword()));
-
         boolean isModifiedFactory = !StringUtils.equals(moduleSettings.getSudClassName(), String.valueOf(classField.getText()))
                 || !StringUtils.equals(moduleSettings.getSudArgs(), String.valueOf(argsField.getText()));
 
         return moduleSettings.isLivingDocEnabled() != livingDocEnabledCheck.isSelected()
                 || !StringUtils.equals(moduleSettings.getProject(), (String) projectCombo.getSelectedItem())
                 || !StringUtils.equals(moduleSettings.getSud(), (String) sudCombo.getSelectedItem())
-                || isModifiedCredentials
                 || isModifiedFactory;
     }
 
@@ -96,8 +87,6 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
 
         loadProjects(moduleSettings.getProject());
 
-        userField.setText(moduleSettings.getUser());
-        passField.setText(moduleSettings.getPassword());
         classField.setText(moduleSettings.getSudClassName());
         argsField.setText(moduleSettings.getSudArgs());
     }

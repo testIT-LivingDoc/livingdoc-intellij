@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.util.ui.UIUtil;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
@@ -29,7 +30,12 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
     private static final Logger LOG = Logger.getInstance(ProjectSettingsEditor.class);
 
     private JPanel myWholePanel;
-    private JBTextField urlTextField;
+    private JPanel centerPanel;
+    private JPanel northPanel;
+
+    private JBTextField urlField;
+    private JBTextField userField;
+    private JBPasswordField passField;
     private JButton testButton;
     private JBLabel infoLabel;
 
@@ -41,7 +47,8 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
         super(project);
         add(myWholePanel, BorderLayout.CENTER);
 
-        setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("global.settings.title")));
+        northPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("global.settings.title")));
+        centerPanel.setBorder(GuiUtils.createTitledBorder("xConfluence user credentials"));
 
         testButton.addActionListener(actionEvent -> testConnection());
 
@@ -52,7 +59,9 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
     public void apply(@NotNull final ProjectSettings projectSettings) {
 
         projectSettings.setUrlServer(
-                StringUtils.defaultIfBlank(urlTextField.getText(), defaultServer));
+                StringUtils.defaultIfBlank(urlField.getText(), defaultServer));
+        projectSettings.setUser(userField.getText());
+        projectSettings.setPassword(String.valueOf(passField.getPassword()));
     }
 
     @Override
@@ -60,19 +69,28 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
 
         enableOrDisableTestButton();
 
-        return !StringUtils.equals(StringUtils.defaultString(projectSettings.getUrlServer(), ""), urlTextField.getText());
+        boolean credentialsModified = !StringUtils.equals(projectSettings.getUser(), userField.getText())
+                || !StringUtils.equals(projectSettings.getPassword(), String.valueOf(passField.getPassword()));
+
+        return !StringUtils.equals(StringUtils.defaultString(projectSettings.getUrlServer(), ""), urlField.getText())
+                || credentialsModified;
     }
 
     @Override
     public void reset(@NotNull final ProjectSettings projectSettings) {
-        urlTextField.setText(StringUtils.defaultIfBlank(projectSettings.getUrlServer(), defaultServer));
+
         infoLabel.setText("");
         infoLabel.setIcon(null);
+
+        urlField.setText(StringUtils.defaultIfBlank(projectSettings.getUrlServer(), defaultServer));
+        userField.setText(projectSettings.getUser());
+        passField.setText(projectSettings.getPassword());
     }
 
     private void enableOrDisableTestButton() {
 
-        testButton.setEnabled(StringUtils.isNotBlank(urlTextField.getText()));
+        testButton.setEnabled(StringUtils.isNotBlank(urlField.getText()));
+
     }
 
     private void testConnection() {
@@ -80,7 +98,7 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
         PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
 
         try {
-            boolean testOk = service.testConnection(urlTextField.getText());
+            boolean testOk = service.testConnection(urlField.getText());
 
             infoLabel.setForeground(UIUtil.isUnderDarcula() ? Color.WHITE : Color.BLACK);
 
