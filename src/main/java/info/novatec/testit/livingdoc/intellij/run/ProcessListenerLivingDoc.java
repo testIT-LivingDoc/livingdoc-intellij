@@ -107,11 +107,14 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
             if (hasError) {
                 runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
 
+            } else if (ignoreTestsCount >= 1 || failuresCount >= 1 || totalErrors >= 1) {
+                runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.YELLOW);
+
             } else {
                 ToolWindow toolWindow = ToolWindowManager.getInstance(runConfiguration.getProject()).getToolWindow("Repository View");
                 toolWindow.activate(null);
             }
-            runConfiguration.getStatusLine().formatTestMessage(finishedTestsCount + totalErrors + failuresCount,
+            runConfiguration.getStatusLine().formatTestMessage(finishedTestsCount + totalErrors + failuresCount + ignoreTestsCount,
                     finishedTestsCount, failuresCount, ignoreTestsCount, endTime - startTime, endTime);
             runConfiguration.getStatusLine().setFraction(1d);
 

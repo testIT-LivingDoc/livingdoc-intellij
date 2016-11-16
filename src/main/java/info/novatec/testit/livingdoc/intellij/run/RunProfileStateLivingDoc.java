@@ -8,11 +8,10 @@ import com.intellij.execution.process.ProcessEvent;
 import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.openapi.diagnostic.Logger;
-import com.intellij.openapi.module.Module;
 import com.intellij.openapi.progress.util.ColorProgressBar;
 import info.novatec.testit.livingdoc.document.Document;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
-import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
+import info.novatec.testit.livingdoc.intellij.domain.ProjectSettings;
 import info.novatec.testit.livingdoc.repository.DocumentRepository;
 import org.jetbrains.annotations.NotNull;
 
@@ -114,12 +113,10 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
 
         ClassLoader classLoader = getClass().getClassLoader();
 
-        Module module = runConfiguration.getConfigurationModule().getModule();
-        assert module != null;
-        ModuleSettings moduleSettings = ModuleSettings.getInstance(module);
+        ProjectSettings projectSettings = ProjectSettings.getInstance(runConfiguration.getProject());
 
         DocumentRepository documentRepository = runConfiguration.getRepository().asDocumentRepository(
-                classLoader, moduleSettings.getUser(), moduleSettings.getPassword());
+                classLoader, projectSettings.getUser(), projectSettings.getPassword());
 
         String location = runConfiguration.getSpecificationName() + (runConfiguration.isCurrentVersion() ? "?implemented=false" : "");
 

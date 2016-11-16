@@ -1,8 +1,5 @@
 package info.novatec.testit.livingdoc.intellij.domain;
 
-import com.intellij.credentialStore.CredentialAttributes;
-import com.intellij.credentialStore.Credentials;
-import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.openapi.components.PersistentStateComponent;
 import com.intellij.openapi.components.State;
 import com.intellij.openapi.components.Storage;
@@ -10,7 +7,6 @@ import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.module.Module;
 import com.intellij.openapi.module.ModuleServiceManager;
 import com.intellij.util.xmlb.XmlSerializerUtil;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +32,6 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
     private boolean livingDocEnabled;
     private String project;
     private String sud;
-    private String user;
     private String sudClassName;
     private String sudArgs;
 
@@ -80,14 +75,6 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
         this.sud = sud;
     }
 
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(final String user) {
-        this.user = user;
-    }
-
     public String getSudClassName() {
         return sudClassName;
     }
@@ -102,32 +89,5 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
 
     public void setSudArgs(final String sudArgs) {
         this.sudArgs = sudArgs;
-    }
-
-    public String getPassword() {
-
-        if (StringUtils.isBlank(user)) {
-            return null;
-        }
-
-        CredentialAttributes credentialAttributes = new CredentialAttributes(LIVINGDOC_SERVICE_NAME + this.hashCode());
-
-        PasswordSafe passwordSafe = PasswordSafe.getInstance();
-        Credentials credentials = passwordSafe.get(credentialAttributes);
-
-        return credentials != null ? credentials.getPasswordAsString() : "";
-    }
-
-    public void setPassword(final String password) {
-
-        if (StringUtils.isBlank(user)) {
-            return;
-        }
-
-        CredentialAttributes credentialAttributes = new CredentialAttributes(LIVINGDOC_SERVICE_NAME + this.hashCode());
-        Credentials credentials = new Credentials(user, password);
-
-        PasswordSafe passwordSafe = PasswordSafe.getInstance();
-        passwordSafe.set(credentialAttributes, credentials);
     }
 }
