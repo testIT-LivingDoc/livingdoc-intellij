@@ -48,7 +48,7 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
         add(myWholePanel, BorderLayout.CENTER);
 
         northPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("global.settings.title")));
-        centerPanel.setBorder(GuiUtils.createTitledBorder("xConfluence user credentials"));
+        centerPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("global.settings.subtitle")));
 
         testButton.addActionListener(actionEvent -> testConnection());
 
