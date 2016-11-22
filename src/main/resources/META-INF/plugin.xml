@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>info.novatec.testit.livingdoc.intellij</id>
     <name>testIT LivingDoc Intellij IDEA Plugin</name>
-    <version>1.0</version>
+    <version>1.2-SNAPSHOT</version>
     <vendor email="livingdoc@novatec-gmbh.de" url="http://www.novatec-gmbh.de/en/">NovaTec Solutions GmbH</vendor>
 
     <description><![CDATA[
@@ -15,12 +15,13 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        v1.2.0 Compatibility with LivingDoc Core / Confluence v1.2.x<br>
         v1.0.0 Initial release. <br>
         Allows for the execution of testIT LivingDoc specificationName inside IntelliJ.
     ]]>
     </change-notes>
 
-    <idea-version since-build="141.0"/>
+    <idea-version since-build="163"/>
 
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="Repository View"
