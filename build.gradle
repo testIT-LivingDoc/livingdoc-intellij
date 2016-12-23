@@ -7,18 +7,16 @@ apply plugin: 'idea'
 apply plugin: 'java'
 
 group 'info.novatec.testit'
-version '1.2-SNAPSHOT'
+version project.properties['livingdoc.intellij.version']
 
 repositories {
     mavenCentral()
-
-    // Uncomment to use SNAPSHOTS version
-    //maven { url 'https://oss.sonatype.org/content/repositories/snapshots'}
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots'}
 }
 
 dependencies {
 
-    compile('info.novatec.testit:livingdoc-cli:'+ project.properties['testit.livingdoc.core.version']) {
+    compile('info.novatec.testit:livingdoc-cli:'+ project.properties['livingdoc.core.version']) {
         // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
         exclude group: 'org.slf4j', module: 'slf4j-api'
 
