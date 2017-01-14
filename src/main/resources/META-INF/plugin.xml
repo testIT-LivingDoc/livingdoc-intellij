@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>info.novatec.testit.livingdoc.intellij</id>
     <name>testIT LivingDoc Intellij IDEA Plugin</name>
-    <version>1.3-SNAPSHOT</version>
+    <version>1.4-SNAPSHOT</version>
     <vendor email="livingdoc@novatec-gmbh.de" url="http://www.novatec-gmbh.de/en/">NovaTec Solutions GmbH</vendor>
 
     <description><![CDATA[
