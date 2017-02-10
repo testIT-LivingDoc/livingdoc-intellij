@@ -11,12 +11,13 @@ version project.properties['livingdoc.intellij.version']
 
 repositories {
     mavenCentral()
-    maven { url 'https://oss.sonatype.org/content/repositories/snapshots'}
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+    maven { url 'https://oss.sonatype.org/content/repositories/releases' }
 }
 
 dependencies {
 
-    compile('info.novatec.testit:livingdoc-cli:'+ project.properties['livingdoc.core.version']) {
+    compile('info.novatec.testit:livingdoc-cli:' + project.properties['livingdoc.core.version']) {
         // Exclude to resolve a conflict with slf4j lib of IntelliJ classpath.
         exclude group: 'org.slf4j', module: 'slf4j-api'
 
