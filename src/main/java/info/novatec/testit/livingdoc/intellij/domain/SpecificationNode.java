@@ -27,7 +27,7 @@ public class SpecificationNode extends Node {
         super(node.getTitle(), Icons.EXECUTABLE, NodeType.SPECIFICATION, parentNode);
 
         this.executable = node.isExecutable();
-        this.canBeImplemented = node.canBeImplemented() && node.isExecutable();
+        this.canBeImplemented = node.isCanBeImplemented() && node.isExecutable();
         this.usingCurrentVersion = false;
     }
 

@@ -24,7 +24,7 @@
     <idea-version since-build="163"/>
 
     <extensions defaultExtensionNs="com.intellij">
-        <toolWindow id="Repository View"
+        <toolWindow id="LivingDoc"
                     anchor="bottom"
                     factoryClass="info.novatec.testit.livingdoc.intellij.core.ToolWindowFactoryImpl"
                     icon="/icons/livingdoc_16.gif"

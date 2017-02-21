@@ -9,13 +9,17 @@ import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.domain.ModuleSettings;
+import info.novatec.testit.livingdoc.intellij.domain.ProjectSettings;
 import info.novatec.testit.livingdoc.intellij.gui.GuiUtils;
-import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
+import info.novatec.testit.livingdoc.intellij.rest.PluginLivingDocRestClient;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.util.CollectionUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,6 +46,8 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
     private JBTextField argsField;
     private JBLabel errorLabel;
 
+    private final ProjectSettings projectSettings;
+
 
     public ModuleSettingsEditor(@NotNull final Project project) {
 
@@ -52,6 +58,8 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
 
         centerPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("module.settings.title")));
         southPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("module.settings.sud.title")));
+
+        projectSettings = ProjectSettings.getInstance(project);
     }
 
     @Override
@@ -93,22 +101,34 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
 
     private void loadProjects(final String selectedProject) {
 
-        PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
+        PluginLivingDocRestClient service = new PluginLivingDocRestClient(projectSettings);
 
         try {
             Set<info.novatec.testit.livingdoc.server.domain.Project> projects = service.getAllProjects();
-            for (info.novatec.testit.livingdoc.server.domain.Project prj : projects) {
-                projectCombo.addItem(prj.getName());
-            }
-            if (StringUtils.isNotBlank(selectedProject)) {
-                projectCombo.setSelectedItem(selectedProject);
+
+            if(CollectionUtils.isEmpty(projects)) {
+                LOG.info(I18nSupport.getValue("module.settings.error.loading.noprojects"));
+                errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.noprojects"));
+                errorLabel.setIcon(AllIcons.General.Error);
 
             } else {
-                projectCombo.setSelectedIndex(0);
+                for (info.novatec.testit.livingdoc.server.domain.Project prj : projects) {
+                    projectCombo.addItem(prj.getName());
+                }
+                if (StringUtils.isNotBlank(selectedProject)) {
+                    projectCombo.setSelectedItem(selectedProject);
+                } else {
+                    projectCombo.setSelectedIndex(0);
+                }
             }
-        } catch (LivingDocServerException ldse) {
+        } catch (HttpServerErrorException | LivingDocServerException ldse) {
             LOG.warn(ldse);
             errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.project"));
+            errorLabel.setIcon(AllIcons.General.Error);
+
+        } catch (HttpClientErrorException hcee) {
+            LOG.warn(hcee);
+            errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.project.unauthorized"));
             errorLabel.setIcon(AllIcons.General.Error);
         }
     }
@@ -123,7 +143,7 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
         }
 
         try {
-            PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
+            PluginLivingDocRestClient service = new PluginLivingDocRestClient(projectSettings);
             Set<SystemUnderTest> systems = service.getSystemUnderTestsOfProject(selectedProject);
             for (SystemUnderTest system : systems) {
                 sudCombo.addItem(system.getName());
