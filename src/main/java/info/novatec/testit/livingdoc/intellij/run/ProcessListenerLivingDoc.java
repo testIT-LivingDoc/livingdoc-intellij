@@ -10,6 +10,7 @@ import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
+import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
 import info.novatec.testit.livingdoc.report.XmlReport;
 import info.novatec.testit.livingdoc.server.domain.Execution;
@@ -111,7 +112,8 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
                 runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.YELLOW);
 
             } else {
-                ToolWindow toolWindow = ToolWindowManager.getInstance(runConfiguration.getProject()).getToolWindow("Repository View");
+                ToolWindow toolWindow = ToolWindowManager.getInstance(runConfiguration.getProject())
+                        .getToolWindow(PluginProperties.getValue("toolwindows.id"));
                 toolWindow.activate(null);
             }
             runConfiguration.getStatusLine().formatTestMessage(finishedTestsCount + totalErrors + failuresCount + ignoreTestsCount,

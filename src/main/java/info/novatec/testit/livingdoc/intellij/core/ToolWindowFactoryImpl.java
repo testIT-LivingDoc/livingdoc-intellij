@@ -10,9 +10,10 @@ import info.novatec.testit.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * Factory class for tool window configured in plugin.xml with id="Repository View".
+ * Factory class for tool window configured in plugin.xml.
  *
  * @see ToolWindowFactory
+ * @see ToolWindowPanel
  */
 public class ToolWindowFactoryImpl implements ToolWindowFactory {
 

@@ -3,15 +3,19 @@ package info.novatec.testit.livingdoc.intellij.gui.settings;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
+import com.intellij.ui.content.Content;
 import com.intellij.util.ui.UIUtil;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.common.PluginProperties;
 import info.novatec.testit.livingdoc.intellij.domain.ProjectSettings;
 import info.novatec.testit.livingdoc.intellij.gui.GuiUtils;
-import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
+import info.novatec.testit.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
+import info.novatec.testit.livingdoc.intellij.rest.PluginLivingDocRestClient;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -28,19 +32,15 @@ import java.awt.*;
 public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
 
     private static final Logger LOG = Logger.getInstance(ProjectSettingsEditor.class);
-
+    private final String defaultServer;
     private JPanel myWholePanel;
     private JPanel centerPanel;
     private JPanel northPanel;
-
     private JBTextField urlField;
     private JBTextField userField;
     private JBPasswordField passField;
     private JButton testButton;
     private JBLabel infoLabel;
-
-    private final String defaultServer;
-
 
     public ProjectSettingsEditor(@NotNull final Project project) {
 
@@ -58,10 +58,22 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
     @Override
     public void apply(@NotNull final ProjectSettings projectSettings) {
 
-        projectSettings.setUrlServer(
-                StringUtils.defaultIfBlank(urlField.getText(), defaultServer));
-        projectSettings.setUser(userField.getText());
-        projectSettings.setPassword(String.valueOf(passField.getPassword()));
+        applyChanges(projectSettings);
+
+        refreshToolWindows();
+    }
+
+    private void refreshToolWindows() {
+
+        ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow(PluginProperties.getValue("toolwindows.id"));
+        toolWindow.activate(null);
+
+        for (Content content : toolWindow.getContentManager().getContents()) {
+            if (content.getComponent() instanceof ToolWindowPanel) {
+                ToolWindowPanel toolWindowPanel = (ToolWindowPanel) content.getComponent();
+                toolWindowPanel.getRefreshAction().actionPerformed(null);
+            }
+        }
     }
 
     @Override
@@ -90,15 +102,21 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
     private void enableOrDisableTestButton() {
 
         testButton.setEnabled(StringUtils.isNotBlank(urlField.getText()));
+    }
 
+    private void applyChanges(@NotNull ProjectSettings projectSettings) {
+        projectSettings.setUrlServer(
+                StringUtils.defaultIfBlank(urlField.getText(), defaultServer));
+        projectSettings.setUser(userField.getText());
+        projectSettings.setPassword(String.valueOf(passField.getPassword()));
     }
 
     private void testConnection() {
-
-        PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
-
         try {
-            boolean testOk = service.testConnection(urlField.getText());
+            // To save changes is better delegating in the IDE (when the user clicks on the Apply/OK buttons)
+            // so we are using a temporal ProjectSettings to test the connection
+            PluginLivingDocRestClient service = new PluginLivingDocRestClient(getTemporalProjectSetting());
+            boolean testOk = service.testConnection();
 
             infoLabel.setForeground(UIUtil.isUnderDarcula() ? Color.WHITE : Color.BLACK);
 
@@ -116,5 +134,11 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
             infoLabel.setIcon(AllIcons.General.Error);
             infoLabel.setText(ldse.getMessage());
         }
+    }
+
+    private ProjectSettings getTemporalProjectSetting() {
+        ProjectSettings projectSettings = new ProjectSettings();
+        applyChanges(projectSettings);
+        return projectSettings;
     }
 }

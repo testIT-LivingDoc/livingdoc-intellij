@@ -27,8 +27,6 @@ public final class ModuleSettings implements PersistentStateComponent<ModuleSett
 
     private static final long serialVersionUID = 813394555374572452L;
 
-    private static final String LIVINGDOC_SERVICE_NAME = "IntelliJ Platform LivingDoc ";
-
     private boolean livingDocEnabled;
     private String project;
     private String sud;

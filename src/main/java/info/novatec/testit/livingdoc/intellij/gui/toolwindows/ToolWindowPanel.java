@@ -20,11 +20,14 @@ import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.ExecuteDocu
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.OpenRemoteDocumentAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.SwitchVersionAction;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.action.TagImplementedAction;
-import info.novatec.testit.livingdoc.intellij.rpc.PluginLivingDocXmlRpcClient;
+import info.novatec.testit.livingdoc.intellij.rest.PluginLivingDocRestClient;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import info.novatec.testit.livingdoc.server.domain.Repository;
 import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -53,6 +56,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     private transient DefaultActionGroup actionGroup;
     private SimpleTree tree;
     private TestStatusLine statusLine;
+    private transient AnAction refreshAction;
 
 
     public ToolWindowPanel(Project project) {
@@ -76,11 +80,15 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     }
 
     public SimpleTree getRepositoryTree() {
-        return tree;
+        return this.tree;
     }
 
     public TestStatusLine getStatusLine() {
-        return statusLine;
+        return this.statusLine;
+    }
+
+    public AnAction getRefreshAction() {
+        return this.refreshAction;
     }
 
     private void createActionToolBar() {
@@ -179,7 +187,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
 
     private void createRefreshRepositoryAction() {
 
-        AnAction anAction = new AnAction() {
+        refreshAction = new AnAction() {
 
             @Override
             public void actionPerformed(AnActionEvent anActionEvent) {
@@ -189,15 +197,13 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
                 loadRepositories();
             }
         };
-        anAction.getTemplatePresentation().setIcon(AllIcons.Actions.Refresh);
-        anAction.getTemplatePresentation().setDescription(I18nSupport.getValue("toolwindows.action.refresh.tooltip"));
-        anAction.getTemplatePresentation().setText(I18nSupport.getValue("toolwindows.action.refresh.tooltip"));
-        actionGroup.add(anAction);
+        refreshAction.getTemplatePresentation().setIcon(AllIcons.Actions.Refresh);
+        refreshAction.getTemplatePresentation().setDescription(I18nSupport.getValue("toolwindows.action.refresh.tooltip"));
+        refreshAction.getTemplatePresentation().setText(I18nSupport.getValue("toolwindows.action.refresh.tooltip"));
+        actionGroup.add(refreshAction);
     }
 
     private void loadRepositories() {
-
-        PluginLivingDocXmlRpcClient service = new PluginLivingDocXmlRpcClient(project);
 
         for (Module module : ModuleManager.getInstance(project).getModules()) {
 
@@ -205,36 +211,54 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
             if (moduleSettings.isLivingDocEnabled()) {
 
                 ModuleNode moduleNode = new ModuleNode(
-                        module.getName() + " [" + moduleSettings.getSud() + "]",
+                        module.getName() + " [" + StringUtils.defaultIfBlank(moduleSettings.getSud(),
+                                I18nSupport.getValue("toolwindows.error.loading.repositories.noproject")) + "]",
                         module.getName());
                 DefaultMutableTreeNode moduleTreeNode = new DefaultMutableTreeNode(moduleNode);
                 rootNode.add(moduleTreeNode);
 
-                SystemUnderTest systemUnderTest = SystemUnderTest.newInstance(moduleSettings.getSud());
-                systemUnderTest.setProject(info.novatec.testit.livingdoc.server.domain.Project.newInstance(moduleSettings.getProject()));
-
-                try {
-                    Set<Repository> repositories = service.getAllRepositoriesForSystemUnderTest(systemUnderTest);
-
-                    for (Repository repository : repositories) {
-
-                        RepositoryNode repositoryNode;
-                        repositoryNode = new RepositoryNode(repository.getProject().getName(), moduleNode);
-                        repositoryNode.setRepository(repository);
-                        DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
-                        moduleTreeNode.add(childNode);
-
-                        DocumentNode documentNode = service.getSpecificationHierarchy(repository, systemUnderTest);
-                        paintDocumentNode(documentNode.getChildren(), childNode);
-                    }
-                } catch (LivingDocServerException ldse) {
-                    LOG.error(ldse);
-                    resetTree(RepositoryViewUtils.getErrorNode(I18nSupport.getValue("toolwindows.error.loading.repositories")
-                            + ldse.getMessage()));
-                }
+                loadSystemUnderTests(moduleSettings, moduleNode, moduleTreeNode);
             }
         }
         treeModel.reload();
+    }
+
+    private void loadSystemUnderTests(ModuleSettings moduleSettings, ModuleNode moduleNode, DefaultMutableTreeNode moduleTreeNode) {
+
+        PluginLivingDocRestClient service = new PluginLivingDocRestClient(ProjectSettings.getInstance(project));
+
+        SystemUnderTest systemUnderTest = SystemUnderTest.newInstance(moduleSettings.getSud());
+        systemUnderTest.setProject(info.novatec.testit.livingdoc.server.domain.Project.newInstance(moduleSettings.getProject()));
+
+        try {
+            Set<Repository> repositories = service.getAllRepositoriesForSystemUnderTest(systemUnderTest);
+
+            for (Repository repository : repositories) {
+
+                RepositoryNode repositoryNode;
+                repositoryNode = new RepositoryNode(repository.getProject().getName(), moduleNode);
+                repositoryNode.setRepository(repository);
+                DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
+                moduleTreeNode.add(childNode);
+
+                DocumentNode documentNode = service.getSpecificationHierarchy(repository, systemUnderTest);
+                paintDocumentNode(documentNode.getChildren(), childNode);
+            }
+        } catch (LivingDocServerException ldse) {
+            LOG.error(ldse);
+            resetTree(RepositoryViewUtils.getErrorNode(I18nSupport.getValue("toolwindows.error.loading.repositories")
+                    + ldse.getMessage()));
+
+        } catch (HttpClientErrorException hcee) {
+            LOG.warn(hcee);
+            resetTree(RepositoryViewUtils.getErrorNode(I18nSupport.getValue("toolwindows.error.loading.repositories.unauthorized")
+                    + hcee.getMessage()));
+
+        } catch (HttpServerErrorException hsee) {
+            LOG.error(hsee);
+            resetTree(RepositoryViewUtils.getErrorNode(I18nSupport.getValue("toolwindows.error.loading.repositories.internal")
+                    + hsee.getMessage()));
+        }
     }
 
     private Node getDefaultRootNode() {
@@ -281,7 +305,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
 
         List<DefaultMutableTreeNode> childrenList = Collections.list(node.children());
 
-        Collections.sort(childrenList, (o1, o2) ->
+        childrenList.sort((o1, o2) ->
                 ((Node) o1.getUserObject()).getName().compareToIgnoreCase(((Node) o2.getUserObject()).getName()));
 
         node.removeAllChildren();
