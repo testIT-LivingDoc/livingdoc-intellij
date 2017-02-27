@@ -4,7 +4,6 @@ import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
 import com.intellij.ide.browsers.BrowserLauncher;
 import com.intellij.ide.browsers.BrowserLauncherImpl;
-import com.intellij.ide.browsers.WebBrowserManager;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.wm.ToolWindow;
@@ -76,8 +75,7 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
                 File resultFile = loadResultFile(specification);
 
                 BrowserLauncher browser = new BrowserLauncherImpl();
-                browser.browse(resultFile.getPath(), WebBrowserManager.getInstance().getFirstActiveBrowser(),
-                        runConfiguration.getProject());
+                browser.open(resultFile.getPath());
 
             } catch (IOException | SAXException e) {
                 LOG.error(e);
