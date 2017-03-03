@@ -50,7 +50,7 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
         northPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("global.settings.title")));
         centerPanel.setBorder(GuiUtils.createTitledBorder(I18nSupport.getValue("global.settings.subtitle")));
 
-        testButton.addActionListener(actionEvent -> testConnection());
+        testButton.addActionListener(actionEvent -> testConnectionAction());
 
         defaultServer = PluginProperties.getValue("livingdoc.url.default");
     }
@@ -59,6 +59,12 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
     public void apply(@NotNull final ProjectSettings projectSettings) {
 
         applyChanges(projectSettings);
+
+        try {
+            projectSettings.setConnected(testConnection(projectSettings));
+        } catch (LivingDocServerException ldse) {
+            LOG.warn(ldse);
+        }
 
         refreshToolWindows();
     }
@@ -111,16 +117,24 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
         projectSettings.setPassword(String.valueOf(passField.getPassword()));
     }
 
-    private void testConnection() {
-        try {
-            // To save changes is better delegating in the IDE (when the user clicks on the Apply/OK buttons)
-            // so we are using a temporal ProjectSettings to test the connection
-            PluginLivingDocRestClient service = new PluginLivingDocRestClient(getTemporalProjectSetting());
-            boolean testOk = service.testConnection();
+    private boolean testConnection(@NotNull ProjectSettings projectSettings) throws LivingDocServerException {
+        // To save changes is better delegating in the IDE (when the user clicks on the Apply/OK buttons)
+        // so we are using a temporal ProjectSettings to test the connection
+        PluginLivingDocRestClient service = new PluginLivingDocRestClient(projectSettings);
 
+        boolean result = false;
+
+        if(StringUtils.isNoneBlank(projectSettings.getPassword(), projectSettings.getUser(),projectSettings.getUrlServer())){
+            result = service.testConnection();
+        }
+        return result;
+    }
+
+    private void testConnectionAction() {
+        try {
             infoLabel.setForeground(UIUtil.isUnderDarcula() ? Color.WHITE : Color.BLACK);
 
-            if (testOk) {
+            if (testConnection(getTemporalProjectSetting())) {
                 infoLabel.setIcon(AllIcons.General.Information);
                 infoLabel.setText(I18nSupport.getValue("global.settings.button.test.ok"));
 

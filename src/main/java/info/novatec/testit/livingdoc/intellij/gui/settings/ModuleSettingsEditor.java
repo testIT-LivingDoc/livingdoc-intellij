@@ -71,7 +71,7 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
         moduleSettings.setSudArgs(argsField.getText());
     }
 
-    @Override
+       @Override
     public boolean isModified(@NotNull final ModuleSettings moduleSettings) {
 
         enableOrDisablePanel();
@@ -92,8 +92,13 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
         livingDocEnabledCheck.setSelected(isLivingDocEnabled);
 
         projectCombo.addActionListener(actionEvent -> loadSud(moduleSettings.getSud()));
+        livingDocEnabledCheck.addChangeListener(actionEvent -> enableOrDisablePanel());
 
-        loadProjects(moduleSettings.getProject());
+        if(projectSettings.isConnected()) {
+            loadProjects(moduleSettings.getProject());
+        } else {
+            errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.project.unauthorized"));
+        }
 
         classField.setText(moduleSettings.getSudClassName());
         argsField.setText(moduleSettings.getSudArgs());

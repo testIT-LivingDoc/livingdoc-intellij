@@ -30,7 +30,7 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
 
     private String urlServer;
     private String user;
-
+    private boolean isConnected;
 
     @NotNull
     public static ProjectSettings getInstance(@NotNull final Project project) {
@@ -62,6 +62,14 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
 
     public void setUser(final String user) {
         this.user = user;
+    }
+
+    public boolean isConnected() {
+        return isConnected;
+    }
+
+    public void setConnected(final boolean connected) {
+        isConnected = connected;
     }
 
     public String getPassword() {
