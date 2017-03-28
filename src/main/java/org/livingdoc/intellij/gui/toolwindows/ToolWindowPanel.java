@@ -20,12 +20,12 @@ import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import org.apache.commons.lang3.StringUtils;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.NodeType;
+import org.livingdoc.intellij.connector.LivingDocConnector;
 import org.livingdoc.intellij.domain.*;
 import org.livingdoc.intellij.gui.toolwindows.action.ExecuteDocumentAction;
 import org.livingdoc.intellij.gui.toolwindows.action.OpenRemoteDocumentAction;
 import org.livingdoc.intellij.gui.toolwindows.action.SwitchVersionAction;
 import org.livingdoc.intellij.gui.toolwindows.action.TagImplementedAction;
-import org.livingdoc.intellij.rest.PluginLivingDocRestClient;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
 
@@ -225,13 +225,13 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
 
     private void loadSystemUnderTests(ModuleSettings moduleSettings, ModuleNode moduleNode, DefaultMutableTreeNode moduleTreeNode) {
 
-        PluginLivingDocRestClient service = new PluginLivingDocRestClient(ProjectSettings.getInstance(project));
+        LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(project));
 
         SystemUnderTest systemUnderTest = SystemUnderTest.newInstance(moduleSettings.getSud());
         systemUnderTest.setProject(info.novatec.testit.livingdoc.server.domain.Project.newInstance(moduleSettings.getProject()));
 
         try {
-            Set<Repository> repositories = service.getAllRepositoriesForSystemUnderTest(systemUnderTest);
+            Set<Repository> repositories = livingDocConnector.getAllRepositoriesForSystemUnderTest(systemUnderTest);
 
             for (Repository repository : repositories) {
 
@@ -241,7 +241,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
                 DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
                 moduleTreeNode.add(childNode);
 
-                DocumentNode documentNode = service.getSpecificationHierarchy(repository, systemUnderTest);
+                DocumentNode documentNode = livingDocConnector.getSpecificationHierarchy(repository, systemUnderTest);
                 paintDocumentNode(documentNode.getChildren(), childNode);
             }
         } catch (LivingDocServerException ldse) {

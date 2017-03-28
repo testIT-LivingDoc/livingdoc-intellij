@@ -31,6 +31,7 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
     private String urlServer;
     private String user;
     private boolean isConnected;
+    private LivingDocVersion livingDocVersion = LivingDocVersion.LEGACY; //FIXME
 
     @NotNull
     public static ProjectSettings getInstance(@NotNull final Project project) {
@@ -98,5 +99,13 @@ public final class ProjectSettings implements PersistentStateComponent<ProjectSe
         PasswordSafe passwordSafe = PasswordSafe.getInstance();
         passwordSafe.set(credentialAttributes, credentials);
 
+    }
+
+    public LivingDocVersion getLivingDocVersion() {
+        return livingDocVersion;
+    }
+
+    public void setLivingDocVersion(LivingDocVersion livingDocVersion) {
+        this.livingDocVersion = livingDocVersion;
     }
 }

@@ -13,10 +13,10 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.livingdoc.intellij.common.I18nSupport;
+import org.livingdoc.intellij.connector.LivingDocConnector;
 import org.livingdoc.intellij.domain.ModuleSettings;
 import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.gui.GuiUtils;
-import org.livingdoc.intellij.rest.PluginLivingDocRestClient;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpServerErrorException;
@@ -103,10 +103,10 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
 
     private void loadProjects(final String selectedProject) {
 
-        PluginLivingDocRestClient service = new PluginLivingDocRestClient(projectSettings);
+        LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(projectSettings);
 
         try {
-            Set<info.novatec.testit.livingdoc.server.domain.Project> projects = service.getAllProjects();
+            Set<info.novatec.testit.livingdoc.server.domain.Project> projects = livingDocConnector.getAllProjects();
 
             if (CollectionUtils.isEmpty(projects)) {
                 LOG.info(I18nSupport.getValue("module.settings.error.loading.noprojects"));
@@ -145,8 +145,8 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
         }
 
         try {
-            PluginLivingDocRestClient service = new PluginLivingDocRestClient(projectSettings);
-            Set<SystemUnderTest> systems = service.getSystemUnderTestsOfProject(selectedProject);
+            LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(projectSettings);
+            Set<SystemUnderTest> systems = livingDocConnector.getSystemUnderTestsOfProject(selectedProject);
             for (SystemUnderTest system : systems) {
                 sudCombo.addItem(system.getName());
             }

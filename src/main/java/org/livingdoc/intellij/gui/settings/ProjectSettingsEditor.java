@@ -15,10 +15,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.PluginProperties;
+import org.livingdoc.intellij.connector.LivingDocConnector;
 import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.gui.GuiUtils;
 import org.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
-import org.livingdoc.intellij.rest.PluginLivingDocRestClient;
 
 import javax.swing.*;
 import java.awt.*;
@@ -120,12 +120,13 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
     private boolean testConnection(@NotNull ProjectSettings projectSettings) throws LivingDocServerException {
         // To save changes is better delegating in the IDE (when the user clicks on the Apply/OK buttons)
         // so we are using a temporal ProjectSettings to test the connection
-        PluginLivingDocRestClient service = new PluginLivingDocRestClient(projectSettings);
+        LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(projectSettings);
+
 
         boolean result = false;
 
         if (StringUtils.isNoneBlank(projectSettings.getPassword(), projectSettings.getUser(), projectSettings.getUrlServer())) {
-            result = service.testConnection();
+            result = livingDocConnector.testConnection();
         }
         return result;
     }
