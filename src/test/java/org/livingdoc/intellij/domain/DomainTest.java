@@ -11,7 +11,7 @@ public class DomainTest {
 
     @Test
     public void testForDomainCoverage() throws Exception {
-        final String[] listPackages = new String[]{"info.novatec.testit.livingdoc.intellij.domain"};
+        final String[] listPackages = new String[]{"org.livingdoc.intellij.domain"};
         for (final String sPackage : listPackages) {
             final Set<Class<?>> classes = ClassUtils.getClasses(sPackage);
             if (classes != null) {

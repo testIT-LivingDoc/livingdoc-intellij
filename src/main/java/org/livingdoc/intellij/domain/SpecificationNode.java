@@ -1,6 +1,5 @@
 package org.livingdoc.intellij.domain;
 
-import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.livingdoc.intellij.common.Icons;
 import org.livingdoc.intellij.common.NodeType;
@@ -8,7 +7,6 @@ import org.livingdoc.intellij.common.NodeType;
 /**
  * Custom tree node for LivingDoc plugin.
  * It's the user object for {@link javax.swing.tree.DefaultMutableTreeNode}
- * Built from {@link info.novatec.testit.livingdoc.server.domain.DocumentNode}
  *
  * @see Node
  */
@@ -17,17 +15,12 @@ public class SpecificationNode extends Node {
     private boolean executable;
     private boolean canBeImplemented;
     private boolean usingCurrentVersion;
+    
 
-    public SpecificationNode() {
-        super();
-    }
+    public SpecificationNode(final String speficicationName, final Node parentNode) {
 
-    public SpecificationNode(final DocumentNode node, final Node parentNode) {
+        super(speficicationName, Icons.EXECUTABLE, NodeType.SPECIFICATION, parentNode);
 
-        super(node.getTitle(), Icons.EXECUTABLE, NodeType.SPECIFICATION, parentNode);
-
-        this.executable = node.isExecutable();
-        this.canBeImplemented = node.isCanBeImplemented() && node.isExecutable();
         this.usingCurrentVersion = false;
     }
 
@@ -35,7 +28,7 @@ public class SpecificationNode extends Node {
     public String toString() {
         return new ToStringBuilder(this)
                 .append("executable", executable)
-                .append("isCanBeImplemented", canBeImplemented)
+                .append("canBeImplemented", canBeImplemented)
                 .append("usingCurrentVersion", usingCurrentVersion)
                 .toString();
     }

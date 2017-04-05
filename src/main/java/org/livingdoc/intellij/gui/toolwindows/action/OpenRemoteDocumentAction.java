@@ -6,10 +6,11 @@ import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.ui.treeStructure.SimpleTree;
-import info.novatec.testit.livingdoc.server.domain.Specification;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.NodeType;
+import org.livingdoc.intellij.connector.LivingDocConnector;
 import org.livingdoc.intellij.domain.Node;
+import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.domain.RepositoryNode;
 import org.livingdoc.intellij.domain.SpecificationNode;
 import org.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
@@ -63,12 +64,12 @@ public class OpenRemoteDocumentAction extends AnAction {
             for (DefaultMutableTreeNode selectedNode : selectedNodes) {
 
                 userObject = selectedNode.getUserObject();
-
                 specificationNode = (SpecificationNode) userObject;
-                Specification specification = Specification.newInstance(specificationNode.getName());
-                specification.setRepository(repositoryNode.getRepository());
 
-                browser.open(specification.getRepository().getType().resolveName(specification));
+                LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(actionEvent.getProject()));
+                String url = livingDocConnector.getSpecificationRemoteUrl(specificationNode, repositoryNode);
+
+                browser.open(url);
             }
         }
     }

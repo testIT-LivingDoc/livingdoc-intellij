@@ -10,12 +10,12 @@ import com.intellij.ui.components.JBPasswordField;
 import com.intellij.ui.components.JBTextField;
 import com.intellij.ui.content.Content;
 import com.intellij.util.ui.UIUtil;
-import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.PluginProperties;
 import org.livingdoc.intellij.connector.LivingDocConnector;
+import org.livingdoc.intellij.domain.LivingDocException;
 import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.gui.GuiUtils;
 import org.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
@@ -62,8 +62,8 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
 
         try {
             projectSettings.setConnected(testConnection(projectSettings));
-        } catch (LivingDocServerException ldse) {
-            LOG.warn(ldse);
+        } catch (LivingDocException lde) {
+            LOG.warn(lde);
         }
 
         refreshToolWindows();
@@ -106,7 +106,6 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
     }
 
     private void enableOrDisableTestButton() {
-
         testButton.setEnabled(StringUtils.isNotBlank(urlField.getText()));
     }
 
@@ -117,11 +116,10 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
         projectSettings.setPassword(String.valueOf(passField.getPassword()));
     }
 
-    private boolean testConnection(@NotNull ProjectSettings projectSettings) throws LivingDocServerException {
+    private boolean testConnection(@NotNull ProjectSettings projectSettings) throws LivingDocException {
         // To save changes is better delegating in the IDE (when the user clicks on the Apply/OK buttons)
         // so we are using a temporal ProjectSettings to test the connection
         LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(projectSettings);
-
 
         boolean result = false;
 
@@ -143,11 +141,11 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
                 infoLabel.setIcon(AllIcons.General.Warning);
                 infoLabel.setText(I18nSupport.getValue("global.settings.button.test.ko"));
             }
-        } catch (LivingDocServerException ldse) {
-            LOG.warn(ldse);
+        } catch (LivingDocException lde) {
+            LOG.warn(lde);
             infoLabel.setForeground(Color.RED);
             infoLabel.setIcon(AllIcons.General.Error);
-            infoLabel.setText(ldse.getMessage());
+            infoLabel.setText(lde.getMessage());
         }
     }
 

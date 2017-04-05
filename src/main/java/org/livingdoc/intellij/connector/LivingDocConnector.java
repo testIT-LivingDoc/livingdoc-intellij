@@ -1,16 +1,12 @@
 package org.livingdoc.intellij.connector;
 
-import info.novatec.testit.livingdoc.server.LivingDocServerException;
-import info.novatec.testit.livingdoc.server.domain.DocumentNode;
-import info.novatec.testit.livingdoc.server.domain.Project;
-import info.novatec.testit.livingdoc.server.domain.Repository;
-import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import org.jetbrains.annotations.NotNull;
 import org.livingdoc.intellij.connector.legacy.LegacyLivingDocConnectorImpl;
 import org.livingdoc.intellij.connector.livingdoc.LivingDocConnectorImpl;
-import org.livingdoc.intellij.domain.ProjectSettings;
+import org.livingdoc.intellij.domain.*;
 
-import java.util.Set;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.List;
 
 /**
  * TODO document me
@@ -34,13 +30,19 @@ public interface LivingDocConnector {
         return connector;
     }
 
-    boolean testConnection() throws LivingDocServerException;
+    boolean testConnection() throws LivingDocException;
 
-    Set<Project> getAllProjects() throws LivingDocServerException;
+    List<String> getAllProjects() throws LivingDocException;
 
-    Set<SystemUnderTest> getSystemUnderTestsOfProject(@NotNull String projectName) throws LivingDocServerException;
+    List<String> getSystemUnderTestsOfProject(@NotNull final String projectName) throws LivingDocException;
 
-    Set<Repository> getAllRepositoriesForSystemUnderTest(SystemUnderTest systemUnderTest) throws LivingDocServerException;
+    List<RepositoryNode> getAllRepositoriesForSystemUnderTest(@NotNull final ModuleNode moduleNode) throws LivingDocException;
 
-    DocumentNode getSpecificationHierarchy(Repository repository, SystemUnderTest systemUnderTest) throws LivingDocServerException;
+    void getSpecificationHierarchy(@NotNull final RepositoryNode repositoryNode, @NotNull final ModuleNode moduleNode, @NotNull final DefaultMutableTreeNode parentNode) throws LivingDocException;
+
+    void tagDocumentAsImplemented(@NotNull final SpecificationNode specificationNode) throws Exception;
+
+    String getSpecificationRemoteUrl(@NotNull final SpecificationNode specificationNode, @NotNull final RepositoryNode repositoryNode);
+
+    String getLivingDocMainClass();
 }

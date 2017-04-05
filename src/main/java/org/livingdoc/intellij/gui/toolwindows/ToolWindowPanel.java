@@ -13,10 +13,6 @@ import com.intellij.ui.PopupHandler;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.SimpleTree;
-import info.novatec.testit.livingdoc.server.LivingDocServerException;
-import info.novatec.testit.livingdoc.server.domain.DocumentNode;
-import info.novatec.testit.livingdoc.server.domain.Repository;
-import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import org.apache.commons.lang3.StringUtils;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.NodeType;
@@ -33,9 +29,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 
 /**
@@ -214,40 +208,38 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
                         module.getName() + " [" + StringUtils.defaultIfBlank(moduleSettings.getSud(),
                                 I18nSupport.getValue("toolwindows.error.loading.repositories.noproject")) + "]",
                         module.getName());
+                moduleNode.setSystemUnderTest(moduleSettings.getSud());
+                moduleNode.setProject(moduleSettings.getProject());
+
                 DefaultMutableTreeNode moduleTreeNode = new DefaultMutableTreeNode(moduleNode);
                 rootNode.add(moduleTreeNode);
 
-                loadSystemUnderTests(moduleSettings, moduleNode, moduleTreeNode);
+                loadSystemUnderTests(moduleNode, moduleTreeNode);
             }
         }
         treeModel.reload();
     }
 
-    private void loadSystemUnderTests(ModuleSettings moduleSettings, ModuleNode moduleNode, DefaultMutableTreeNode moduleTreeNode) {
+    private void loadSystemUnderTests(ModuleNode moduleNode, DefaultMutableTreeNode moduleTreeNode) {
 
         LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(project));
 
-        SystemUnderTest systemUnderTest = SystemUnderTest.newInstance(moduleSettings.getSud());
-        systemUnderTest.setProject(info.novatec.testit.livingdoc.server.domain.Project.newInstance(moduleSettings.getProject()));
-
         try {
-            Set<Repository> repositories = livingDocConnector.getAllRepositoriesForSystemUnderTest(systemUnderTest);
+            List<RepositoryNode> repositories = livingDocConnector.getAllRepositoriesForSystemUnderTest(moduleNode);
 
-            for (Repository repository : repositories) {
+            for (RepositoryNode repositoryNode : repositories) {
 
-                RepositoryNode repositoryNode;
-                repositoryNode = new RepositoryNode(repository.getProject().getName(), moduleNode);
-                repositoryNode.setRepository(repository);
+                repositoryNode.setParent(moduleNode);
+
                 DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
                 moduleTreeNode.add(childNode);
 
-                DocumentNode documentNode = livingDocConnector.getSpecificationHierarchy(repository, systemUnderTest);
-                paintDocumentNode(documentNode.getChildren(), childNode);
+                livingDocConnector.getSpecificationHierarchy(repositoryNode, moduleNode, childNode);
             }
-        } catch (LivingDocServerException ldse) {
-            LOG.error(ldse);
+        } catch (LivingDocException lde) {
+            LOG.error(lde);
             resetTree(RepositoryViewUtils.getErrorNode(I18nSupport.getValue("toolwindows.error.loading.repositories")
-                    + ldse.getMessage()));
+                    + lde.getMessage()));
 
         } catch (HttpClientErrorException hcee) {
             LOG.warn(hcee);
@@ -264,51 +256,5 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     private Node getDefaultRootNode() {
         return new Node(project.getName() /*+ " [" + ldProject.getSystemUnderTest().getName() + "]"*/,
                 AllIcons.Nodes.Project, NodeType.PROJECT, null);
-    }
-
-    /**
-     * @param childNode  {@link DocumentNode}
-     * @param userObject {@link Node}
-     * @return {@link SpecificationNode}
-     */
-    private SpecificationNode convertDocumentNodeToLDNode(final DocumentNode childNode, final Node userObject) {
-
-        SpecificationNode specificationNode = new SpecificationNode(childNode, userObject);
-        specificationNode.setIcon(RepositoryViewUtils.getNodeIcon(specificationNode));
-        return specificationNode;
-    }
-
-    /**
-     * This recursive method adds a node into the repository tree.<br>
-     * Only the executable nodes or nodes with children will be painted.
-     *
-     * @param children   {@link java.util.List}
-     * @param parentNode {@link DefaultMutableTreeNode} Parent node of children nodes indicated in the first parameter.
-     * @see DocumentNode
-     */
-    private void paintDocumentNode(java.util.List<DocumentNode> children, DefaultMutableTreeNode parentNode) {
-
-        children.stream().filter(child -> child.isExecutable() || (!child.isExecutable() && child.hasChildren())).forEach(child -> {
-
-            SpecificationNode ldNode = convertDocumentNodeToLDNode(child, (Node) parentNode.getUserObject());
-            DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(ldNode);
-            parentNode.add(childNode);
-
-            if (child.hasChildren()) {
-                paintDocumentNode(child.getChildren(), childNode);
-            }
-        });
-        sortChildren(parentNode);
-    }
-
-    private void sortChildren(DefaultMutableTreeNode node) {
-
-        List<DefaultMutableTreeNode> childrenList = Collections.list(node.children());
-
-        childrenList.sort((o1, o2) ->
-                ((Node) o1.getUserObject()).getName().compareToIgnoreCase(((Node) o2.getUserObject()).getName()));
-
-        node.removeAllChildren();
-        childrenList.forEach(node::add);
     }
 }

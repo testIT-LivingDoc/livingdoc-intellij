@@ -5,9 +5,10 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.ui.treeStructure.SimpleTree;
-import info.novatec.testit.livingdoc.repository.DocumentRepository;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.Icons;
+import org.livingdoc.intellij.connector.LivingDocConnector;
+import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.domain.SpecificationNode;
 import org.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
 
@@ -52,10 +53,8 @@ public class TagImplementedAction extends AnAction {
         SpecificationNode specificationNode = (SpecificationNode) nodes[0].getUserObject();
 
         try {
-            DocumentRepository documentRepository =
-                    RepositoryViewUtils.getRepositoryNode(specificationNode)
-                            .getRepository().asDocumentRepository(getClass().getClassLoader());
-            documentRepository.setDocumentAsImplemented(specificationNode.getName());
+            LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(anActionEvent.getProject()));
+            livingDocConnector.tagDocumentAsImplemented(specificationNode);
 
             specificationNode.setUsingCurrentVersion(false);
             specificationNode.setCanBeImplemented(false);
@@ -63,7 +62,7 @@ public class TagImplementedAction extends AnAction {
 
         } catch (Exception e) {
             LOG.error(e);
-            nodes[0].setUserObject(RepositoryViewUtils.getErrorNode(specificationNode.getName() + " (" + e.getMessage() + ")"));
+            nodes[0].setUserObject(RepositoryViewUtils.getErrorNode(specificationNode.getNodeName() + " (" + e.getMessage() + ")"));
         }
         repositoryTree.getSelectionModel().clearSelection();
     }

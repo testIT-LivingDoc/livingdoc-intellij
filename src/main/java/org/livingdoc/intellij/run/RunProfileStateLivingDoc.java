@@ -109,6 +109,7 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
         return specificationFile.getAbsolutePath();
     }
 
+    // FIXME Move LivingDoc dependencies to the connector layer.
     private void buildSpecificationFile(@NotNull final File specificationFile) throws ExecutionException {
 
         ClassLoader classLoader = getClass().getClassLoader();

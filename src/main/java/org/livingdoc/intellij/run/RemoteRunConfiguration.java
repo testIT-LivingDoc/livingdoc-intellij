@@ -87,6 +87,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
         return new RunProfileStateLivingDoc(environment);
     }
 
+    // FIXME Move LivingDoc dependencies to the connector layer.
     public Repository getRepository() {
         Repository repository = Repository.newInstance(repositoryUID);
         repository.setName(repositoryName);

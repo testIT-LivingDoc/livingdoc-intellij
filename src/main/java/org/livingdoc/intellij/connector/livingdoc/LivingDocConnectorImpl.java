@@ -1,47 +1,58 @@
 package org.livingdoc.intellij.connector.livingdoc;
 
-import info.novatec.testit.livingdoc.server.LivingDocServerException;
-import info.novatec.testit.livingdoc.server.domain.DocumentNode;
-import info.novatec.testit.livingdoc.server.domain.Project;
-import info.novatec.testit.livingdoc.server.domain.Repository;
-import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import org.jetbrains.annotations.NotNull;
 import org.livingdoc.intellij.connector.LivingDocConnector;
+import org.livingdoc.intellij.domain.LivingDocException;
+import org.livingdoc.intellij.domain.ModuleNode;
+import org.livingdoc.intellij.domain.RepositoryNode;
+import org.livingdoc.intellij.domain.SpecificationNode;
 
-import java.util.Set;
+import javax.swing.tree.DefaultMutableTreeNode;
+import java.util.Collections;
+import java.util.List;
 
 /**
- * TODO document me
+ * TODO document me for LivingDoc2
  */
 public class LivingDocConnectorImpl implements LivingDocConnector {
 
     @Override
-    public boolean testConnection() throws LivingDocServerException {
-        // TODO for LivingDoc 2
+    public boolean testConnection() throws LivingDocException {
         return false;
     }
 
     @Override
-    public Set<Project> getAllProjects() throws LivingDocServerException {
-        // TODO for LivingDoc 2
+    public List<String> getAllProjects() throws LivingDocException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<String> getSystemUnderTestsOfProject(@NotNull final String projectName) throws LivingDocException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public List<RepositoryNode> getAllRepositoriesForSystemUnderTest(@NotNull final ModuleNode moduleNode) throws LivingDocException {
+        return Collections.emptyList();
+    }
+
+    @Override
+    public void getSpecificationHierarchy(@NotNull RepositoryNode repositoryNode, @NotNull final ModuleNode moduleNode, @NotNull final DefaultMutableTreeNode parentNode) throws LivingDocException {
+        // not implemented yet
+    }
+
+    @Override
+    public void tagDocumentAsImplemented(@NotNull SpecificationNode specificationNode) {
+        // not implemented yet
+    }
+
+    @Override
+    public String getSpecificationRemoteUrl(@NotNull SpecificationNode specificationNode, @NotNull RepositoryNode repositoryNode) {
         return null;
     }
 
     @Override
-    public Set<SystemUnderTest> getSystemUnderTestsOfProject(@NotNull String projectName) throws LivingDocServerException {
-        // TODO for LivingDoc 2
-        return null;
-    }
-
-    @Override
-    public Set<Repository> getAllRepositoriesForSystemUnderTest(SystemUnderTest systemUnderTest) throws LivingDocServerException {
-        // TODO for LivingDoc 2
-        return null;
-    }
-
-    @Override
-    public DocumentNode getSpecificationHierarchy(Repository repository, SystemUnderTest systemUnderTest) throws LivingDocServerException {
-        // TODO for LivingDoc 2
+    public String getLivingDocMainClass() {
         return null;
     }
 }

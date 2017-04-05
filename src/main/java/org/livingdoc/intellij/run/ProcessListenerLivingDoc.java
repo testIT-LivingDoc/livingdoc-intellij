@@ -122,6 +122,7 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
         });
     }
 
+    // FIXME Move LivingDoc dependencies to the connector layer.
     private Specification buildSpecificationReport() throws IOException, SAXException {
 
         File reportFile = livingDocFilesManager.createReportFile();

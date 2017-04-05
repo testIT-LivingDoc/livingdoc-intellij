@@ -11,15 +11,12 @@ import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
 import com.intellij.openapi.project.Project;
-import info.novatec.testit.livingdoc.runner.Main;
-import info.novatec.testit.livingdoc.server.domain.Repository;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.livingdoc.intellij.common.I18nSupport;
+import org.livingdoc.intellij.connector.LivingDocConnector;
 import org.livingdoc.intellij.core.ConfigurationTypeLivingDoc;
-import org.livingdoc.intellij.domain.ModuleNode;
-import org.livingdoc.intellij.domain.ModuleSettings;
-import org.livingdoc.intellij.domain.RepositoryNode;
-import org.livingdoc.intellij.domain.SpecificationNode;
+import org.livingdoc.intellij.domain.*;
 import org.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
 import org.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
 import org.livingdoc.intellij.run.RemoteRunConfiguration;
@@ -98,7 +95,7 @@ public class ExecuteDocumentAction extends AnAction {
 
                 RunnerAndConfigurationSettings runnerAndConfigurationSettings =
                         runManager.getConfigurationTemplate(livingDocConfigurationType.getConfigurationFactories()[0]);
-                runnerAndConfigurationSettings.setName(specificationNode.getName());
+                runnerAndConfigurationSettings.setName(specificationNode.getNodeName());
                 runnerAndConfigurationSettings.setTemporary(false);
 
                 // True to active the "Run" ToolWindow
@@ -139,23 +136,23 @@ public class ExecuteDocumentAction extends AnAction {
         RepositoryViewUtils.setEnabledForExecutableNode(selectedNodes, actionEvent.getPresentation());
     }
 
-    private void fillRunConfiguration(RemoteRunConfiguration runConfiguration, final SpecificationNode specificationNode) {
+    private void fillRunConfiguration(@NotNull RemoteRunConfiguration runConfiguration, final SpecificationNode specificationNode) {
 
         ModuleNode moduleNode = RepositoryViewUtils.getModuleNode(specificationNode);
         runConfiguration.getAllModules().stream().filter(
                 module -> StringUtils.equals(module.getName(), moduleNode.getModuleName())).forEach(runConfiguration::setModule);
 
         RepositoryNode repositoryNode = RepositoryViewUtils.getRepositoryNode(specificationNode);
-        Repository repository = repositoryNode.getRepository();
 
-        runConfiguration.setRepositoryUID(repository.getUid());
-        runConfiguration.setRepositoryURL(repository.getBaseTestUrl());
-        runConfiguration.setSpecificationName(specificationNode.getName());
-        runConfiguration.setRepositoryClass(repository.getType().getClassName());
+        runConfiguration.setRepositoryUID(repositoryNode.getUid());
+        runConfiguration.setRepositoryURL(repositoryNode.getBaseTestUrl());
+        runConfiguration.setSpecificationName(specificationNode.getNodeName());
+        runConfiguration.setRepositoryClass(repositoryNode.getTypeClassName());
         runConfiguration.setCurrentVersion(specificationNode.isUsingCurrentVersion());
-        runConfiguration.setRepositoryName(repository.getName());
+        runConfiguration.setRepositoryName(repositoryNode.getName());
 
-        runConfiguration.MAIN_CLASS_NAME = Main.class.getName();
+        LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(runConfiguration.getProject()));
+        runConfiguration.MAIN_CLASS_NAME = livingDocConnector.getLivingDocMainClass();
 
         runConfiguration.setStatusLine(toolWindowPanel.getStatusLine());
         runConfiguration.setSelectedNode(specificationNode);

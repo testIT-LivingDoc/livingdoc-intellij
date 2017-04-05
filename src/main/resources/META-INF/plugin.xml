@@ -1,5 +1,5 @@
 <idea-plugin version="2">
-    <id>info.novatec.testit.livingdoc.intellij</id>
+    <id>org.livingdoc.intellij</id>
     <name>testIT LivingDoc Intellij IDEA Plugin</name>
     <version>1.4-SNAPSHOT</version>
     <vendor email="livingdoc@novatec-gmbh.de" url="http://www.novatec-gmbh.de/en/">NovaTec Solutions GmbH</vendor>
@@ -26,23 +26,23 @@
     <extensions defaultExtensionNs="com.intellij">
         <toolWindow id="LivingDoc"
                     anchor="bottom"
-                    factoryClass="info.novatec.testit.livingdoc.intellij.core.ToolWindowFactoryImpl"
+                    factoryClass="org.livingdoc.intellij.core.ToolWindowFactoryImpl"
                     icon="/icons/livingdoc_16.gif"
                     canCloseContents="true"/>
 
-        <configurationType implementation="info.novatec.testit.livingdoc.intellij.core.ConfigurationTypeLivingDoc"/>
+        <configurationType implementation="org.livingdoc.intellij.core.ConfigurationTypeLivingDoc"/>
 
         <moduleService id="LivingDoc.Module.Service.Settings"
-                       serviceImplementation="info.novatec.testit.livingdoc.intellij.domain.ModuleSettings"/>
+                       serviceImplementation="org.livingdoc.intellij.domain.ModuleSettings"/>
         <moduleConfigurable id="LivingDoc.Module.Configurable"
                             displayName="LivingDoc"
-                            provider="info.novatec.testit.livingdoc.intellij.core.ModuleConfigurableProvider"/>
+                            provider="org.livingdoc.intellij.core.ModuleConfigurableProvider"/>
 
         <projectService id="LivingDoc.Project.Service.Settings"
-                        serviceImplementation="info.novatec.testit.livingdoc.intellij.domain.ProjectSettings"/>
+                        serviceImplementation="org.livingdoc.intellij.domain.ProjectSettings"/>
         <projectConfigurable id="LivingDoc.Project.Configurable"
                              displayName="LivingDoc"
-                             provider="info.novatec.testit.livingdoc.intellij.core.ProjectConfigurableProvider"
+                             provider="org.livingdoc.intellij.core.ProjectConfigurableProvider"
                              groupId="tools"/>
 
     </extensions>

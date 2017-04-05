@@ -3,16 +3,16 @@ package org.livingdoc.intellij.gui.toolwindows;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.Presentation;
-import info.novatec.testit.livingdoc.intellij.common.Icons;
-import info.novatec.testit.livingdoc.intellij.common.NodeType;
-import info.novatec.testit.livingdoc.intellij.domain.ModuleNode;
-import info.novatec.testit.livingdoc.intellij.domain.Node;
-import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
-import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+import org.livingdoc.intellij.common.Icons;
+import org.livingdoc.intellij.common.NodeType;
+import org.livingdoc.intellij.domain.ModuleNode;
+import org.livingdoc.intellij.domain.Node;
+import org.livingdoc.intellij.domain.RepositoryNode;
+import org.livingdoc.intellij.domain.SpecificationNode;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -27,7 +27,7 @@ public class RepositoryViewUtilsTest {
     @Before
     public void setUp() {
         documentNode = new DocumentNode("title");
-        specificationNode = new SpecificationNode(documentNode, node);
+        specificationNode = new SpecificationNode(documentNode.getTitle(), node);
     }
 
     @Test
@@ -54,13 +54,13 @@ public class RepositoryViewUtilsTest {
         RepositoryNode rn1;
 
         String repoNodeName = "repoNode";
-        rn1 = new RepositoryNode(repoNodeName, null);
-        SpecificationNode parentSN = new SpecificationNode(documentNode, rn1);
-        SpecificationNode childSN = new SpecificationNode(documentNode, parentSN);
+        rn1 = new RepositoryNode(repoNodeName);
+        SpecificationNode parentSN = new SpecificationNode(documentNode.getTitle(), rn1);
+        SpecificationNode childSN = new SpecificationNode(documentNode.getTitle(), parentSN);
 
         RepositoryNode result = RepositoryViewUtils.getRepositoryNode(childSN);
         Assert.assertNotNull(result);
-        Assert.assertEquals(repoNodeName, result.getName());
+        Assert.assertEquals(repoNodeName, result.getNodeName());
     }
 
     @Test

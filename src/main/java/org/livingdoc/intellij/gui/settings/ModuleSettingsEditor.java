@@ -7,13 +7,12 @@ import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.components.JBCheckBox;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBTextField;
-import info.novatec.testit.livingdoc.server.LivingDocServerException;
-import info.novatec.testit.livingdoc.server.domain.SystemUnderTest;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.connector.LivingDocConnector;
+import org.livingdoc.intellij.domain.LivingDocException;
 import org.livingdoc.intellij.domain.ModuleSettings;
 import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.gui.GuiUtils;
@@ -23,7 +22,7 @@ import org.springframework.web.client.HttpServerErrorException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.Set;
+import java.util.List;
 
 /**
  * Graphical user interface for the module settings.<br>
@@ -106,7 +105,7 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
         LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(projectSettings);
 
         try {
-            Set<info.novatec.testit.livingdoc.server.domain.Project> projects = livingDocConnector.getAllProjects();
+            List<String> projects = livingDocConnector.getAllProjects();
 
             if (CollectionUtils.isEmpty(projects)) {
                 LOG.info(I18nSupport.getValue("module.settings.error.loading.noprojects"));
@@ -114,8 +113,8 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
                 errorLabel.setIcon(AllIcons.General.Error);
 
             } else {
-                for (info.novatec.testit.livingdoc.server.domain.Project prj : projects) {
-                    projectCombo.addItem(prj.getName());
+                for (String prj : projects) {
+                    projectCombo.addItem(prj);
                 }
                 if (StringUtils.isNotBlank(selectedProject)) {
                     projectCombo.setSelectedItem(selectedProject);
@@ -123,8 +122,8 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
                     projectCombo.setSelectedIndex(0);
                 }
             }
-        } catch (HttpServerErrorException | LivingDocServerException ldse) {
-            LOG.warn(ldse);
+        } catch (HttpServerErrorException | LivingDocException lde) {
+            LOG.warn(lde);
             errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.project"));
             errorLabel.setIcon(AllIcons.General.Error);
 
@@ -146,9 +145,9 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
 
         try {
             LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(projectSettings);
-            Set<SystemUnderTest> systems = livingDocConnector.getSystemUnderTestsOfProject(selectedProject);
-            for (SystemUnderTest system : systems) {
-                sudCombo.addItem(system.getName());
+            List<String> systems = livingDocConnector.getSystemUnderTestsOfProject(selectedProject);
+            for (String system : systems) {
+                sudCombo.addItem(system);
             }
             if (StringUtils.isNotBlank(selectedSud)) {
                 sudCombo.setSelectedItem(selectedSud);
@@ -156,8 +155,8 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
             } else {
                 sudCombo.setSelectedIndex(0);
             }
-        } catch (LivingDocServerException ldse) {
-            LOG.warn(ldse);
+        } catch (LivingDocException lde) {
+            LOG.warn(lde);
             errorLabel.setText(I18nSupport.getValue("module.settings.error.loading.systems"));
             errorLabel.setIcon(AllIcons.General.Error);
         }

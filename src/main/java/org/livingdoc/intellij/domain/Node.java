@@ -16,8 +16,8 @@ public class Node implements Serializable {
     private static final long serialVersionUID = 4522875652776261867L;
     private NodeType type;
     private Node parent;
-    private String name;
-    private Icon icon;
+    private String nodeName;
+    private transient Icon icon;
 
     public Node() {
         parent = null;
@@ -25,28 +25,32 @@ public class Node implements Serializable {
     }
 
     public Node(final String nodeName, final Icon nodeIcon, final NodeType nodeType, final Node parent) {
-        this.name = nodeName;
+        this(nodeName, nodeIcon, nodeType);
+        this.parent = parent;
+    }
+
+    public Node(final String nodeName, final Icon nodeIcon, final NodeType nodeType) {
+        this.nodeName = nodeName;
         this.icon = nodeIcon;
         this.type = nodeType;
-        this.parent = parent;
     }
 
     @Override
     public String toString() {
         return new ToStringBuilder(this)
-                .append("name", name)
-                .append("icon", icon)
                 .append("type", type)
                 .append("parent", parent)
+                .append("nodeName", nodeName)
+                .append("icon", icon)
                 .toString();
     }
 
-    public String getName() {
-        return name;
+    public String getNodeName() {
+        return nodeName;
     }
 
-    public void setName(final String name) {
-        this.name = name;
+    public void setNodeName(final String nodeName) {
+        this.nodeName = nodeName;
     }
 
     public Icon getIcon() {
