@@ -49,21 +49,24 @@ public class TagImplementedAction extends AnAction {
 
         DefaultMutableTreeNode[] nodes = repositoryTree.getSelectedNodes(DefaultMutableTreeNode.class, null);
 
-        SpecificationNode specificationNode = (SpecificationNode) nodes[0].getUserObject();
+        for (DefaultMutableTreeNode selectedNode : nodes) {
+            Object userObject = selectedNode.getUserObject();
+            SpecificationNode specificationNode = (SpecificationNode) userObject;
 
-        try {
-            DocumentRepository documentRepository =
-                    RepositoryViewUtils.getRepositoryNode(specificationNode)
-                            .getRepository().asDocumentRepository(getClass().getClassLoader());
-            documentRepository.setDocumentAsImplemented(specificationNode.getName());
+            try {
+                DocumentRepository documentRepository =
+                        RepositoryViewUtils.getRepositoryNode(specificationNode)
+                                .getRepository().asDocumentRepository(getClass().getClassLoader());
+                documentRepository.setDocumentAsImplemented(specificationNode.getName());
 
-            specificationNode.setUsingCurrentVersion(false);
-            specificationNode.setCanBeImplemented(false);
-            specificationNode.setIcon(Icons.EXECUTABLE);
+                specificationNode.setUsingCurrentVersion(false);
+                specificationNode.setCanBeImplemented(false);
+                specificationNode.setIcon(Icons.EXECUTABLE);
 
-        } catch (Exception e) {
-            LOG.error(e);
-            nodes[0].setUserObject(RepositoryViewUtils.getErrorNode(specificationNode.getName() + " (" + e.getMessage() + ")"));
+            } catch (Exception e) {
+                LOG.error(e);
+                selectedNode.setUserObject(RepositoryViewUtils.getErrorNode(specificationNode.getName() + " (" + e.getMessage() + ")"));
+            }
         }
         repositoryTree.getSelectionModel().clearSelection();
     }
