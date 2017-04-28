@@ -9,20 +9,16 @@ import com.intellij.execution.runners.ExecutionEnvironment;
 import com.intellij.execution.util.JavaParametersUtil;
 import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.util.ColorProgressBar;
-import info.novatec.testit.livingdoc.document.Document;
-import info.novatec.testit.livingdoc.repository.DocumentRepository;
 import org.jetbrains.annotations.NotNull;
-import org.livingdoc.intellij.common.I18nSupport;
+import org.livingdoc.intellij.connector.LivingDocConnector;
 import org.livingdoc.intellij.domain.ProjectSettings;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Command line initialization and environment configuration:<br>
- * <code>livingdoc [options] input ouput</code>
+ * <code>livingdoc [options] input output</code>
  *
  * @see JavaCommandLineState
  * @see RemoteRunConfiguration
@@ -38,6 +34,7 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
 
         super(executionEnvironment);
 
+        //noinspection ConstantConditions
         this.runConfiguration = (RemoteRunConfiguration) executionEnvironment.getRunnerAndConfigurationSettings().getConfiguration();
         this.livingDocFileManager = new FilesManager(runConfiguration);
     }
@@ -60,6 +57,7 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
     /**
      * {@link ProcessListenerLivingDoc#startNotified(ProcessEvent)} is the listener method for <code>osProcessHandler.startNotify()</code>
      */
+    @NotNull
     @Override
     protected OSProcessHandler startProcess() throws ExecutionException {
 
@@ -100,35 +98,23 @@ class RunProfileStateLivingDoc extends JavaCommandLineState {
     }
 
     @NotNull
-    private String getSpecificationInputPath() throws IOException, ExecutionException {
+    private String getSpecificationInputPath() throws ExecutionException {
 
-        File specificationFile = livingDocFileManager.createSpecificationFile();
-
-        buildSpecificationFile(specificationFile);
+        File specificationFile = buildSpecificationFile();
 
         return specificationFile.getAbsolutePath();
     }
 
-    // FIXME Move LivingDoc dependencies to the connector layer.
-    private void buildSpecificationFile(@NotNull final File specificationFile) throws ExecutionException {
+    @NotNull
+    private File buildSpecificationFile() throws ExecutionException {
+        try {
+            File specificationFile = livingDocFileManager.createSpecificationFile();
 
-        ClassLoader classLoader = getClass().getClassLoader();
+            LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(runConfiguration.getProject()));
+            livingDocConnector.printSpecification(runConfiguration, specificationFile);
 
-        ProjectSettings projectSettings = ProjectSettings.getInstance(runConfiguration.getProject());
+            return specificationFile;
 
-        DocumentRepository documentRepository = runConfiguration.getRepository().asDocumentRepository(
-                classLoader, projectSettings.getUser(), projectSettings.getPassword());
-
-        String location = runConfiguration.getSpecificationName() + (runConfiguration.isCurrentVersion() ? "?implemented=false" : "");
-
-        try (PrintWriter printWriter = new PrintWriter(specificationFile, String.valueOf(StandardCharsets.UTF_8))) {
-
-            Document document = documentRepository.loadDocument(location);
-            if (document != null) {
-                document.print(printWriter);
-            } else {
-                LOG.error(I18nSupport.getValue("run.execution.error.document.null"));
-            }
         } catch (Exception e) {
             runConfiguration.getStatusLine().setText(e.getMessage());
             runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);

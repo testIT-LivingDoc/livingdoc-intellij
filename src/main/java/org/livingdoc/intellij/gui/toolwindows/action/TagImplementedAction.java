@@ -8,6 +8,7 @@ import com.intellij.ui.treeStructure.SimpleTree;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.Icons;
 import org.livingdoc.intellij.connector.LivingDocConnector;
+import org.livingdoc.intellij.domain.LivingDocException;
 import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.domain.SpecificationNode;
 import org.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
@@ -60,9 +61,9 @@ public class TagImplementedAction extends AnAction {
             specificationNode.setCanBeImplemented(false);
             specificationNode.setIcon(Icons.EXECUTABLE);
 
-        } catch (Exception e) {
-            LOG.error(e);
-            nodes[0].setUserObject(RepositoryViewUtils.getErrorNode(specificationNode.getNodeName() + " (" + e.getMessage() + ")"));
+        } catch (LivingDocException lde) {
+            LOG.error(lde);
+            nodes[0].setUserObject(RepositoryViewUtils.getErrorNode(specificationNode.getNodeName() + " (" + lde.getMessage() + ")"));
         }
         repositoryTree.getSelectionModel().clearSelection();
     }

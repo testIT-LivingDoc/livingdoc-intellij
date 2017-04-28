@@ -3,7 +3,6 @@ package org.livingdoc.intellij.gui.toolwindows;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.Presentation;
-import info.novatec.testit.livingdoc.server.domain.DocumentNode;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,16 +17,16 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 public class RepositoryViewUtilsTest {
 
+    private final String SPECIFICATION_TITLE = "title";
+
     private boolean hasError;
-    private DocumentNode documentNode;
     private Node node;
     private SpecificationNode specificationNode;
 
 
     @Before
     public void setUp() {
-        documentNode = new DocumentNode("title");
-        specificationNode = new SpecificationNode(documentNode.getTitle(), node);
+        specificationNode = new SpecificationNode(SPECIFICATION_TITLE, node);
     }
 
     @Test
@@ -55,8 +54,8 @@ public class RepositoryViewUtilsTest {
 
         String repoNodeName = "repoNode";
         rn1 = new RepositoryNode(repoNodeName);
-        SpecificationNode parentSN = new SpecificationNode(documentNode.getTitle(), rn1);
-        SpecificationNode childSN = new SpecificationNode(documentNode.getTitle(), parentSN);
+        SpecificationNode parentSN = new SpecificationNode(SPECIFICATION_TITLE, rn1);
+        SpecificationNode childSN = new SpecificationNode(SPECIFICATION_TITLE, parentSN);
 
         RepositoryNode result = RepositoryViewUtils.getRepositoryNode(childSN);
         Assert.assertNotNull(result);

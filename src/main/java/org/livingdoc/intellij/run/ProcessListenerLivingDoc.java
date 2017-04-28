@@ -8,14 +8,14 @@ import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.progress.util.ColorProgressBar;
 import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
-import info.novatec.testit.livingdoc.report.XmlReport;
-import info.novatec.testit.livingdoc.server.domain.Execution;
-import info.novatec.testit.livingdoc.server.domain.Specification;
 import org.apache.commons.lang3.StringUtils;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.PluginProperties;
+import org.livingdoc.intellij.connector.LivingDocConnector;
+import org.livingdoc.intellij.domain.LivingDocException;
+import org.livingdoc.intellij.domain.LivingDocExecution;
+import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
-import org.xml.sax.SAXException;
 
 import javax.swing.*;
 import java.io.*;
@@ -70,15 +70,16 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
 
         if (processEvent.getExitCode() == 0) {
             try {
-                Specification specification = buildSpecificationReport();
-                updateStatusLine(specification);
+                LivingDocExecution execution = getLivingDocExecution();
 
-                File resultFile = loadResultFile(specification);
+                updateStatusLine(execution);
+
+                File resultFile = loadResultFile(execution);
 
                 BrowserLauncher browser = new BrowserLauncherImpl();
                 browser.open(resultFile.getPath());
 
-            } catch (IOException | SAXException e) {
+            } catch (IOException | LivingDocException e) {
                 LOG.error(e);
             }
         } else {
@@ -88,18 +89,17 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
         }
     }
 
-    private void updateStatusLine(Specification specification) {
+    private void updateStatusLine(final LivingDocExecution execution) {
 
-        for (Execution execution : specification.getExecutions()) {
 
-            if (!hasError && (execution.hasException() || execution.hasFailed())) {
-                hasError = true;
-            }
-            totalErrors = totalErrors + execution.getErrors();
-            failuresCount = failuresCount + execution.getFailures();
-            finishedTestsCount = finishedTestsCount + execution.getSuccess();
-            ignoreTestsCount = ignoreTestsCount + execution.getIgnored();
+        if (!hasError && (execution.hasException() || execution.hasFailed())) {
+            hasError = true;
         }
+        totalErrors = totalErrors + execution.getErrors();
+        failuresCount = failuresCount + execution.getFailures();
+        finishedTestsCount = finishedTestsCount + execution.getSuccess();
+        ignoreTestsCount = ignoreTestsCount + execution.getIgnored();
+
 
         SwingUtilities.invokeLater(() -> {
 
@@ -122,28 +122,18 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
         });
     }
 
-    // FIXME Move LivingDoc dependencies to the connector layer.
-    private Specification buildSpecificationReport() throws IOException, SAXException {
+    private LivingDocExecution getLivingDocExecution() throws IOException, LivingDocException {
 
         File reportFile = livingDocFilesManager.createReportFile();
-        XmlReport xmlReport = XmlReport.parse(reportFile);
 
-        Specification specification = Specification.newInstance(runConfiguration.getSpecificationName());
-        specification.setRepository(runConfiguration.getRepository());
-
-        Execution execution = Execution.newInstance(specification, null, xmlReport);
-        execution.setResults(xmlReport.getResults(0));
-
-        specification.addExecution(execution);
-
-        return specification;
+        LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(runConfiguration.getProject()));
+        return livingDocConnector.getSpecificationExecution(runConfiguration, reportFile);
     }
 
-    private File loadResultFile(final Specification specification) throws IOException {
+    private File loadResultFile(final LivingDocExecution execution) throws IOException {
 
         File resultFile = livingDocFilesManager.createResultFile();
 
-        Execution execution = specification.getExecutions().iterator().next();
         String content = execution.hasException() ? execution.getExecutionErrorId() : execution.getResults();
         if (StringUtils.isEmpty(content)) {
             content = I18nSupport.getValue("run.execution.error.no.response");

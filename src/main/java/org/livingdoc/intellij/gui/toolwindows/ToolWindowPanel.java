@@ -29,7 +29,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.util.List;
+import java.util.Collection;
 
 
 /**
@@ -225,7 +225,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
         LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(project));
 
         try {
-            List<RepositoryNode> repositories = livingDocConnector.getAllRepositoriesForSystemUnderTest(moduleNode);
+            Collection<RepositoryNode> repositories = livingDocConnector.getRepositoriesForSystemUnderTest(moduleNode);
 
             for (RepositoryNode repositoryNode : repositories) {
 
@@ -234,7 +234,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
                 DefaultMutableTreeNode childNode = new DefaultMutableTreeNode(repositoryNode);
                 moduleTreeNode.add(childNode);
 
-                livingDocConnector.getSpecificationHierarchy(repositoryNode, moduleNode, childNode);
+                livingDocConnector.buildfSpecificationHierarchy(repositoryNode, moduleNode, childNode);
             }
         } catch (LivingDocException lde) {
             LOG.error(lde);

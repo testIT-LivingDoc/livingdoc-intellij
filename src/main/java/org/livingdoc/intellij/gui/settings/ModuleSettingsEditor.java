@@ -22,7 +22,7 @@ import org.springframework.web.client.HttpServerErrorException;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
+import java.util.Collection;
 
 /**
  * Graphical user interface for the module settings.<br>
@@ -105,7 +105,7 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
         LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(projectSettings);
 
         try {
-            List<String> projects = livingDocConnector.getAllProjects();
+            Collection<String> projects = livingDocConnector.getAllProjects();
 
             if (CollectionUtils.isEmpty(projects)) {
                 LOG.info(I18nSupport.getValue("module.settings.error.loading.noprojects"));
@@ -145,7 +145,7 @@ public class ModuleSettingsEditor extends SettingsEditor<ModuleSettings> {
 
         try {
             LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(projectSettings);
-            List<String> systems = livingDocConnector.getSystemUnderTestsOfProject(selectedProject);
+            Collection<String> systems = livingDocConnector.getSystemUnderTestsForProject(selectedProject);
             for (String system : systems) {
                 sudCombo.addItem(system);
             }

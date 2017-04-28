@@ -14,8 +14,6 @@ import com.intellij.execution.testframework.ui.TestStatusLine;
 import com.intellij.openapi.options.SettingsEditor;
 import com.intellij.openapi.options.SettingsEditorGroup;
 import com.intellij.openapi.project.Project;
-import info.novatec.testit.livingdoc.server.domain.Repository;
-import info.novatec.testit.livingdoc.server.domain.RepositoryType;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -53,6 +51,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
         super(name, project, factory);
     }
 
+    @NotNull
     @Override
     public SettingsEditor<? extends RunConfiguration> getConfigurationEditor() {
 
@@ -85,17 +84,6 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     @Override
     public RunProfileState getState(@NotNull Executor executor, @NotNull ExecutionEnvironment environment) throws ExecutionException {
         return new RunProfileStateLivingDoc(environment);
-    }
-
-    // FIXME Move LivingDoc dependencies to the connector layer.
-    public Repository getRepository() {
-        Repository repository = Repository.newInstance(repositoryUID);
-        repository.setName(repositoryName);
-        repository.setBaseTestUrl(repositoryURL);
-        RepositoryType repositoryType = new RepositoryType();
-        repositoryType.setClassName(repositoryClass);
-        repository.setType(repositoryType);
-        return repository;
     }
 
     public String getRepositoryUID() {
@@ -136,6 +124,10 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
     public void setCurrentVersion(final boolean currentVersion) {
         this.currentVersion = currentVersion;
+    }
+
+    public String getRepositoryName() {
+        return this.repositoryName;
     }
 
     public void setRepositoryName(final String repositoryName) {

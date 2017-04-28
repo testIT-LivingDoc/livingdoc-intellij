@@ -1,28 +1,41 @@
 package org.livingdoc.intellij.connector.legacy;
 
+import com.intellij.openapi.diagnostic.Logger;
+import info.novatec.testit.livingdoc.document.Document;
+import info.novatec.testit.livingdoc.report.XmlReport;
 import info.novatec.testit.livingdoc.repository.DocumentRepository;
 import info.novatec.testit.livingdoc.runner.Main;
 import info.novatec.testit.livingdoc.server.LivingDocServerException;
 import info.novatec.testit.livingdoc.server.domain.*;
 import info.novatec.testit.livingdoc.server.rest.LivingDocRestClient;
 import org.jetbrains.annotations.NotNull;
+import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.connector.LivingDocConnector;
 import org.livingdoc.intellij.domain.*;
 import org.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
+import org.livingdoc.intellij.run.RemoteRunConfiguration;
+import org.xml.sax.SAXException;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 
 /**
- * TODO document me
+ * {@link LivingDocConnector} implementation for the legacy LivingDoc version.
  */
 public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
 
+    private static final Logger LOG = Logger.getInstance(LegacyLivingDocConnectorImpl.class);
+
     private final ProjectSettings projectSettings;
     private final LivingDocRestClient livingDocRestClient;
+
 
     public LegacyLivingDocConnectorImpl(ProjectSettings projectSettings) {
         this.projectSettings = projectSettings;
@@ -31,6 +44,7 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
 
     @Override
     public boolean testConnection() throws LivingDocException {
+
         try {
             return livingDocRestClient.testConnection(null, null);
 
@@ -40,10 +54,10 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
     }
 
     @Override
-    public List<String> getAllProjects() throws LivingDocException {
+    public Collection<String> getAllProjects() throws LivingDocException {
 
         try {
-            Set<Project> projects = livingDocRestClient.getAllProjects(null);
+            Collection<Project> projects = livingDocRestClient.getAllProjects(null);
             List<String> projectNames = new ArrayList<>(projects.size());
 
             for (Project project : projects) {
@@ -57,13 +71,13 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
     }
 
     @Override
-    public List<String> getSystemUnderTestsOfProject(@NotNull String projectName) throws LivingDocException {
+    public Collection<String> getSystemUnderTestsForProject(@NotNull final String projectName) throws LivingDocException {
 
         try {
-            Set<SystemUnderTest> suts = livingDocRestClient.getSystemUnderTestsOfProject(projectName, null);
-            List<String> sutNames = new ArrayList<>(suts.size());
+            Collection<SystemUnderTest> systemUnderTests = livingDocRestClient.getSystemUnderTestsOfProject(projectName, null);
+            List<String> sutNames = new ArrayList<>(systemUnderTests.size());
 
-            for (SystemUnderTest sut : suts) {
+            for (SystemUnderTest sut : systemUnderTests) {
                 sutNames.add(sut.getName());
             }
             return sutNames;
@@ -74,10 +88,12 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
     }
 
     @Override
-    public List<RepositoryNode> getAllRepositoriesForSystemUnderTest(@NotNull final ModuleNode moduleNode) throws LivingDocException {
+    public Collection<RepositoryNode> getRepositoriesForSystemUnderTest(@NotNull final ModuleNode moduleNode) throws LivingDocException {
+
+        SystemUnderTest systemUnderTest = getSystemUnderTest(moduleNode);
 
         try {
-            Set<Repository> repositories = livingDocRestClient.getAllRepositoriesForSystemUnderTest(getSystemUnderTest(moduleNode), null);
+            Collection<Repository> repositories = livingDocRestClient.getAllRepositoriesForSystemUnderTest(systemUnderTest, null);
             List<RepositoryNode> repositoryNodes = new ArrayList<>(repositories.size());
 
             for (Repository repository : repositories) {
@@ -88,16 +104,16 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
         } catch (LivingDocServerException ldse) {
             throw new LivingDocException(ldse);
         }
-
     }
 
     @Override
-    public void getSpecificationHierarchy(@NotNull final RepositoryNode repositoryNode, @NotNull final ModuleNode moduleNode, @NotNull final DefaultMutableTreeNode parentNode) throws LivingDocException {
+    public void buildfSpecificationHierarchy(@NotNull final RepositoryNode repositoryNode, @NotNull final ModuleNode moduleNode, @NotNull final DefaultMutableTreeNode parentNode) throws LivingDocException {
+
+        Repository repository = convertToRepository(repositoryNode);
+        SystemUnderTest systemUnderTest = getSystemUnderTest(moduleNode);
 
         try {
-            DocumentNode documentNode = livingDocRestClient.getSpecificationHierarchy(
-                    convertToRepository(repositoryNode),
-                    getSystemUnderTest(moduleNode), null);
+            DocumentNode documentNode = livingDocRestClient.getSpecificationHierarchy(repository, systemUnderTest, null);
 
             paintDocumentNode(documentNode.getChildren(), parentNode);
 
@@ -107,14 +123,20 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
     }
 
     @Override
-    public void tagDocumentAsImplemented(@NotNull final SpecificationNode specificationNode) throws Exception {
+    public void tagDocumentAsImplemented(@NotNull final SpecificationNode specificationNode) throws LivingDocException {
 
         RepositoryNode repositoryNode = RepositoryViewUtils.getRepositoryNode(specificationNode);
+        Repository repository = convertToRepository(repositoryNode);
 
-        DocumentRepository documentRepository = convertToRepository(repositoryNode).asDocumentRepository(
+        DocumentRepository documentRepository = repository.asDocumentRepository(
                 getClass().getClassLoader(), projectSettings.getUser(), projectSettings.getPassword());
 
-        documentRepository.setDocumentAsImplemented(specificationNode.getNodeName());
+        try {
+            documentRepository.setDocumentAsImplemented(specificationNode.getNodeName());
+
+        } catch (Exception e) {
+            throw new LivingDocException(e);
+        }
     }
 
     @Override
@@ -123,12 +145,62 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
         Specification specification = Specification.newInstance(specificationNode.getNodeName());
         specification.setRepository(convertToRepository(repositoryNode));
 
-        return specification.getRepository().getType().resolveName(specification);
+        Repository repository = convertToRepository(repositoryNode);
+        return repository.getType().resolveName(specification);
     }
 
     @Override
     public String getLivingDocMainClass() {
         return Main.class.getName();
+    }
+
+    @Override
+    public void printSpecification(@NotNull final RemoteRunConfiguration runConfiguration, @NotNull final File specificationFile) throws LivingDocException {
+
+        ClassLoader classLoader = getClass().getClassLoader();
+
+        Repository repository = convertToRepository(runConfiguration);
+
+        DocumentRepository documentRepository = repository.asDocumentRepository(
+                classLoader, projectSettings.getUser(), projectSettings.getPassword());
+
+        String location = runConfiguration.getSpecificationName() + (runConfiguration.isCurrentVersion() ? "?implemented=false" : "");
+
+        try (PrintWriter printWriter = new PrintWriter(specificationFile, String.valueOf(StandardCharsets.UTF_8))) {
+
+            Document document = documentRepository.loadDocument(location);
+
+            if (document != null) {
+                document.print(printWriter);
+            } else {
+                LOG.error(I18nSupport.getValue("run.execution.error.document.null"));
+            }
+        } catch (Exception e) {
+            throw new LivingDocException(e);
+        }
+    }
+
+    @Override
+    public LivingDocExecution getSpecificationExecution(@NotNull final RemoteRunConfiguration runConfiguration, @NotNull final File reportFile) throws LivingDocException {
+
+        XmlReport xmlReport;
+        try {
+            xmlReport = XmlReport.parse(reportFile);
+
+        } catch (SAXException | IOException e) {
+            throw new LivingDocException(e);
+        }
+
+        Specification specification = Specification.newInstance(runConfiguration.getSpecificationName());
+        Repository repository = convertToRepository(runConfiguration);
+        specification.setRepository(repository);
+
+        Execution execution = Execution.newInstance(specification, null, xmlReport);
+        execution.setResults(xmlReport.getResults(0));  // TODO review index 0 for getResults()
+
+        specification.addExecution(execution);
+
+        return convertToLivingDocExecution(execution);
     }
 
     /**
@@ -154,11 +226,30 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
         sortChildren(parentNode);
     }
 
-    /**
-     * @param childNode  {@link DocumentNode}
-     * @param userObject {@link Node}
-     * @return {@link SpecificationNode}
-     */
+    private void sortChildren(@NotNull final DefaultMutableTreeNode node) {
+
+        List<DefaultMutableTreeNode> childrenList = Collections.list(node.children());
+
+        childrenList.sort((o1, o2) ->
+                ((Node) o1.getUserObject()).getNodeName().compareToIgnoreCase(((Node) o2.getUserObject()).getNodeName()));
+
+        node.removeAllChildren();
+        childrenList.forEach(node::add);
+    }
+
+    private LivingDocExecution convertToLivingDocExecution(Execution execution) {
+        LivingDocExecution livingDocExecution = new LivingDocExecution();
+        livingDocExecution.setExecutionErrorId(execution.getExecutionErrorId());
+        livingDocExecution.setResults(execution.getResults());
+        livingDocExecution.setErrors(execution.getErrors());
+        livingDocExecution.setFailures(execution.getFailures());
+        livingDocExecution.setSuccess(execution.getSuccess());
+        livingDocExecution.setIgnored(execution.getIgnored());
+        livingDocExecution.setHasException(execution.hasException());
+        livingDocExecution.setHasFailed(execution.hasFailed());
+        return livingDocExecution;
+    }
+
     private SpecificationNode convertToSpecificationNode(final DocumentNode childNode, final Node userObject) {
 
         SpecificationNode specificationNode = new SpecificationNode(childNode.getTitle(), userObject);
@@ -168,15 +259,16 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
         return specificationNode;
     }
 
-    private void sortChildren(DefaultMutableTreeNode node) {
 
-        List<DefaultMutableTreeNode> childrenList = Collections.list(node.children());
+    private Repository convertToRepository(@NotNull final RemoteRunConfiguration runConfiguration) {
 
-        childrenList.sort((o1, o2) ->
-                ((Node) o1.getUserObject()).getNodeName().compareToIgnoreCase(((Node) o2.getUserObject()).getNodeName()));
-
-        node.removeAllChildren();
-        childrenList.forEach(node::add);
+        Repository repository = Repository.newInstance(runConfiguration.getRepositoryUID());
+        repository.setName(runConfiguration.getRepositoryName());
+        repository.setBaseTestUrl(runConfiguration.getRepositoryURL());
+        RepositoryType repositoryType = new RepositoryType();
+        repositoryType.setClassName(runConfiguration.getRepositoryClass());
+        repository.setType(repositoryType);
+        return repository;
     }
 
     private Repository convertToRepository(@NotNull final RepositoryNode repositoryNode) {
