@@ -74,7 +74,6 @@ public class ExecuteDocumentAction extends AnAction {
 
     /**
      * Action handler. Only specification nodes will be executed.<br>
-     * TODO NOTE: Basic functionality with single selection, desired multiple selection.
      *
      * @param actionEvent Carries information on the invocation place
      */
