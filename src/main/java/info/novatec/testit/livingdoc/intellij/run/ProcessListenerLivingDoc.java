@@ -27,19 +27,19 @@ import java.nio.charset.StandardCharsets;
  *
  * @see ProcessAdapter
  */
-class ProcessListenerLivingDoc extends ProcessAdapter {
+public class ProcessListenerLivingDoc extends ProcessAdapter {
 
     private static final Logger LOG = Logger.getInstance(ProcessListenerLivingDoc.class);
 
     private final RemoteRunConfiguration runConfiguration;
     private final FilesManager livingDocFilesManager;
 
-    private int totalErrors = 0;
-    private int failuresCount = 0;
-    private int finishedTestsCount = 0;
-    private int ignoreTestsCount = 0;
-    private long startTime;
-    private long endTime;
+    private static int totalErrors = 0;
+    private static int failuresCount = 0;
+    private static int finishedTestsCount = 0;
+    private static int ignoreTestsCount = 0;
+    private static long startTime;
+    private static long endTime;
 
     private boolean hasError = false;
 
@@ -53,7 +53,9 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
     @Override
     public void startNotified(ProcessEvent event) {
 
-        startTime = System.currentTimeMillis();
+        if (startTime == 0) { // Set the start time only the first time.
+            startTime = System.currentTimeMillis();
+        }
 
         SwingUtilities.invokeLater(() -> {
 
@@ -152,5 +154,15 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
         }
 
         return resultFile;
+    }
+
+
+    public static void resetCounters(){
+        totalErrors = 0;
+        failuresCount = 0;
+        finishedTestsCount = 0;
+        ignoreTestsCount = 0;
+        startTime = 0;
+        endTime = 0;
     }
 }

@@ -1,15 +1,13 @@
 package info.novatec.testit.livingdoc.intellij.gui.toolwindows.action;
 
-import com.intellij.execution.Executor;
-import com.intellij.execution.ProgramRunnerUtil;
-import com.intellij.execution.RunManager;
-import com.intellij.execution.RunnerAndConfigurationSettings;
+import com.intellij.execution.*;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.executors.DefaultRunExecutor;
+import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.runners.ExecutionEnvironmentBuilder;
 import com.intellij.icons.AllIcons;
-import com.intellij.openapi.actionSystem.AnAction;
-import com.intellij.openapi.actionSystem.AnActionEvent;
-import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.actionSystem.*;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import info.novatec.testit.livingdoc.intellij.common.I18nSupport;
 import info.novatec.testit.livingdoc.intellij.core.ConfigurationTypeLivingDoc;
@@ -19,10 +17,12 @@ import info.novatec.testit.livingdoc.intellij.domain.RepositoryNode;
 import info.novatec.testit.livingdoc.intellij.domain.SpecificationNode;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.RepositoryViewUtils;
 import info.novatec.testit.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
+import info.novatec.testit.livingdoc.intellij.run.ProcessListenerLivingDoc;
 import info.novatec.testit.livingdoc.intellij.run.RemoteRunConfiguration;
 import info.novatec.testit.livingdoc.runner.Main;
 import info.novatec.testit.livingdoc.server.domain.Repository;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -35,7 +35,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @see RemoteRunConfiguration
  */
 public class ExecuteDocumentAction extends AnAction {
-
+    private static final Logger LOG = Logger.getInstance(ExecuteDocumentAction.class);
     private final ToolWindowPanel toolWindowPanel;
     private boolean debugMode = false;
 
@@ -80,7 +80,7 @@ public class ExecuteDocumentAction extends AnAction {
      */
     @Override
     public void actionPerformed(AnActionEvent actionEvent) {
-
+        ProcessListenerLivingDoc.resetCounters();
         DefaultMutableTreeNode[] nodes = toolWindowPanel.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
         Project project = actionEvent.getProject();
         assert project != null;
@@ -88,16 +88,15 @@ public class ExecuteDocumentAction extends AnAction {
         RunManager runManager = RunManager.getInstance(project);
         ConfigurationTypeLivingDoc livingDocConfigurationType = ConfigurationTypeLivingDoc.getInstance();
 
-        for (DefaultMutableTreeNode selectedNode : nodes) {
 
+        for (DefaultMutableTreeNode selectedNode : nodes) {
+            RunnerAndConfigurationSettings runnerAndConfigurationSettings = runManager.createRunConfiguration(project.getName(),livingDocConfigurationType.getConfigurationFactories()[0]);
             Object userObject = selectedNode.getUserObject();
 
             if (userObject instanceof SpecificationNode) {
 
                 SpecificationNode specificationNode = (SpecificationNode) userObject;
 
-                RunnerAndConfigurationSettings runnerAndConfigurationSettings =
-                        runManager.getConfigurationTemplate(livingDocConfigurationType.getConfigurationFactories()[0]);
                 runnerAndConfigurationSettings.setName(specificationNode.getName());
                 runnerAndConfigurationSettings.setTemporary(false);
 
@@ -105,22 +104,40 @@ public class ExecuteDocumentAction extends AnAction {
                 runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(false);
 
                 // True to show the "run configuration UI" before launching LivingDoc
-                runnerAndConfigurationSettings.setEditBeforeRun(true);
+                runnerAndConfigurationSettings.setEditBeforeRun(false);
 
                 RemoteRunConfiguration runConfiguration =
                         (RemoteRunConfiguration) runnerAndConfigurationSettings.getConfiguration();
                 fillRunConfiguration(runConfiguration, specificationNode);
-
-                Executor executor;
+                Executor executor ;
                 if (debugMode) {
                     runnerAndConfigurationSettings.setEditBeforeRun(true);
                     executor = DefaultDebugExecutor.getDebugExecutorInstance();
-                } else {
+                }else{
                     executor = DefaultRunExecutor.getRunExecutorInstance();
                 }
 
-                ProgramRunnerUtil.executeConfiguration(project, runnerAndConfigurationSettings, executor);
+                ExecutionEnvironmentBuilder builder;
+                try {
+                    builder = ExecutionEnvironmentBuilder.create(executor, runnerAndConfigurationSettings);
+                    performAction( builder);
+                }
+                catch (ExecutionException e) {
+                    LOG.error(e);
+                    return;
+                }
             }
+        }
+    }
+
+
+    private static void performAction(@NotNull ExecutionEnvironmentBuilder builder) {
+        ExecutionEnvironment environment = builder.build();
+        try {
+            environment.getRunner().execute(environment);
+        }
+        catch (ExecutionException e) {
+            LOG.error(e);
         }
     }
 
