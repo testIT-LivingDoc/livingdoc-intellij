@@ -108,8 +108,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
         tree.setCellRenderer(new TreeCellRendererLivingDoc());
         tree.setRootVisible(true);
 
-        // Basic functionality with single selection, desired multiple selection.
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 
         treeModel = new DefaultTreeModel(rootNode, true);
         tree.setModel(treeModel);
