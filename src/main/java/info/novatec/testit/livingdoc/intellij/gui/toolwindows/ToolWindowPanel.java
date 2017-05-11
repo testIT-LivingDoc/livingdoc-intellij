@@ -273,6 +273,9 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     private SpecificationNode convertDocumentNodeToLDNode(final DocumentNode childNode, final Node userObject) {
 
         SpecificationNode specificationNode = new SpecificationNode(childNode, userObject);
+        if (specificationNode.isCanBeImplemented()) {
+            specificationNode.setUsingCurrentVersion(true);
+        }
         specificationNode.setIcon(RepositoryViewUtils.getNodeIcon(specificationNode));
         return specificationNode;
     }
