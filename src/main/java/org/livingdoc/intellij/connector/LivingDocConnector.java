@@ -1,6 +1,7 @@
 package org.livingdoc.intellij.connector;
 
 import org.jetbrains.annotations.NotNull;
+import org.livingdoc.intellij.common.LivingDocVersion;
 import org.livingdoc.intellij.connector.legacy.LegacyLivingDocConnectorImpl;
 import org.livingdoc.intellij.connector.livingdoc.LivingDocConnectorImpl;
 import org.livingdoc.intellij.domain.*;

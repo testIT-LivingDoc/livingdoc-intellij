@@ -42,7 +42,6 @@ public class TagImplementedAction extends AnAction {
 
     /**
      * Action handler.
-     * TODO NOTE: Basic functionality with single selection, desired multiple selection.
      *
      * @param anActionEvent Carries information on the invocation place
      */
@@ -51,19 +50,22 @@ public class TagImplementedAction extends AnAction {
 
         DefaultMutableTreeNode[] nodes = repositoryTree.getSelectedNodes(DefaultMutableTreeNode.class, null);
 
-        SpecificationNode specificationNode = (SpecificationNode) nodes[0].getUserObject();
+        for (DefaultMutableTreeNode selectedNode : nodes) {
+            Object userObject = selectedNode.getUserObject();
+            SpecificationNode specificationNode = (SpecificationNode) userObject;
 
-        try {
-            LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(anActionEvent.getProject()));
-            livingDocConnector.tagDocumentAsImplemented(specificationNode);
+            try {
+                LivingDocConnector livingDocConnector = LivingDocConnector.newInstance(ProjectSettings.getInstance(anActionEvent.getProject()));
+                livingDocConnector.tagDocumentAsImplemented(specificationNode);
 
-            specificationNode.setUsingCurrentVersion(false);
-            specificationNode.setCanBeImplemented(false);
-            specificationNode.setIcon(Icons.EXECUTABLE);
+                specificationNode.setUsingCurrentVersion(false);
+                specificationNode.setCanBeImplemented(false);
+                specificationNode.setIcon(Icons.EXECUTABLE);
 
-        } catch (LivingDocException lde) {
-            LOG.error(lde);
-            nodes[0].setUserObject(RepositoryViewUtils.getErrorNode(specificationNode.getNodeName() + " (" + lde.getMessage() + ")"));
+            } catch (LivingDocException lde) {
+                LOG.error(lde);
+                selectedNode.setUserObject(RepositoryViewUtils.getErrorNode(specificationNode.getNodeName() + " (" + lde.getMessage() + ")"));
+            }
         }
         repositoryTree.getSelectionModel().clearSelection();
     }

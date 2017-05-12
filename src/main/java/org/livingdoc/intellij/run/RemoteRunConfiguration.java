@@ -18,6 +18,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.livingdoc.intellij.common.I18nSupport;
+import org.livingdoc.intellij.domain.ExecutionCounter;
 import org.livingdoc.intellij.domain.SpecificationNode;
 import org.livingdoc.intellij.gui.runconfiguration.RunConfigurationEditor;
 
@@ -44,6 +45,7 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
     private boolean currentVersion;
 
     private TestStatusLine statusLine;
+    private ExecutionCounter executionCounter;
     private SpecificationNode selectedNode;
 
 
@@ -148,5 +150,13 @@ public class RemoteRunConfiguration extends ApplicationConfiguration {
 
     public void setSelectedNode(final SpecificationNode selectedNode) {
         this.selectedNode = selectedNode;
+    }
+
+    public ExecutionCounter getExecutionCounter() {
+        return this.executionCounter;
+    }
+
+    public void setExecutionCounter(ExecutionCounter executionCounter) {
+        this.executionCounter = executionCounter;
     }
 }

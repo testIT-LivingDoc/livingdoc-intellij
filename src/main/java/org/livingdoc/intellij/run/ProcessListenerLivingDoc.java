@@ -2,6 +2,7 @@ package org.livingdoc.intellij.run;
 
 import com.intellij.execution.process.ProcessAdapter;
 import com.intellij.execution.process.ProcessEvent;
+import com.intellij.execution.testframework.ui.TestStatusLine;
 import com.intellij.ide.browsers.BrowserLauncher;
 import com.intellij.ide.browsers.BrowserLauncherImpl;
 import com.intellij.openapi.diagnostic.Logger;
@@ -12,6 +13,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.PluginProperties;
 import org.livingdoc.intellij.connector.LivingDocConnector;
+import org.livingdoc.intellij.domain.ExecutionCounter;
 import org.livingdoc.intellij.domain.LivingDocException;
 import org.livingdoc.intellij.domain.LivingDocExecution;
 import org.livingdoc.intellij.domain.ProjectSettings;
@@ -23,23 +25,19 @@ import java.nio.charset.StandardCharsets;
 
 
 /**
- * To monitor the execution of a process and capture its output.
+ * This class will monitor the execution of a LivingDoc execution and it will capture its output.
  *
  * @see ProcessAdapter
  */
-class ProcessListenerLivingDoc extends ProcessAdapter {
+public class ProcessListenerLivingDoc extends ProcessAdapter {
 
     private static final Logger LOG = Logger.getInstance(ProcessListenerLivingDoc.class);
 
     private final RemoteRunConfiguration runConfiguration;
     private final FilesManager livingDocFilesManager;
 
-    private int totalErrors = 0;
-    private int failuresCount = 0;
-    private int finishedTestsCount = 0;
-    private int ignoreTestsCount = 0;
-    private long startTime;
-    private long endTime;
+    private final ExecutionCounter executionCounter;
+    private final TestStatusLine statusLine;
 
     private boolean hasError = false;
 
@@ -48,25 +46,29 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
 
         this.runConfiguration = runConfiguration;
         this.livingDocFilesManager = new FilesManager(this.runConfiguration);
+
+        this.statusLine = runConfiguration.getStatusLine();
+        this.executionCounter = runConfiguration.getExecutionCounter();
     }
 
     @Override
     public void startNotified(ProcessEvent event) {
 
-        startTime = System.currentTimeMillis();
-
+        if (executionCounter.getStartTime() == 0) {
+            // Set the start time only the first time.
+            executionCounter.setStartTime(System.currentTimeMillis());
+        }
         SwingUtilities.invokeLater(() -> {
-
-            runConfiguration.getStatusLine().setText(I18nSupport.getValue("run.execution.running.label"));
-            runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.GREEN);
-            runConfiguration.getStatusLine().setFraction(0d);
+            statusLine.setText(I18nSupport.getValue("run.execution.running.label"));
+            statusLine.setStatusColor(ColorProgressBar.GREEN);
+            statusLine.setFraction(0d);
         });
     }
 
     @Override
     public void processTerminated(ProcessEvent processEvent) {
 
-        endTime = System.currentTimeMillis();
+        executionCounter.setEndTime(System.currentTimeMillis());
 
         if (processEvent.getExitCode() == 0) {
             try {
@@ -83,30 +85,29 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
                 LOG.error(e);
             }
         } else {
-            runConfiguration.getStatusLine().setText(I18nSupport.getValue("run.execution.error.process"));
-            runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
-            runConfiguration.getStatusLine().setFraction(100d);
+            statusLine.setText(I18nSupport.getValue("run.execution.error.process"));
+            statusLine.setStatusColor(ColorProgressBar.RED);
+            statusLine.setFraction(100d);
         }
     }
 
     private void updateStatusLine(final LivingDocExecution execution) {
 
-
         if (!hasError && (execution.hasException() || execution.hasFailed())) {
             hasError = true;
         }
-        totalErrors = totalErrors + execution.getErrors();
-        failuresCount = failuresCount + execution.getFailures();
-        finishedTestsCount = finishedTestsCount + execution.getSuccess();
-        ignoreTestsCount = ignoreTestsCount + execution.getIgnored();
 
+        executionCounter.setTotalErrors(executionCounter.getTotalErrors() + execution.getErrors());
+        executionCounter.setFailuresCount(executionCounter.getFailuresCount() + execution.getFailures());
+        executionCounter.setFinishedTestsCount(executionCounter.getFinishedTestsCount() + execution.getSuccess());
+        executionCounter.setIgnoreTestsCount(executionCounter.getIgnoreTestsCount() + execution.getIgnored());
 
         SwingUtilities.invokeLater(() -> {
 
             if (hasError) {
                 runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.RED);
 
-            } else if (ignoreTestsCount >= 1 || failuresCount >= 1 || totalErrors >= 1) {
+            } else if (executionCounter.getIgnoreTestsCount() >= 1 || executionCounter.getFailuresCount() >= 1 || executionCounter.getTotalErrors() >= 1) {
                 runConfiguration.getStatusLine().setStatusColor(ColorProgressBar.YELLOW);
 
             } else {
@@ -114,9 +115,21 @@ class ProcessListenerLivingDoc extends ProcessAdapter {
                         .getToolWindow(PluginProperties.getValue("toolwindows.id"));
                 toolWindow.activate(null);
             }
-            runConfiguration.getStatusLine().formatTestMessage(finishedTestsCount + totalErrors + failuresCount + ignoreTestsCount,
-                    finishedTestsCount, failuresCount, ignoreTestsCount, endTime - startTime, endTime);
-            runConfiguration.getStatusLine().setFraction(1d);
+
+            int testsTotal = executionCounter.getFinishedTestsCount() + executionCounter.getTotalErrors()
+                    + executionCounter.getFailuresCount() + executionCounter.getIgnoreTestsCount();
+
+            Long duration = executionCounter.getEndTime() - executionCounter.getStartTime();
+
+            statusLine.formatTestMessage(
+                    testsTotal,
+                    executionCounter.getFinishedTestsCount(),
+                    executionCounter.getFailuresCount(),
+                    executionCounter.getIgnoreTestsCount(),
+                    duration,
+                    executionCounter.getEndTime());
+
+            statusLine.setFraction(1d);
 
             runConfiguration.getSelectedNode().setIcon(RepositoryViewUtils.getResultIcon(hasError, runConfiguration.getSelectedNode()));
         });

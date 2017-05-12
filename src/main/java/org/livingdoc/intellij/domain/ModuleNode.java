@@ -11,6 +11,9 @@ public class ModuleNode extends Node {
     private String systemUnderTest;
     private String project;
 
+    public ModuleNode() {
+        // just for unit testing;
+    }
 
     public ModuleNode(final String nodeName, final String moduleName) {
         super(nodeName, AllIcons.Nodes.Module, NodeType.MODULE, null);

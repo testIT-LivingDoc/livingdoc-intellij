@@ -17,6 +17,10 @@ public class SpecificationNode extends Node {
     private boolean usingCurrentVersion;
     
 
+    public SpecificationNode() {
+        // just for unit testing.
+    }
+
     public SpecificationNode(final String speficicationName, final Node parentNode) {
 
         super(speficicationName, Icons.EXECUTABLE, NodeType.SPECIFICATION, parentNode);

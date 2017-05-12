@@ -1,15 +1,18 @@
 package org.livingdoc.intellij.gui.toolwindows.action;
 
+import com.intellij.execution.ExecutionException;
 import com.intellij.execution.Executor;
-import com.intellij.execution.ProgramRunnerUtil;
 import com.intellij.execution.RunManager;
 import com.intellij.execution.RunnerAndConfigurationSettings;
 import com.intellij.execution.executors.DefaultDebugExecutor;
 import com.intellij.execution.executors.DefaultRunExecutor;
+import com.intellij.execution.runners.ExecutionEnvironment;
+import com.intellij.execution.runners.ExecutionEnvironmentBuilder;
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.Presentation;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.project.Project;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
@@ -31,20 +34,23 @@ import javax.swing.tree.DefaultMutableTreeNode;
  * @see AnAction
  * @see RemoteRunConfiguration
  */
-public class ExecuteDocumentAction extends AnAction {
+public class ExecuteSpecificationAction extends AnAction {
 
+    private static final Logger LOG = Logger.getInstance(ExecuteSpecificationAction.class);
+
+    @NotNull
     private final ToolWindowPanel toolWindowPanel;
     private boolean debugMode = false;
 
     /**
      * Creates the action with its text, description and icon.
      *
-     * @param toolWindowPanel {@link ToolWindowPanel} User interface fot Repository View.
+     * @param toolWindowPanel {@link ToolWindowPanel} User interface for the Repository View.
      * @param isDebugMode     Kind of execution: <ul>
      *                        <li>true to activate debug mode</li>
      *                        <li>false otherwise. In this case, you will see the run configuration user interface.</li></ul>
      */
-    public ExecuteDocumentAction(final ToolWindowPanel toolWindowPanel, final boolean isDebugMode) {
+    public ExecuteSpecificationAction(final ToolWindowPanel toolWindowPanel, final boolean isDebugMode) {
 
         super();
 
@@ -69,14 +75,16 @@ public class ExecuteDocumentAction extends AnAction {
         presentation.setIcon(icon);
     }
 
+
     /**
      * Action handler. Only specification nodes will be executed.<br>
-     * TODO NOTE: Basic functionality with single selection, desired multiple selection.
      *
      * @param actionEvent Carries information on the invocation place
      */
     @Override
     public void actionPerformed(AnActionEvent actionEvent) {
+
+        toolWindowPanel.resetExecutionCounter();
 
         DefaultMutableTreeNode[] nodes = toolWindowPanel.getRepositoryTree().getSelectedNodes(DefaultMutableTreeNode.class, null);
         Project project = actionEvent.getProject();
@@ -93,31 +101,30 @@ public class ExecuteDocumentAction extends AnAction {
 
                 SpecificationNode specificationNode = (SpecificationNode) userObject;
 
-                RunnerAndConfigurationSettings runnerAndConfigurationSettings =
-                        runManager.getConfigurationTemplate(livingDocConfigurationType.getConfigurationFactories()[0]);
-                runnerAndConfigurationSettings.setName(specificationNode.getNodeName());
-                runnerAndConfigurationSettings.setTemporary(false);
+                RunnerAndConfigurationSettings runnerAndConfigurationSettings = runManager.createRunConfiguration(project.getName(), livingDocConfigurationType.getConfigurationFactories()[0]);
 
-                // True to active the "Run" ToolWindow
-                runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(false);
 
-                // True to show the "run configuration UI" before launching LivingDoc
-                runnerAndConfigurationSettings.setEditBeforeRun(true);
+                fillRunnerAndConfigurationSettings(runnerAndConfigurationSettings, debugMode, specificationNode);
 
                 RemoteRunConfiguration runConfiguration =
                         (RemoteRunConfiguration) runnerAndConfigurationSettings.getConfiguration();
-                fillRunConfiguration(runConfiguration, specificationNode);
 
-                Executor executor;
-                if (debugMode) {
-                    runnerAndConfigurationSettings.setEditBeforeRun(true);
-                    executor = DefaultDebugExecutor.getDebugExecutorInstance();
-                } else {
-                    executor = DefaultRunExecutor.getRunExecutorInstance();
-                }
+                fillRunConfigurationForSpecificationNode(runConfiguration, specificationNode);
 
-                ProgramRunnerUtil.executeConfiguration(project, runnerAndConfigurationSettings, executor);
+                Executor executor = debugMode ? DefaultDebugExecutor.getDebugExecutorInstance() : DefaultRunExecutor.getRunExecutorInstance();
+
+                runSpecification(executor, runnerAndConfigurationSettings);
             }
+        }
+    }
+
+    private void runSpecification(Executor executor, RunnerAndConfigurationSettings runnerAndConfigurationSettings) {
+        try {
+            ExecutionEnvironmentBuilder builder = ExecutionEnvironmentBuilder.create(executor, runnerAndConfigurationSettings);
+            ExecutionEnvironment environment = builder.build();
+            environment.getRunner().execute(environment);
+        } catch (ExecutionException e) {
+            LOG.error(e);
         }
     }
 
@@ -136,7 +143,7 @@ public class ExecuteDocumentAction extends AnAction {
         RepositoryViewUtils.setEnabledForExecutableNode(selectedNodes, actionEvent.getPresentation());
     }
 
-    private void fillRunConfiguration(@NotNull RemoteRunConfiguration runConfiguration, final SpecificationNode specificationNode) {
+    private void fillRunConfigurationForSpecificationNode(@NotNull final RemoteRunConfiguration runConfiguration, final SpecificationNode specificationNode) {
 
         ModuleNode moduleNode = RepositoryViewUtils.getModuleNode(specificationNode);
         runConfiguration.getAllModules().stream().filter(
@@ -155,6 +162,7 @@ public class ExecuteDocumentAction extends AnAction {
         runConfiguration.MAIN_CLASS_NAME = livingDocConnector.getLivingDocMainClass();
 
         runConfiguration.setStatusLine(toolWindowPanel.getStatusLine());
+        runConfiguration.setExecutionCounter(toolWindowPanel.getExecutionCounter());
         runConfiguration.setSelectedNode(specificationNode);
 
         runConfiguration.setShowConsoleOnStdOut(true);
@@ -170,5 +178,18 @@ public class ExecuteDocumentAction extends AnAction {
             }
         }
         runConfiguration.setProgramParameters(programParameter);
+    }
+
+    private void fillRunnerAndConfigurationSettings(@NotNull final RunnerAndConfigurationSettings runnerAndConfigurationSettings,
+                                                    final boolean debugMode, @NotNull final SpecificationNode specificationNode) {
+
+        runnerAndConfigurationSettings.setTemporary(false);
+
+        // True to active the "Run" ToolWindow
+        runnerAndConfigurationSettings.setActivateToolWindowBeforeRun(debugMode);
+
+        // True to show the "run configuration UI" before launching LivingDoc
+        runnerAndConfigurationSettings.setEditBeforeRun(debugMode);
+        runnerAndConfigurationSettings.setName(specificationNode.getNodeName());
     }
 }

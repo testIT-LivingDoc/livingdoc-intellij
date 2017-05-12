@@ -11,6 +11,7 @@ import com.intellij.util.xmlb.XmlSerializerUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.livingdoc.intellij.common.LivingDocVersion;
 
 /**
  * Service implementation for project service extension defined in <b>plugin.xml</b> with

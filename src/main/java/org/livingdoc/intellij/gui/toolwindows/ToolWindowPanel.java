@@ -18,7 +18,7 @@ import org.livingdoc.intellij.common.I18nSupport;
 import org.livingdoc.intellij.common.NodeType;
 import org.livingdoc.intellij.connector.LivingDocConnector;
 import org.livingdoc.intellij.domain.*;
-import org.livingdoc.intellij.gui.toolwindows.action.ExecuteDocumentAction;
+import org.livingdoc.intellij.gui.toolwindows.action.ExecuteSpecificationAction;
 import org.livingdoc.intellij.gui.toolwindows.action.OpenRemoteDocumentAction;
 import org.livingdoc.intellij.gui.toolwindows.action.SwitchVersionAction;
 import org.livingdoc.intellij.gui.toolwindows.action.TagImplementedAction;
@@ -50,6 +50,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
     private transient DefaultActionGroup actionGroup;
     private SimpleTree tree;
     private TestStatusLine statusLine;
+    private ExecutionCounter executionCounter;
     private transient AnAction refreshAction;
 
 
@@ -67,6 +68,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
         createRepositoryTree();
         createActionToolBar();
         createStatusLine();
+        createExecutionCounter();
 
         configureActions();
 
@@ -79,6 +81,19 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
 
     public TestStatusLine getStatusLine() {
         return this.statusLine;
+    }
+
+    public ExecutionCounter getExecutionCounter() {
+        return this.executionCounter;
+    }
+
+    public void resetExecutionCounter() {
+        executionCounter.setTotalErrors(0);
+        executionCounter.setFailuresCount(0);
+        executionCounter.setFinishedTestsCount(0);
+        executionCounter.setIgnoreTestsCount(0);
+        executionCounter.setStartTime(0);
+        executionCounter.setEndTime(0);
     }
 
     public AnAction getRefreshAction() {
@@ -102,8 +117,7 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
         tree.setCellRenderer(new TreeCellRendererLivingDoc());
         tree.setRootVisible(true);
 
-        // Basic functionality with single selection, desired multiple selection.
-        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        tree.getSelectionModel().setSelectionMode(TreeSelectionModel.DISCONTIGUOUS_TREE_SELECTION);
 
         treeModel = new DefaultTreeModel(rootNode, true);
         tree.setModel(treeModel);
@@ -124,6 +138,10 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
         statusLine.setText("");
         statusLine.setStatusColor(ColorProgressBar.GREEN);
         statusLine.setFraction(0d);
+    }
+
+    private void createExecutionCounter() {
+        executionCounter = new ExecutionCounter();
     }
 
     private void resetTree(Node newRootNode) {
@@ -173,10 +191,10 @@ public class ToolWindowPanel extends SimpleToolWindowPanel {
 
     private void createExecuteDocumentAction() {
 
-        actionGroup.add(new ExecuteDocumentAction(this, false));
+        actionGroup.add(new ExecuteSpecificationAction(this, false));
 
         // With debug mode
-        actionGroup.add(new ExecuteDocumentAction(this, true));
+        actionGroup.add(new ExecuteSpecificationAction(this, true));
     }
 
     private void createRefreshRepositoryAction() {

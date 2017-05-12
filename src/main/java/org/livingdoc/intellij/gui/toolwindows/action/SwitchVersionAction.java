@@ -66,19 +66,22 @@ public class SwitchVersionAction extends AnAction {
 
         DefaultMutableTreeNode[] nodes = repositoryTree.getSelectedNodes(DefaultMutableTreeNode.class, null);
 
-        Object userObject = nodes[0].getUserObject();
+        for (DefaultMutableTreeNode selectedNode : nodes) {
 
-        if (((Node) userObject).getType() == NodeType.SPECIFICATION) {
+            Object userObject = selectedNode.getUserObject();
 
-            SpecificationNode specificationNode = (SpecificationNode) userObject;
-            specificationNode.setUsingCurrentVersion(toCurrentVersion);
-            specificationNode.setIcon(RepositoryViewUtils.getNodeIcon(specificationNode));
-            repositoryTree.getSelectionModel().clearSelection();
+            if (((Node) userObject).getType() == NodeType.SPECIFICATION) {
+
+                SpecificationNode specificationNode = (SpecificationNode) userObject;
+                specificationNode.setUsingCurrentVersion(toCurrentVersion);
+                specificationNode.setIcon(RepositoryViewUtils.getNodeIcon(specificationNode));
+                repositoryTree.getSelectionModel().clearSelection();
+            }
         }
     }
 
     /**
-     * This action will be enabled only for executable nodes that can be implemented.
+     * This action will be enabled only for executable specificaton nodes that can be implemented.
      *
      * @param actionEvent Carries information on the invocation place
      */

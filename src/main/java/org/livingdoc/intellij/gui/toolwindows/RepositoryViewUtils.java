@@ -127,21 +127,28 @@ public class RepositoryViewUtils {
 
         setEnabledForExecutableNode(selectedNodes, presentation);
 
-        boolean enabled = presentation.isEnabled();
+        boolean currentEnabled = presentation.isEnabled();
 
-        if (enabled) {
+        if (!currentEnabled) {
+            return;
+        }
 
-            Object userObject = selectedNodes[0].getUserObject();
+        for (DefaultMutableTreeNode selectedNode : selectedNodes) {
+
+            Object userObject = selectedNode.getUserObject();
+
             if (userObject instanceof SpecificationNode) {
                 SpecificationNode specificationNode = (SpecificationNode) userObject;
-                enabled = specificationNode.isCanBeImplemented()
-                        && (specificationNode.isUsingCurrentVersion() ^ toCurrentVersion);
-            } else {
-                enabled = false;
-            }
 
-            presentation.setEnabled(enabled);
+                if (!(specificationNode.isCanBeImplemented()
+                        && (specificationNode.isUsingCurrentVersion() ^ toCurrentVersion))) {
+
+                    currentEnabled = false;
+                    break;
+                }
+            }
         }
+        presentation.setEnabled(currentEnabled);
     }
 
     /**
@@ -153,6 +160,7 @@ public class RepositoryViewUtils {
      * @see NodeType
      * @see DefaultMutableTreeNode
      */
+
     private static void setEnabledForNode(final DefaultMutableTreeNode[] selectedNodes, final Presentation presentation,
                                           final boolean executableCondition) {
 
@@ -161,20 +169,20 @@ public class RepositoryViewUtils {
             return;
         }
 
-        Object userObject = selectedNodes[0].getUserObject();
-        boolean enabled = ((Node) userObject).getType() == NodeType.SPECIFICATION;
+        boolean currentEnabled = presentation.isEnabled();
 
-        if (enabled && executableCondition) {
+        for (DefaultMutableTreeNode selectedNode : selectedNodes) {
 
-            if (userObject instanceof SpecificationNode) {
+            Object userObject = selectedNode.getUserObject();
 
-                SpecificationNode specificationNode = (SpecificationNode) userObject;
-                enabled = specificationNode.isExecutable();
+            currentEnabled = ((Node) userObject).getType() == NodeType.SPECIFICATION;
 
-            } else {
-                enabled = false;
+            if (!currentEnabled || (executableCondition && !((SpecificationNode) userObject).isExecutable())) {
+                currentEnabled = false;
+                break;
             }
         }
-        presentation.setEnabled(enabled);
+
+        presentation.setEnabled(currentEnabled);
     }
 }

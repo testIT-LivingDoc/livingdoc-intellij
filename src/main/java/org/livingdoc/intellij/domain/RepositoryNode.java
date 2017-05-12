@@ -16,6 +16,12 @@ public class RepositoryNode extends Node {
     private String typeDocumentUrlFormat;
     private String baseRepositoryUtl;
 
+    /**
+     * Default constructor.
+     */
+    public RepositoryNode() {
+        // just for unit testing.
+    }
 
     public RepositoryNode(final String nodeName) {
         super(nodeName, AllIcons.Nodes.PpLibFolder, NodeType.REPOSITORY);
