@@ -40,7 +40,6 @@ public class TagImplementedAction extends AnAction {
 
     /**
      * Action handler.
-     * TODO NOTE: Basic functionality with single selection, desired multiple selection.
      *
      * @param anActionEvent Carries information on the invocation place
      */
