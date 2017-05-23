@@ -256,6 +256,10 @@ public class LegacyLivingDocConnectorImpl implements LivingDocConnector {
         specificationNode.setExecutable(childNode.isExecutable());
         specificationNode.setCanBeImplemented(childNode.isCanBeImplemented() && childNode.isExecutable());
         specificationNode.setIcon(RepositoryViewUtils.getNodeIcon(specificationNode));
+
+        if(specificationNode.isCanBeImplemented()) {
+            specificationNode.setUsingCurrentVersion(true);
+        }
         return specificationNode;
     }
 
