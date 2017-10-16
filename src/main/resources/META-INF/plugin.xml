@@ -1,5 +1,5 @@
-<idea-plugin version="2">
-    <id>org.livingdoc.intellij</id>
+<idea-plugin>
+    <id>info.novatec.testit.livingdoc.intellij</id>
     <name>testIT LivingDoc Intellij IDEA Plugin</name>
     <version>1.4-SNAPSHOT</version>
     <vendor email="livingdoc@novatec-gmbh.de" url="http://www.novatec-gmbh.de/en/">NovaTec Solutions GmbH</vendor>
@@ -15,6 +15,7 @@
     ]]></description>
 
     <change-notes><![CDATA[
+        v1.3.2 Bug fixes and support for LivingDoc 1.3.x
         v1.2.0 Compatibility with LivingDoc Core / Confluence v1.2.x<br>
         v1.0.0 Initial release. <br>
         Allows for the execution of testIT LivingDoc specificationName inside IntelliJ.
