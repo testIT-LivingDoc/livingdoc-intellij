@@ -1,5 +1,5 @@
 plugins {
-    id "org.jetbrains.intellij" version "0.2.17"
+    id "org.jetbrains.intellij" version "0.2.18"
 }
 
 apply plugin: 'org.jetbrains.intellij'
@@ -31,7 +31,7 @@ dependencies {
 }
 
 intellij {
-    version = 'IC-2016.3'
+    version = 'IC-2017.3.3'
     println "Building for IntelliJ version: ${version}"
 
     pluginName 'livingdoc-intellij-plugin'
