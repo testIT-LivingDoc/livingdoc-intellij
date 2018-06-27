@@ -31,7 +31,7 @@ dependencies {
 }
 
 intellij {
-    version = 'IC-2016.3'
+    version = 'IC-2018.1'
     println "Building for IntelliJ version: ${version}"
 
     pluginName 'livingdoc-intellij-plugin'
