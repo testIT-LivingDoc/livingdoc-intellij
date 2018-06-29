@@ -19,6 +19,7 @@ import org.livingdoc.intellij.domain.LivingDocException;
 import org.livingdoc.intellij.domain.ProjectSettings;
 import org.livingdoc.intellij.gui.GuiUtils;
 import org.livingdoc.intellij.gui.toolwindows.ToolWindowPanel;
+import org.springframework.web.client.RestClientException;
 
 import javax.swing.*;
 import java.awt.*;
@@ -146,6 +147,11 @@ public class ProjectSettingsEditor extends SettingsEditor<ProjectSettings> {
             infoLabel.setForeground(Color.RED);
             infoLabel.setIcon(AllIcons.General.Error);
             infoLabel.setText(lde.getMessage());
+        } catch (RestClientException rce) {
+            LOG.warn(rce);
+            infoLabel.setForeground(Color.RED);
+            infoLabel.setIcon(AllIcons.General.Error);
+            infoLabel.setText(I18nSupport.getValue("global.settings.button.test.ko") + "/" + rce.getMessage());
         }
     }
 
